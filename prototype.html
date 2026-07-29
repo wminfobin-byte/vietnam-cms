@@ -562,9 +562,9 @@ const VI_HTML={
 '3-10 구매완료 처리 <span class="b s-canc">신규 화면</span>':
  '3-10 Xử lý hoàn tất mua hàng <span class="b s-canc">Màn hình mới</span>',
 '<b>송장 + 입금이 모두 완료된 건</b>을 <b>구매완료</b>로 확정합니다. 구매완료가 되어야 비로소 중도해지(반품)가 가능합니다.':
- 'Xác nhận <b>các đơn đã hoàn tất cả vận đơn và nộp tiền</b> thành <b>hoàn tất mua hàng</b>. Chỉ khi đã hoàn tất mua hàng mới có thể chấm dứt giữa chừng (trả hàng).',
+ 'Xác nhận <b>các đơn đã hoàn tất cả vận đơn và nộp tiền</b> thành <b>hoàn tất mua hàng</b>. Chỉ khi đã hoàn tất mua hàng mới có thể chấm dứt trước hạn (trả hàng).',
 '<b>선납금 입금(3-9) + 송장 등록(4-6)</b>이 모두 완료되면 <b>자동 구매완료</b> 처리됩니다. 아래 목록은 두 조건이 충족됐으나 아직 구매완료 전인 건으로, <b>임의(수동) 구매완료</b>가 필요할 때 사용합니다. 구매완료가 되어야 1-2 고객관리에서 중도해지(상담창) 진행이 가능합니다.':
- 'Khi hoàn tất cả <b>nộp tiền trả trước (3-9) và đăng ký vận đơn (4-6)</b>, đơn sẽ được <b>tự động hoàn tất mua hàng</b>. Danh sách dưới đây là các đơn đã thỏa mãn cả hai điều kiện nhưng chưa hoàn tất mua hàng, dùng khi cần <b>hoàn tất mua hàng thủ công</b>. Chỉ khi đã hoàn tất mua hàng mới có thể tiến hành chấm dứt giữa chừng (cửa sổ tư vấn) tại 1-2 Quản lý khách hàng.',
+ 'Khi hoàn tất cả <b>nộp tiền trả trước (3-9) và đăng ký vận đơn (4-6)</b>, đơn sẽ được <b>tự động hoàn tất mua hàng</b>. Danh sách dưới đây là các đơn đã thỏa mãn cả hai điều kiện nhưng chưa hoàn tất mua hàng, dùng khi cần <b>hoàn tất mua hàng thủ công</b>. Chỉ khi đã hoàn tất mua hàng mới có thể tiến hành chấm dứt trước hạn (cửa sổ tư vấn) tại 1-2 Quản lý khách hàng.',
 
 /* ── 4-3 수동입고처리 ──────────────────────────────────────── */
 '기기반납 건의 <b>입고를 확인</b>합니다. (4-1 입고 / 5-2-1 입고업로드 리스트 / 4-3 수동입고처리에서 동일하게 반영) 권한: <b>물류 / 관리자</b>.':
@@ -576,7 +576,7 @@ const VI_HTML={
 '취소·기기반납·위약금 경로의 <b>환불을 최종 처리</b>합니다. 환불요청 → 환불승인(최종) 2단계. 권한: 환불요청=상담원/관리자, 환불승인=관리자/매니저.':
  '<b>Xử lý hoàn tiền lần cuối</b> cho các lộ trình hủy · trả lại thiết bị · phí phạt. Gồm 2 bước: yêu cầu hoàn tiền → phê duyệt hoàn tiền (cuối cùng). Quyền: yêu cầu hoàn tiền = Tư vấn viên/Quản trị viên, phê duyệt hoàn tiền = Quản trị viên/Quản lý.',
 '환불 파이프라인(취소접수 · 반품입고 · 위약금입금 · 환불요청)에 있는 건이 표시됩니다. 환불승인 시 종결 상태(취소 / 중도해지(기기반납) / 중도해지(위약금))로 마감되고, 위약금 경로는 ★컨텐츠 자동 사용중단됩니다.':
- 'Hiển thị các đơn đang nằm trong quy trình hoàn tiền (tiếp nhận hủy · đã nhập kho hàng trả · đã nộp phí phạt · yêu cầu hoàn tiền). Khi phê duyệt hoàn tiền, đơn sẽ được đóng ở trạng thái kết thúc (hủy / chấm dứt giữa chừng (trả thiết bị) / chấm dứt giữa chừng (phí phạt)), và với lộ trình phí phạt thì ★nội dung sẽ tự động bị ngừng sử dụng.',
+ 'Hiển thị các đơn đang nằm trong quy trình hoàn tiền (tiếp nhận hủy · đã nhập kho hàng trả · đã nộp phí phạt · yêu cầu hoàn tiền). Khi phê duyệt hoàn tiền, đơn sẽ được đóng ở trạng thái kết thúc (hủy / chấm dứt trước hạn (trả thiết bị) / chấm dứt trước hạn (phí phạt)), và với lộ trình phí phạt thì ★nội dung sẽ tự động bị ngừng sử dụng.',
 
 /* ── 3-11 가상계좌 업로드 ──────────────────────────────────── */
 '3-11 가상계좌 / 금액 양식 업로드 <span class="b s-canc">신규 화면</span>':
@@ -680,7 +680,7 @@ const VI_TEXT={
 '모든 버튼 노출. [반품취소] 접수, [환불승인]까지 가능.':
  'Hiển thị toàn bộ nút. Có thể tiếp nhận [Hủy trả hàng] và [Phê duyệt hoàn tiền].',
 '[중도해지 승인], [환불승인] 권한. (반품접수 후 승인 게이트)':
- 'Có quyền [Duyệt chấm dứt hợp đồng], [Phê duyệt hoàn tiền]. (Cổng phê duyệt sau khi tiếp nhận trả hàng)',
+ 'Có quyền [Duyệt chấm dứt], [Phê duyệt hoàn tiền]. (Cổng phê duyệt sau khi tiếp nhận trả hàng)',
 '위약금 미입금 건의 [위약금 협의·수정]만 처리.':
  'Chỉ xử lý [Thỏa thuận · chỉnh sửa phí phạt] cho các đơn chưa nộp phí phạt.',
 '위약금 협의 완료 건의 [위약금 입금]만 처리.':
@@ -730,15 +730,15 @@ const VI_TEXT={
 /* ── 상태값 · 데이터값 ─────────────────────────────────────── */
 '상담대기':'Đang chờ tư vấn','배송대기':'Đang chờ giao hàng','배송중':'Đang giao hàng',
 '구매완료':'Hoàn tất mua hàng','취소접수':'Tiếp nhận hủy','환불요청':'Yêu cầu hoàn tiền',
-'취소':'Hủy','중도해지':'Chấm dứt giữa chừng','입고대기':'Chờ nhập kho','반품입고':'Đã nhập kho hàng trả',
+'취소':'Hủy','중도해지':'Chấm dứt trước hạn','입고대기':'Chờ nhập kho','반품입고':'Đã nhập kho hàng trả',
 '위약금미입금':'Chưa nộp phí phạt','위약금협의':'Thỏa thuận phí phạt','위약금 협의':'Thỏa thuận phí phạt',
-'위약금입금':'Đã nộp phí phạt','중도해지(기기반납)':'Chấm dứt giữa chừng (trả thiết bị)',
-'중도해지(위약금)':'Chấm dứt giữa chừng (phí phạt)',
-'기기반납':'Trả lại thiết bị','위약금':'Phí phạt','할부':'Trả góp','구매':'Mua đứt',
+'위약금입금':'Đã nộp phí phạt','중도해지(기기반납)':'Chấm dứt trước hạn (trả thiết bị)',
+'중도해지(위약금)':'Chấm dứt trước hạn (phí phạt)',
+'기기반납':'Trả lại thiết bị','위약금':'Phí phạt','할부':'Trả góp','구매':'Trả thẳng',
 '할부금':'Tiền trả góp','선납금':'Tiền trả trước',
-'통화(1)':'Cuộc gọi (1)','구매_현금(COD)':'Mua_tiền mặt (COD)','할부_현금(COD)':'Trả góp_tiền mặt (COD)',
+'통화(1)':'Cuộc gọi (1)','구매_현금(COD)':'Trả thẳng_tiền mặt (COD)','할부_현금(COD)':'Trả góp_tiền mặt (COD)',
 '상담/구매확정':'Tư vấn/Xác nhận mua','없음':'Không có','렌탈':'Thuê','말일':'ngày cuối tháng','10일':'ngày 10',
-'계약중':'Đang hợp đồng','계약종료':'Kết thúc hợp đồng','미납':'Nợ quá hạn',
+'계약중':'Đang hiệu lực','계약종료':'Đã kết thúc','미납':'Nợ quá hạn',
 '가상계좌':'Tài khoản ảo','계좌이체':'Chuyển khoản','보임':'Hiển thị','숨김':'Ẩn',
 '남':'Nam','여':'Nữ','등록':'Đăng ký','미등록':'Chưa đăng ký','삭제':'Xóa',
 '매칭':'Đã khớp','미매칭':'Chưa khớp','입금완료':'Đã nộp tiền','미입금':'Chưa nộp tiền',
@@ -754,11 +754,11 @@ const VI_TEXT={
 
 /* ── 기능 버튼 · 공통 ──────────────────────────────────────── */
 '상담':'Tư vấn','계약서':'Hợp đồng','고객 관리':'Quản lý KH',
-'중도해지 승인':'Duyệt chấm dứt HĐ','반품취소':'Hủy trả hàng',
+'중도해지 승인':'Duyệt chấm dứt','반품취소':'Hủy trả hàng',
 '닫기':'Đóng','저장하기':'Lưu','목록으로':'Về danh sách','발송':'Gửi',
 '번호':'Số','제품':'Sản phẩm','결제':'Thanh toán','현재 상태':'Trạng thái hiện tại',
 '주문키':'mã đơn hàng','고객키':'mã khách hàng','송장번호':'mã vận đơn',
-'입금액(VND)':'số tiền nộp (VND)','경로':'Lộ trình','현재 고객상태':'Trạng thái khách hàng hiện tại',
+'입금액(VND)':'số tiền nộp (VND)','경로':'Hình thức','현재 고객상태':'Trạng thái khách hàng hiện tại',
 '처리':'Xử lý','구분':'Phân loại','전화번호':'số điện thoại','상태':'Trạng thái',
 '금액(VND)':'Số tiền (VND)','입금일':'ngày nộp tiền','내용':'Nội dung',
 '처리할 대상이 없습니다':'Không có đối tượng cần xử lý',
@@ -766,7 +766,7 @@ const VI_TEXT={
 '입금 미확인 건이 없습니다':'Không có đơn nào chưa xác nhận nộp tiền',
 '대상이 없습니다':'Không có đối tượng','환불 대상이 없습니다':'Không có đối tượng hoàn tiền',
 '미납자가 없습니다':'Không có khách nợ quá hạn',
-'조회된 입금 내역이 없습니다':'Không có lịch sử nộp tiền nào được tra cứu',
+'조회된 입금 내역이 없습니다':'Không tìm thấy lịch sử nộp tiền',
 '미납콜 대상이 없습니다':'Không có đối tượng gọi thu nợ',
 '개별/일괄 입금 내역 없음':'Không có lịch sử nộp tiền riêng lẻ/hàng loạt',
 '개별 등록 내역 없음':'Không có lịch sử đăng ký riêng lẻ',
@@ -808,7 +808,7 @@ const VI_TEXT={
 '미납SMS':'SMS nợ quá hạn',
 '회원 상세 정보':'Thông tin chi tiết hội viên','회원정보 복사':'Sao chép thông tin hội viên',
 '가상계좌발급':'Cấp tài khoản ảo','입금내역':'Lịch sử nộp tiền',
-'해지방어변경요청':'Yêu cầu thay đổi giữ chân khách hủy','정보변경요청':'Yêu cầu thay đổi thông tin',
+'해지방어변경요청':'Yêu cầu đổi phương án giữ chân khách','정보변경요청':'Yêu cầu thay đổi thông tin',
 '성별/생년월일':'Giới tính/Ngày sinh','이메일':'Email','신분증번호(CCCD)':'Số CCCD',
 '추심위임':'Ủy thác thu nợ','연체등록':'Đăng ký nợ quá hạn','입금은행':'Ngân hàng nộp tiền',
 '가상계좌번호':'Số tài khoản ảo','입금자명':'Tên người nộp tiền','회원주소':'Địa chỉ hội viên',
@@ -853,7 +853,7 @@ const VI_TEXT={
 '신규 등록':'Đăng ký mới','패키지명':'Tên gói','🔒 내부코드':'🔒 Mã nội bộ',
 '단말기':'Thiết bị','기본 컨텐츠(SW)':'Nội dung cơ bản (SW)','패키지 유형':'Loại gói',
 '상품가격(동)':'Giá sản phẩm (VND)','상품가격(VND)':'Giá sản phẩm (VND)',
-'렌탈창 노출':'Hiển thị ở màn hình thuê','예: 영어 패키지':'VD: Gói tiếng Anh','예: VN-EN04':'VD: VN-EN04',
+'렌탈창 노출':'Hiển thị ở màn hình cho thuê','예: 영어 패키지':'VD: Gói tiếng Anh','예: VN-EN04':'VD: VN-EN04',
 '(베트남 단일 단말기)':'(thiết bị duy nhất tại Việt Nam)',
 '※ 영어 4종(워드·토크·기초영어·처음영어) / 한국어 2종(기초한국어·실전한국어)':
  '※ 4 nội dung tiếng Anh (Word·Talk·Tiếng Anh cơ bản·Tiếng Anh nhập môn) / 2 nội dung tiếng Hàn (Tiếng Hàn cơ bản·Tiếng Hàn thực hành)',
@@ -872,7 +872,7 @@ const VI_TEXT={
 '기기 PW 발송 완료':'Đã gửi mật khẩu thiết bị',
 'PW ****(SMS 본문에만 표기)':'PW ****(chỉ hiển thị trong nội dung SMS)',
 '조회 결과 없음. 시리얼번호를 확인하세요.':'Không có kết quả tra cứu. Vui lòng kiểm tra số sê-ri.',
-'기기 PW 발송':'Gửi mật khẩu thiết bị','발송 (발신: 한국 번호)':'đã gửi (số gửi: số Hàn Quốc)',
+'기기 PW 발송':'Gửi mật khẩu thiết bị','발송 (발신: 한국 번호)':'đã gửi (đầu số gửi: Hàn Quốc)',
 '고객 상담':'Tư vấn khách hàng','고객리뷰':'Đánh giá khách hàng','(샘플)':'(mẫu)',
 '상담 상태':'Trạng thái tư vấn','(대분류 → 소분류 선택)':'(chọn nhóm lớn → nhóm nhỏ)',
 '위약금 산정':'Tính phí phạt','(할인 입력 시 최종 자동 계산)':'(nhập số tiền giảm sẽ tự động tính số cuối)',
@@ -888,7 +888,7 @@ const VI_TEXT={
 '상담 진행':'Đang tư vấn','상담 완료':'Hoàn tất tư vấn','통화예약':'Hẹn gọi lại',
 '취소접수 - 배송전취소':'Tiếp nhận hủy - Hủy trước khi giao hàng',
 '취소접수 - 배송후 수취거절':'Tiếp nhận hủy - Từ chối nhận sau khi giao hàng',
-'중도해지 (반품접수)':'Chấm dứt giữa chừng (tiếp nhận trả hàng)',
+'중도해지 (반품접수)':'Chấm dứt trước hạn (tiếp nhận trả hàng)',
 '반품방식 변경 (→위약금)':'Đổi hình thức trả hàng (→Phí phạt)',
 '반품방식 변경 (→기기반납)':'Đổi hình thức trả hàng (→Trả lại thiết bị)',
 '위약금 협의·수정':'Thỏa thuận · chỉnh sửa phí phạt','위약금 입금':'Nộp phí phạt',
@@ -905,7 +905,7 @@ const VI_TEXT={
 '패키지':'Gói','컨텐츠(SW)':'Nội dung (SW)',
 '※ 패키지명·가격만 노출. 내부코드는 관리자 엑셀에서만 확인됩니다.':
  '※ Chỉ hiển thị tên gói và giá. Mã nội bộ chỉ có thể xem trong Excel của quản trị viên.',
-'결제방식':'Phương thức thanh toán','구매(일시불)':'Mua đứt (một lần)',
+'결제방식':'Phương thức thanh toán','구매(일시불)':'Trả thẳng (một lần)',
 '할인금액(동)':'Số tiền giảm giá (VND)','결제금액(동)':'Số tiền thanh toán (VND)',
 '상품가격 − 할인금액':'Giá sản phẩm − số tiền giảm giá',
 '선납금(동)':'Tiền trả trước (VND)','선납금할인(동)':'Giảm giá tiền trả trước (VND)',
@@ -918,7 +918,7 @@ const VI_TEXT={
 'COD 접수':'Tiếp nhận COD','상품가격':'giá sản phẩm','결제금액':'số tiền thanh toán',
 
 /* ── 반품접수(중도해지) ────────────────────────────────────── */
-'📋 반품접수 (중도해지) — 한 화면':'📋 Tiếp nhận trả hàng (chấm dứt giữa chừng) — Một màn hình',
+'📋 반품접수 (중도해지) — 한 화면':'📋 Tiếp nhận trả hàng (chấm dứt trước hạn) — Một màn hình',
 '고객 · 계약 정보':'Thông tin khách hàng · hợp đồng',
 '계약번호(주문키)':'Số hợp đồng (mã đơn hàng)','계약일':'Ngày ký hợp đồng',
 '생년월일':'Ngày sinh','연락처':'Số liên hệ','주소':'Địa chỉ',
@@ -937,7 +937,7 @@ const VI_TEXT={
 '계약 정보 및 납부 현황':'Thông tin hợp đồng và tình trạng thanh toán',
 '월 납부액':'Tiền trả hàng tháng','잔여 회차':'Số kỳ còn lại','잔여 총액':'Tổng tiền còn lại','23회':'23 kỳ',
 '수거(반품) 방식':'Hình thức thu hồi (trả hàng)',
-'택배 회수 요청':'Yêu cầu chuyển phát thu hồi','고객 선불 발송':'Khách hàng tự gửi trả trước cước',
+'택배 회수 요청':'Yêu cầu bưu điện đến lấy hàng','고객 선불 발송':'Khách hàng tự gửi (đã trả cước)',
 '선택 요약':'Tóm tắt lựa chọn','구분:':'Phân loại:','반품방식:':'Hình thức trả hàng:',
 '수거방식:':'Hình thức thu hồi:','유효기간:':'Thời hạn hiệu lực:',
 '위약금 계산하기':'Tính phí phạt','위약금 다시 계산':'Tính lại phí phạt',
@@ -946,7 +946,7 @@ const VI_TEXT={
 '반품 방식:':'Hình thức trả hàng:',
 '위약금 산식: 기본위약금 0 (조정 가능)':'Công thức phí phạt: phí phạt cơ bản 0 (có thể điều chỉnh)',
 '산정금액(VND)':'Số tiền tính (VND)','조정(할인)':'Điều chỉnh (giảm)','최종금액(VND)':'Số tiền cuối (VND)',
-'비고':'Ghi chú','잔여 환급금':'Tiền hoàn lại còn lại','납부분 중 환급 대상':'Phần đã nộp thuộc diện hoàn lại',
+'비고':'Ghi chú','잔여 환급금':'Số tiền hoàn còn lại','납부분 중 환급 대상':'Phần đã nộp thuộc diện hoàn lại',
 '미납 원금':'Gốc chưa thanh toán','미납 잔여 원금':'Gốc còn lại chưa thanh toán',
 '연체 가산금':'Tiền phạt chậm trả','미납금 연체':'Chậm trả khoản chưa thanh toán',
 '기본 위약금':'Phí phạt cơ bản','계약 조건상 위약금':'Phí phạt theo điều kiện hợp đồng',
@@ -960,7 +960,7 @@ const VI_TEXT={
 '사은품 개봉 시 비용 청구 안내':'Hướng dẫn thu phí khi đã mở quà tặng',
 '파손/훼손 수리비용 청구 안내':'Hướng dẫn thu phí sửa chữa khi hư hỏng/hao mòn',
 '맨 아래 [저장하기]를 누르면 고객상태가 [중도해지]로 접수됩니다. 이후 매니저의 [중도해지 승인]을 거쳐 다음 단계로 진행됩니다.':
- 'Khi nhấn [Lưu] ở dưới cùng, trạng thái khách hàng sẽ được tiếp nhận thành [Chấm dứt giữa chừng]. Sau đó quản lý [Duyệt chấm dứt hợp đồng] để chuyển sang bước tiếp theo.',
+ 'Khi nhấn [Lưu] ở dưới cùng, trạng thái khách hàng sẽ được tiếp nhận thành [Chấm dứt trước hạn]. Sau đó quản lý [Duyệt chấm dứt] để chuyển sang bước tiếp theo.',
 '다음 단계:':'Bước tiếp theo:',
 '입고대기 (4-1/5-2-1/4-3 입고)':'Chờ nhập kho (nhập kho 4-1/5-2-1/4-3)',
 '위약금 미입금 (상담창 협의·입금)':'Chưa nộp phí phạt (thỏa thuận · nộp tiền tại cửa sổ tư vấn)',
@@ -981,7 +981,7 @@ const VI_TEXT={
 '상품가격 – 선납금 – 선납금할인':'Giá sản phẩm – tiền trả trước – giảm giá tiền trả trước',
 '할부원금 / 할부개월':'Gốc trả góp / số tháng trả góp',
 '계약서 미리보기':'Xem trước hợp đồng','할부 계약서':'Hợp đồng trả góp',
-'구매(일시불) 계약서':'Hợp đồng mua đứt (một lần)','🖨 계약서 출력 (PDF)':'🖨 In hợp đồng (PDF)',
+'구매(일시불) 계약서':'Hợp đồng trả thẳng','🖨 계약서 출력 (PDF)':'🖨 In hợp đồng (PDF)',
 '파일명:':'Tên tệp:',
 
 /* ── 15-2-2 DB 재분배 ──────────────────────────────────────── */
@@ -1017,7 +1017,7 @@ const VI_TEXT={
 '통합이력 조회 (기존 기능)':'Tra cứu lịch sử tổng hợp (chức năng hiện có)',
 'OB(아웃바운드) 조회':'Tra cứu OB (Outbound)','IB(인바운드) 조회':'Tra cứu IB (Inbound)',
 '가상계좌 발급 — 입금 전용 계좌 생성':'Cấp tài khoản ảo — tạo tài khoản chuyên dùng để nhận tiền',
-'입금내역 조회':'Tra cứu lịch sử nộp tiền','해지방어 변경요청':'Yêu cầu thay đổi giữ chân khách hủy',
+'입금내역 조회':'Tra cứu lịch sử nộp tiền','해지방어 변경요청':'Yêu cầu đổi phương án giữ chân khách',
 '출금예약 — 가상계좌 입금 예약 안내':'Đặt lịch rút tiền — hướng dẫn đặt lịch nộp tiền vào tài khoản ảo',
 '히스토리 작성':'Soạn lịch sử','선택된 건이 없습니다':'Chưa chọn mục nào',
 '송장번호를 입력한 행만 등록됩니다':'Chỉ những dòng đã nhập mã vận đơn mới được đăng ký',
@@ -1058,12 +1058,12 @@ const VI_TEXT={
 '미납총액(연체가산금 포함)':'Tổng nợ quá hạn (gồm tiền phạt chậm trả)','제품명':'Tên sản phẩm',
 '대표사은품':'Quà tặng tiêu biểu','결제등록일':'Ngày đăng ký thanh toán',
 '결제등록일(계약일)':'Ngày đăng ký thanh toán (ngày ký HĐ)','감면조정금액':'Số tiền miễn giảm điều chỉnh',
-'감면조정금':'Số tiền miễn giảm điều chỉnh','2회차내용증명':'Thông báo bảo đảm kỳ 2',
-'연체등록내용증명':'Thông báo bảo đảm đăng ký nợ quá hạn','추심등록':'Đăng ký thu nợ',
-'연체정보등록':'Đăng ký thông tin nợ quá hạn','개인회생':'Phục hồi cá nhân',
+'감면조정금':'Số tiền miễn giảm điều chỉnh','2회차내용증명':'Thư bảo đảm kỳ 2',
+'연체등록내용증명':'Thư bảo đảm đăng ký nợ quá hạn','추심등록':'Đăng ký thu nợ',
+'연체정보등록':'Đăng ký thông tin nợ quá hạn','개인회생':'Tái cơ cấu nợ cá nhân',
 '최근회수일':'Ngày thu hồi gần nhất','시효도과':'Hết thời hiệu','시효임박':'Sắp hết thời hiệu',
 '사고채권':'Nợ xấu','금지명령':'Lệnh cấm','브랜드명':'Tên thương hiệu','브랜드':'Thương hiệu',
-'고객번호':'Số khách hàng','사용대차 소유권이전':'Chuyển quyền sở hữu cho mượn'
+'고객번호':'Số khách hàng','사용대차 소유권이전':'Chuyển quyền sở hữu (cho mượn)'
 };
 
 /* 잔여 안전망 — 위 사전에 걸리지 않은 동적 조합 문자열용 (최소한만 유지) */
@@ -1183,7 +1183,7 @@ function setLang(v){
   document.documentElement.setAttribute('lang',v==='vi'?'vi':'ko');
   document.documentElement.setAttribute('data-lang',v);
   document.title = v==='vi'
-    ? 'Nguyên mẫu WM-CMS Việt Nam — Tương tác hủy · chấm dứt giữa chừng (trả hàng)'
+    ? 'Nguyên mẫu WM-CMS Việt Nam — Tương tác hủy · chấm dứt trước hạn (trả hàng)'
     : '베트남 WM-CMS 프로토타입 — 취소 · 중도해지(반품) 인터랙션';
   restoreTree(document.body);
   /* 어순이 다른 조합 문자열은 재렌더로 다시 만든다 */
@@ -1343,7 +1343,7 @@ function approveRefund(r){
   const fin = r.path==='취소' ? '취소' : (r.path==='기기반납'?'중도해지(기기반납)':'중도해지(위약금)');
   r.cust=fin; renderList();
   if(fin==='중도해지(위약금)') toast(L('환불승인 완료 → <b>중도해지(위약금)</b> · ★컨텐츠 자동 사용중단 실행',
-    'Đã phê duyệt hoàn tiền → <b>chấm dứt giữa chừng (phí phạt)</b> · tự động ngừng sử dụng ★nội dung'));
+    'Đã phê duyệt hoàn tiền → <b>chấm dứt trước hạn (phí phạt)</b> · tự động ngừng sử dụng ★nội dung'));
   else toast(L('환불승인 완료 → 종결 상태 <b>'+fin+'</b>',
     'Đã phê duyệt hoàn tiền → trạng thái kết thúc <b>'+fin+'</b>'));
 }
