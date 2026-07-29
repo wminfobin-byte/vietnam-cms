@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>베트남 WM-CMS 개발요청 화면설명서</title>
+<style>
+  :root{
+    --ink:#1f2933; --sub:#52606d; --line:#e4e7eb; --bg:#f6f7f9; --card:#fff;
+    --blue:#2c6fdb; --blue-bg:#eef3fb;
+    --amber:#a86400; --amber-bg:#fdf6e9;
+    --green:#1c7a52; --green-bg:#eef7f1;
+    --red:#c23b3b; --red-bg:#fbeeee; --gray:#9aa5b1;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.65;font-size:15px}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  .wrap{display:grid;grid-template-columns:240px 1fr;max-width:1240px;margin:0 auto}
+  nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;
+    padding:24px 16px;border-right:1px solid var(--line);background:#fff}
+  nav.toc h1{font-size:14px;margin:0 0 3px}
+  nav.toc .meta{font-size:11px;color:var(--gray);margin-bottom:18px}
+  nav.toc a{display:block;padding:5px 10px;border-radius:6px;color:var(--sub);
+    font-size:13px;margin-bottom:1px}
+  nav.toc a:hover{background:var(--bg);text-decoration:none}
+  nav.toc a.active{background:var(--blue-bg);color:var(--blue);font-weight:600}
+  nav.toc .grp{font-size:11px;color:var(--gray);letter-spacing:.03em;
+    margin:16px 0 5px 10px;font-weight:700}
+
+  main{padding:38px 46px 120px;min-width:0}
+
+  header.doc{margin-bottom:38px;padding-bottom:22px;border-bottom:2px solid var(--ink)}
+  header.doc .tag{display:inline-block;background:#eef1f5;color:var(--sub);font-size:12px;
+    font-weight:700;padding:3px 10px;border-radius:5px}
+  header.doc h1{font-size:26px;margin:14px 0 6px;letter-spacing:-.01em}
+  header.doc p.sub{margin:0;color:var(--sub);font-size:14px}
+  header.doc .info{display:flex;gap:26px;margin-top:18px;font-size:13px;color:var(--sub);flex-wrap:wrap}
+  header.doc .info b{color:var(--ink)}
+  .protobtn{display:inline-block;margin-top:18px;border:1px solid var(--blue);color:var(--blue);
+    padding:9px 16px;border-radius:7px;font-weight:600;font-size:13.5px}
+  .protobtn:hover{background:var(--blue);color:#fff;text-decoration:none}
+
+  section{margin-bottom:52px;scroll-margin-top:20px}
+  section>h2{font-size:20px;margin:0 0 6px;padding-bottom:9px;border-bottom:1px solid var(--line);
+    display:flex;align-items:baseline;gap:9px}
+  section>h2 .num{color:var(--blue);font-weight:800;font-size:15px}
+  section>.lead{color:var(--sub);margin:8px 0 20px}
+  h3{font-size:16px;margin:26px 0 8px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:20px 22px;margin-bottom:16px}
+
+  .spec{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:22px}
+  .spec .sphead{display:flex;align-items:center;gap:12px;padding:14px 20px;
+    background:#fafbfc;border-bottom:1px solid var(--line)}
+  .spec .sphead .pg{background:#eef1f5;color:var(--sub);font-size:12px;font-weight:700;
+    padding:3px 9px;border-radius:5px;white-space:nowrap}
+  .spec .sphead h3{margin:0;font-size:16px}
+  .spec .spbody{padding:18px 20px}
+  .purpose{color:var(--sub);font-size:14px;margin:0 0 14px}
+
+  .fig{margin:6px 0 4px}
+  .fig img{width:100%;border:1px solid var(--line);border-radius:7px;display:block}
+  .fig figcaption{font-size:12.5px;color:var(--sub);margin:6px 0 0}
+  .fig figcaption b{color:var(--ink)}
+
+  ol.req{padding-left:20px;margin:12px 0 0}
+  ol.req>li{padding:3px 0}
+  ol.req b{color:var(--ink)}
+  ul.plain{list-style:none;padding:0;margin:10px 0 0}
+  ul.plain>li{padding:5px 0 5px 14px;border-left:2px solid var(--line);
+    font-size:13.5px;margin-bottom:4px}
+  ul.plain>li b{color:var(--ink)}
+
+  .note{font-size:13px;color:var(--sub);background:#fafbfc;border:1px solid var(--line);
+    border-left:3px solid var(--gray);border-radius:0 6px 6px 0;padding:9px 13px;margin-top:14px}
+  .note.q{border-left-color:var(--amber);background:var(--amber-bg)}
+  .note.q b{color:var(--amber)}
+  .note.new{border-left-color:var(--red);background:var(--red-bg)}
+  .note.new b{color:var(--red)}
+  .note b{color:var(--ink)}
+
+  /* 🟥 개발요청 항목 강조 박스 (신규/개선 — '참고/기존' 설명과 구분) */
+  .spec.reqbox{border:2px solid var(--red);box-shadow:0 2px 12px rgba(194,59,59,.16)}
+  .spec.reqbox>.sphead{background:var(--red-bg);border-bottom-color:#eebcbc}
+  .spec.reqbox>.sphead::after{content:"● 개발요청";margin-left:auto;background:var(--red);color:#fff;
+    font-size:11px;font-weight:800;padding:3px 11px;border-radius:20px;white-space:nowrap;letter-spacing:.02em}
+
+  .vn{border-left:3px solid var(--green);background:var(--green-bg);border-radius:0 6px 6px 0;
+    padding:8px 13px;font-size:13px;margin:10px 0 0}
+  .vn b{color:var(--green)}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0}
+  th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+  th{background:#f3f5f8;font-weight:700;font-size:12.5px}
+  code{background:#eef1f5;padding:1px 6px;border-radius:4px;font-size:12.5px}
+
+  .pill{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:4px;white-space:nowrap}
+  .p-cust{background:var(--blue-bg);color:var(--blue)}
+  .p-cons{background:#f0eaff;color:#6a3fd0}
+  .p-role{background:var(--amber-bg);color:var(--amber)}
+  .tag-new{background:var(--red-bg);color:var(--red)}
+  .exp{display:inline-block;font-size:11.5px;font-weight:600;color:var(--amber);
+    background:var(--amber-bg);border:1px solid #e8d3a0;border-radius:4px;padding:0 6px;margin-left:3px;white-space:nowrap}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin:2px 0 14px;font-size:13px;color:var(--sub)}
+  .legend span{display:flex;align-items:center;gap:6px}
+
+  .flow{overflow-x:auto;padding:6px 0}
+  .frow{display:flex;align-items:center;flex-wrap:wrap}
+  .fbox{border:1.5px solid var(--line);border-radius:7px;padding:9px 13px;font-size:13px;font-weight:600;
+    text-align:center;min-width:92px;background:#fff;line-height:1.35}
+  .fbox small{display:block;font-weight:400;font-size:11px;color:var(--sub);margin-top:2px}
+  .f-done{border-color:#bcd3ec;background:#eef3fb}
+  .f-new{border-color:#e2b4b4;background:#fbeeee}
+  .f-end{border-color:transparent;border-radius:30px;background:#c23b3b;color:#fff}
+  .arr{color:var(--gray);font-size:17px;padding:0 7px;font-weight:700}
+  .col{display:flex;flex-direction:column;align-items:center}
+  .col .arr{transform:rotate(90deg);padding:3px 0}
+  .branchwrap{display:flex;gap:44px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+  .branch{flex:1;min-width:250px}
+  .branch .bt{text-align:center;font-weight:700;margin-bottom:9px;font-size:13.5px}
+
+  .toolbar{position:fixed;right:22px;bottom:22px;z-index:50}
+  .toolbar button{border:1px solid var(--line);background:#fff;color:var(--ink);
+    padding:9px 15px;border-radius:22px;font-size:13px;font-weight:600;cursor:pointer;
+    box-shadow:0 2px 8px rgba(0,0,0,.1)}
+  .toolbar button:hover{background:var(--ink);color:#fff}
+
+  @media print{
+    nav.toc,.toolbar,.protobtn{display:none}
+    .wrap{grid-template-columns:1fr}
+    main{padding:0}
+    section{page-break-inside:avoid}
+    body{background:#fff;font-size:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="toc" id="toc">
+    <h1>베트남 WM-CMS 화면설명서</h1>
+    <div class="meta">취소·중도해지 + 수금·미납 + 개선요청</div>
+    <div class="grp">개요</div>
+    <a href="#scope">0. 개발 범위</a>
+    <a href="#flow">1. 전체 흐름</a>
+    <a href="#status">2. 상태 · 권한 정의</a>
+    <div class="grp">취소 · 중도해지</div>
+    <a href="#s-cancel">3. 취소접수</a>
+    <a href="#s-refund">4. 환불요청 · 환불승인</a>
+    <a href="#s-complete">5. 구매완료 처리</a>
+    <a href="#s-term">6. 중도해지 접수 · 반품취소 버튼</a>
+    <a href="#s-template">7. 국내 반품접수창 (참고 템플릿)</a>
+    <a href="#s-switch">8. 반품방식 선택 · 전환</a>
+    <a href="#s-device">9. 기기반납 처리</a>
+    <a href="#s-penalty">10. 위약금결제 처리</a>
+    <a href="#s-upload">11. 가상계좌 양식 업로드</a>
+    <a href="#s-perm">12. 권한 매핑</a>
+    <div class="grp">수금 · 미납</div>
+    <a href="#s-members">13. 17-1 회원현황</a>
+    <a href="#s-report">14. 17-6 미납자 · 입금현황 리포트</a>
+    <a href="#s-overdue">15. 18-2 미납콜 상담</a>
+    <div class="grp">개선 요청</div>
+    <a href="#s-pkg">16. 1-34 패키지 구성 관리</a>
+    <a href="#s-redist">17. 15-2-2 DB 재분배 관리</a>
+    <div class="grp">접수 · 계약서</div>
+    <a href="#s-intake">18. 1-2 접수창 개선 · 항목 추가</a>
+    <a href="#s-cod">19. 1-2 COD 접수창 — 할부 전환</a>
+    <a href="#s-contract">20. 계약서 출력 · 양식 매핑</a>
+    <div class="grp">기기 관리</div>
+    <a href="#s-devicepw">21. 상담창 기기 PW 발송</a>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <span class="tag">개발요청 · 베트남 WM-CMS</span>
+      <h1>베트남 WM-CMS 개발요청 화면설명서</h1>
+      <p class="sub">취소 · 중도해지(반품) 흐름 + 수금 · 미납 관리 + 패키지 구성 · DB 재분배 개선 요청.</p>
+      <div class="info">
+        <span>작성 <b>세일즈마케팅실 정보빈</b></span>
+        <span>버전 <b>v0.3</b></span>
+        <span>기준일 <b>2026-07-23</b></span>
+      </div>
+      <a class="protobtn" href="prototype.html">클릭형 프로토타입 보기 →</a>
+    </header>
+
+    <!-- 0. 범위 -->
+    <section id="scope">
+      <h2><span class="num">0</span> 개발 범위</h2>
+      <p class="lead">대상 시스템: 베트남 CMS <code>wm-vn.wcomms.kr/cms_wm</code> (메뉴 구성: 1 관리자 / 2 Out-Bound / 3 배송관리 / 15 DB 및 성과).</p>
+      <div class="card">
+        <table>
+          <tr><th style="width:110px">구분</th><th>범위</th><th style="width:70px">상태</th></tr>
+          <tr><td>① 취소</td><td>배송대기 · 배송중 단계의 취소접수 → 환불 → 취소완료 (배송전취소 / 배송후 수취거절)</td><td><span class="pill tag-new">신규</span></td></tr>
+          <tr><td>② 구매완료</td><td>입금 확인 건의 일괄 구매완료 처리 페이지 신설</td><td><span class="pill tag-new">신규</span></td></tr>
+          <tr><td>③ 중도해지</td><td>구매완료 이후 반품접수 — 기기반납 / 위약금결제 2개 경로 (국내 CMS 반품접수와 동일)</td><td><span class="pill tag-new">신규</span></td></tr>
+          <tr><td>④ 수금 · 미납</td><td>17-1 회원현황(납부·미납) + 개별 상세, 17-6 미납자·입금현황 리포트, 18-2 미납콜 상담</td><td><span class="pill tag-new">신규</span></td></tr>
+          <tr><td>⑤ 개선 요청</td><td>1-34 패키지 구성 관리(단말기·SW 등록), 15-2-2 DB회수 재분배 관리(지역·성과그룹)</td><td>개선</td></tr>
+          <tr><td>⑥ 접수 개선</td><td>1-2 접수창 주소 검색형 드롭다운, 접수 항목 추가(계약자명·결제방식·신분증·생년월일), COD 접수창 할부 금액행 전환</td><td>개선</td></tr>
+          <tr><td>⑦ 계약서</td><td>1-2 [계약서 출력] 버튼 + 계약서 PDF 자동 생성(구매/할부 2종) · 접수 입력값 매핑</td><td><span class="pill tag-new">신규</span></td></tr>
+        </table>
+        <div class="note">⑥ · ⑦은 <b>「베트남 CMS 개발요청 — 계약서 및 재콜」(2026-03-30)</b> 요청분을 본 문서에 통합한 것. ⑤의 1-34 · 15-2-2도 동일 문서 건.</div>
+      </div>
+    </section>
+
+    <!-- 1. 전체 흐름 -->
+    <section id="flow">
+      <h2><span class="num">1</span> 전체 흐름</h2>
+      <p class="lead">파랑 = 기존(개발 완료) · 빨강 = 신규 개발 대상 · 둥근 빨강 = 최종 상태값.</p>
+      <div class="card flow">
+        <div class="frow" style="margin-bottom:10px">
+          <div class="fbox">DB분배</div><span class="arr">→</span>
+          <div class="fbox">상담원 통화</div><span class="arr">→</span>
+          <div class="fbox">결제요청<small>일시불/할부</small></div><span class="arr">→</span>
+          <div class="fbox f-done">결제승인</div><span class="arr">→</span>
+          <div class="fbox f-done">배송대기</div><span class="arr">→</span>
+          <div class="fbox f-done">배송중</div><span class="arr">→</span>
+          <div class="fbox f-new">송장 업로드<small>물건 발송</small></div>
+          <span class="arr" style="transform:none">+</span>
+          <div class="fbox f-new">입금처리<small>입금 확인</small></div>
+          <span class="arr">→</span>
+          <div class="fbox f-new">구매완료<small>둘 다 완료 시</small></div>
+        </div>
+        <p style="margin:4px 0 0;font-size:12px;color:var(--sub)">구매완료 = 송장 업로드 + 입금처리 둘 다 완료. 구매완료가 되어야 [반품취소](중도해지) 진입 가능.</p>
+
+        <div class="branchwrap">
+          <div class="branch">
+            <div class="bt" style="color:var(--red)">① 취소 — 배송대기/배송중에서 분기</div>
+            <div class="col">
+              <div class="fbox f-new">취소접수<small>배송전취소 · 배송후 수취거절</small></div><span class="arr">→</span>
+              <div class="fbox f-new">환불요청<small>고객상태</small></div><span class="arr">→</span>
+              <div class="fbox f-new">환불승인</div><span class="arr">→</span>
+              <div class="fbox f-end">취소</div>
+            </div>
+          </div>
+
+          <div class="branch" style="min-width:560px;flex:2">
+            <div class="bt" style="color:var(--red)">③ 중도해지 — 구매완료에서 분기 (국내 CMS 반품접수와 동일)</div>
+            <div class="col" style="margin-bottom:6px">
+              <div class="fbox f-new">중도해지(반품접수)</div><span class="arr">→</span>
+              <div class="fbox f-new" style="border-radius:24px">반품 방식 선택</div>
+            </div>
+            <div class="branchwrap" style="gap:30px;margin-top:0">
+              <div class="branch" style="min-width:230px">
+                <div class="bt">기기반납</div>
+                <div class="col">
+                  <div class="fbox f-new">중도해지 승인<small>매니저</small></div><span class="arr">→</span>
+                  <div class="fbox f-new">입고대기</div><span class="arr">→</span>
+                  <div class="fbox f-new">반품입고</div><span class="arr">→</span>
+                  <div class="fbox f-new">환불요청<small>고객상태</small></div><span class="arr">→</span>
+                  <div class="fbox f-new">환불승인</div><span class="arr">→</span>
+                  <div class="fbox f-end">중도해지<br>(기기반납)</div>
+                </div>
+              </div>
+              <div class="branch" style="min-width:230px">
+                <div class="bt">위약금결제</div>
+                <div class="col">
+                  <div class="fbox f-new">중도해지 승인<small>매니저</small></div><span class="arr">→</span>
+                  <div class="fbox f-new">위약금 미입금<small>고객상태 추가</small></div><span class="arr">→</span>
+                  <div class="fbox f-new">위약금 협의·수정<small>미납담당자 · 상담상태</small></div><span class="arr">→</span>
+                  <div class="fbox f-new">위약금 입금<small>재무담당자 · 상담상태</small></div><span class="arr">→</span>
+                  <div class="fbox f-new">환불요청<small>고객상태</small></div><span class="arr">→</span>
+                  <div class="fbox f-new">환불승인</div><span class="arr">→</span>
+                  <div class="fbox f-end">중도해지(위약금)<br>+ 컨텐츠 자동중단</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>추가 규칙</h3>
+      <ul class="plain">
+        <li><b>반품취소 버튼 노출</b> — <code>[중도해지]</code>~<code>[환불요청]</code> 구간은 권한에 따라 1-2 DB 리스트에 <code>[반품취소]</code> 버튼 노출 필요. (버튼 의미는 6번 참조)</li>
+        <li><b>반품방식 전환</b> — 기기반납 · 위약금결제 선택 이후에도 고객 요청 시 두 방식을 서로 전환 가능해야 함. (8번)</li>
+        <li><b>양식 업로드</b> — 할부금 · 위약금은 가상계좌/금액 양식으로 업로드해 반영. 1차 수동, 이후 자동반영 확장 계획. (11번)</li>
+      </ul>
+    </section>
+
+    <!-- 2. 상태/권한 -->
+    <section id="status">
+      <h2><span class="num">2</span> 상태 · 권한 정의</h2>
+      <p class="lead">전체 화면의 기준축. 상태는 <b>고객상태</b>와 <b>상담상태</b> 두 종류로 나뉘며 단계별 처리 권한이 다름.</p>
+      <div class="legend">
+        <span><span class="pill p-cust">고객상태</span> 고객 단위 진행상태</span>
+        <span><span class="pill p-cons">상담상태</span> 상담/처리 진행상태</span>
+        <span><span class="pill p-role">권한</span> 처리 담당</span>
+      </div>
+      <div class="card">
+        <table>
+          <tr><th style="width:130px">단계</th><th style="width:100px">상태종류</th><th>상태값 (신규)</th><th style="width:130px">처리권한</th></tr>
+          <tr><td>송장 업로드 (4-6)</td><td><span class="pill p-cust">고객상태</span></td><td><code>배송중</code> — 송장 등록 = 물건 발송</td><td>매니저 / 관리자</td></tr>
+          <tr><td>입금처리 (3-9)</td><td>플래그</td><td>입금 여부 (고객상태 아님, 별도 플래그)</td><td>재무담당자 / 관리자</td></tr>
+          <tr><td>구매완료 (3-10)</td><td><span class="pill p-cust">고객상태</span></td><td><code>구매완료</code> = 송장(배송중) + 입금 둘 다 완료 후 → 중도해지 가능 시점</td><td>(3-10에서 처리)</td></tr>
+          <tr><td>취소접수</td><td><span class="pill p-cust">고객상태</span></td><td><code>취소접수</code> (구매완료 전까지만)</td><td>상담원</td></tr>
+          <tr><td>중도해지 접수</td><td><span class="pill p-cust">고객상태</span></td><td><code>중도해지</code></td><td>상담원</td></tr>
+          <tr><td>중도해지 승인</td><td>승인 액션</td><td>승인 처리</td><td><span class="pill p-role">매니저</span><span class="exp">타입 아웃바운드매니저</span></td></tr>
+          <tr><td>기기 입고대기</td><td><span class="pill p-cust">고객상태</span></td><td><code>입고대기</code></td><td>상담원</td></tr>
+          <tr><td>기기 반품입고</td><td><span class="pill p-cust">고객상태</span></td><td><code>반품입고</code></td><td>매니저 / 관리자</td></tr>
+          <tr><td>위약금 미입금</td><td><span class="pill p-cust">고객상태</span></td><td><code>위약금 미입금</code></td><td>시스템(자동)</td></tr>
+          <tr><td>위약금 협의·수정</td><td><span class="pill p-cons">상담상태</span></td><td><code>위약금 협의</code></td><td><span class="pill p-role">미납담당자</span><span class="exp">재무 · 아웃바운드(매니저)</span></td></tr>
+          <tr><td>위약금 입금</td><td><span class="pill p-cons">상담상태</span></td><td><code>위약금 입금</code></td><td><span class="pill p-role">재무담당자</span><span class="exp">재무 · 관리자</span></td></tr>
+          <tr><td>환불요청</td><td><span class="pill p-cust">고객상태</span></td><td><code>환불요청</code></td><td>상담원</td></tr>
+          <tr><td>환불승인 / 종료</td><td><span class="pill p-cust">고객상태</span></td><td><code>취소</code> / <code>중도해지(기기반납)</code> / <code>중도해지(위약금)</code></td><td>승인</td></tr>
+        </table>
+        <div class="note">베트남 CMS에는 <b>상담상태 · 고객상태가 이미 별도 컬럼으로 존재</b>함. 현재 관측값 — 상담상태: <code>부재중</code> <code>통화</code> <code>통화예약</code> <code>구매_현금(COD)</code> <code>일반/결제</code> <code>상담/구매확정</code> / 고객상태: <code>상담렌탈대기</code> <code>배송대기</code> <code>배송중</code> <code>구매완료</code>. 위 신규 상태값을 여기에 추가.</div>
+      </div>
+
+      <h3>권한(유저타입) — 기존 팀·타입 조합으로 매핑</h3>
+      <p class="lead">1-3 사용자관리의 권한은 <b>팀</b>(관리 · 재무 · 1팀…)과 <b>타입</b>(관리자 · 아웃바운드 · 아웃바운드매니저) 2축. 신규 흐름의 역할은 <b>모두 기존 팀·타입 조합으로 표현 가능</b>하므로 별도 타입 신설 불필요.</p>
+      <div class="card">
+        <table>
+          <tr><th style="width:120px">역할</th><th style="width:80px">팀</th><th style="width:180px">타입</th><th>비고</th></tr>
+          <tr><td><span class="pill p-role">매니저</span></td><td>무관</td><td>아웃바운드매니저</td><td>중도해지·전환 승인, [반품취소] 노출</td></tr>
+          <tr><td rowspan="2"><span class="pill p-role">미납담당자</span></td><td>재무</td><td>아웃바운드</td><td rowspan="2">통화 때문에 1인 2계정 사용</td></tr>
+          <tr><td>재무</td><td>아웃바운드매니저</td></tr>
+          <tr><td><span class="pill p-role">재무담당자</span></td><td>재무</td><td>관리자</td><td>입금처리 · 위약금 입금 · 양식 업로드</td></tr>
+          <tr><td><span class="pill p-role">관리자</span></td><td>관리</td><td>관리자</td><td>전체 메뉴 노출 (최상위) · 구매완료 확정 · 환불승인 등</td></tr>
+          <tr><td>상담원(기본 OB)</td><td>무관</td><td>아웃바운드</td><td>취소접수 · 중도해지 접수 · 환불요청 등</td></tr>
+        </table>
+        <div class="note">화면 요소별 노출 조건은 <a href="#s-perm">12. 권한 매핑</a> 참조.</div>
+      </div>
+    </section>
+
+    <!-- 3. 취소접수 -->
+    <section id="s-cancel">
+      <h2><span class="num">3</span> 취소접수</h2>
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">1-2 고객상담 &gt; [상담]</span><h3>취소접수 (배송 전/후)</h3></div>
+        <div class="spbody">
+          <p class="purpose">배송대기 · 배송중 상태의 건을 상담원이 취소접수로 전환. 배송전취소와 배송후 수취거절을 동일하게 처리.</p>
+          <div class="fig">
+            <img src="%EB%B2%A0%ED%8A%B8%EB%82%A8%20%EC%83%81%EB%8B%B4%EC%B0%BD.png" alt="베트남 상담창 (OB CALL 관리)" />
+            <figcaption><b>현재 베트남 상담창 (OB CALL 관리)</b> — 상단 행에 상담상태 <code>구매_현금(COD)</code> · 고객상태 <code>배송중</code> 표시, 하단에 상담상태 선택 + 상담내용 + [저장하기].</figcaption>
+          </div>
+
+          <p class="purpose" style="margin-top:16px">취소접수뿐 아니라 <b>중도해지 · 반품방식 변경 · 위약금 협의/입금</b> 등 반품 관련 처리는 모두 <b>상담창의 상담상태 선택(대분류→소분류) + 이력 작성</b> 방식으로 처리 (국내 CMS 동일). 아래는 국내 상담상태 선택 화면.</p>
+          <div class="fig">
+            <img src="%EA%B5%AD%EB%82%B4%20CMS%20%EA%B3%A0%EA%B0%9D%EC%83%81%EB%8B%B4%EC%B0%BD%20%EC%83%81%EB%8B%B4%EC%83%81%ED%83%9C%20%EC%84%A0%ED%83%9D.png" alt="국내 CMS 상담상태 선택" />
+            <figcaption><b>국내 CMS 상담상태 선택</b> — 상담 상태 2단 리스트: 대분류(일반/해지방어/<b>반품</b>/교환/ACC&amp;사은품/학습케어) → 소분류(예: 반품상담_카드). 베트남도 동일 방식으로 선택·내용을 이력에 기록.</figcaption>
+          </div>
+
+          <ul class="plain">
+            <li>대분류 <code>반품</code> 선택 시 소분류로 상황별 처리 노출: <code>취소접수(배송전/수취거절)</code> · <code>중도해지(반품접수)</code> · <code>반품방식 변경</code> · <code>위약금 협의·수정</code> · <code>위약금 입금</code>.</li>
+            <li>소분류는 <b>현재 고객상태 + 로그인 사용자의 (팀, 타입)</b>에 따라 가능한 것만 노출 — 예: 위약금 협의=미납담당자<span class="exp">재무 · 아웃바운드(매니저)</span>, 위약금 입금=재무담당자<span class="exp">재무 · 관리자</span>. 전체 조건은 <a href="#s-perm">12번</a> 참조.</li>
+            <li>저장 시 상담 이력에 누적 기록 (일시 · 담당자 · 대분류&gt;소분류 · 내용).</li>
+          </ul>
+          <ol class="req">
+            <li><b>취소접수</b> — 고객상태 <code>배송대기</code>/<code>배송중</code> 건에서 상담상태 <code>반품 &gt; 취소접수(배송전취소 / 배송후 수취거절)</code> 선택 → 고객상태 <code>취소접수</code> + 이력.</li>
+            <li>이후 <b>3-6 환불</b>에서 환불요청 → 환불승인 → <code>취소</code>로 종결.</li>
+          </ol>
+          <div class="note"><b>상태전이</b> <code>배송대기/배송중</code> → <code>취소접수</code> → <code>환불요청</code> → <code>환불승인</code> → <code>취소</code></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 환불 -->
+    <section id="s-refund">
+      <h2><span class="num">4</span> 환불요청 · 환불승인</h2>
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">3-6 환불</span><h3>환불요청 → 환불승인 (취소 · 중도해지 공통 마무리)</h3></div>
+        <div class="spbody">
+          <p class="purpose">취소 · 기기반납 · 위약금결제 3개 경로가 모두 <b>3-6 환불</b> 메뉴에서 환불요청 → 환불승인(최종)으로 종결. (1-2 고객관리 컬럼이 아니라 3-6에서 처리)</p>
+          <div class="note">참고 화면 — <a href="#s-template">7. 국내 반품접수창 STEP 3 (결제 및 환불 수단)</a>의 환불(계좌) 탭.</div>
+          <ol class="req">
+            <li>이전 단계 완료 시 고객상태를 <code>환불요청</code>으로 전환 (상담원).</li>
+            <li>승인권자<span class="exp">팀 관리 · 타입 관리자</span>가 [환불승인] 시 경로별 최종 상태로 종결 — 취소 → <code>취소</code>, 기기반납 → <code>중도해지(기기반납)</code>, 위약금 → <code>중도해지(위약금)</code>.</li>
+            <li>위약금 경로 종결 시 <b>컨텐츠 자동 사용중단</b> 트리거 발생.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 구매완료 -->
+    <section id="s-complete">
+      <h2><span class="num">5</span> 구매완료 처리 — 송장 업로드 / 입금처리</h2>
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">신규 페이지</span><h3>구매완료 = ① 송장 업로드 + ② 입금처리</h3></div>
+        <div class="spbody">
+          <p class="purpose">구매완료는 ① 송장 업로드(물건 발송)와 ② 입금처리(입금 확인)가 <b>모두 완료</b>되어야 성립. 둘 다 완료되면 <code>구매완료</code>가 되고, 그 시점부터 중도해지(반품) 가능.</p>
+          <div class="note new"><b>현재 화면 없음 — 신규 개발</b> 송장 업로드 · 입금처리 화면이 베트남 CMS에 존재하지 않음.</div>
+          <ol class="req">
+            <li><b>① 송장 업로드 (4-6)</b> — 송장 미등록 건 목록 → 다중 선택 → [선택 건 송장 업로드] (또는 행별 송장번호 입력). 처리 시 물건 발송 완료로 표시. 노출: 매니저 · 관리자<span class="exp">아웃바운드매니저 / 관리 · 관리자</span>.</li>
+            <li><b>② 입금처리 (3-9)</b> — 입금 미확인 건 목록 → 다중 선택 → [선택 건 입금처리]. 가상계좌 업로드 양식(<a href="#s-upload">11번</a>)과 연계 가능. 노출: 재무담당자<span class="exp">재무 · 관리자</span>.</li>
+            <li><b>③ 구매완료 처리 (3-10)</b> — 송장(배송중) + 입금이 모두 완료된 건을 확정 → 고객상태 <code>구매완료</code>. 이때부터 중도해지(상담창) 진행 가능. 노출: 관리자<span class="exp">관리 · 관리자</span>.</li>
+          </ol>
+          <div class="note">①②는 <b>처리 순서 무관(독립)</b>. 고객상태는 <code>배송대기 → 배송중(송장) → 구매완료(3-10)</code>만 사용하고, <b>입금은 고객상태가 아니라 별도 플래그로 관리</b>함. (구매대기·입금완료 같은 별도 상태값 없음)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. 중도해지 접수 -->
+    <section id="s-term">
+      <h2><span class="num">6</span> 중도해지 접수 · 반품취소 버튼</h2>
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">1-2 DB 리스트</span><h3>중도해지 접수 + [반품취소] 버튼 노출</h3></div>
+        <div class="spbody">
+          <p class="purpose">구매완료 건을 중도해지(반품접수)로 전환. 국내 CMS 반품접수와 동일하며 위약금 확인이 가능해야 함.</p>
+          <div class="fig">
+            <img src="%EB%B2%A0%ED%8A%B8%EB%82%A8%20CMS%20DB%20%EB%A6%AC%EC%8A%A4%ED%8A%B8.png" alt="베트남 CMS DB 리스트" />
+            <figcaption><b>현재 베트남 CMS DB 리스트</b> — 상담상태 · 고객상태가 이미 별도 컬럼으로 존재. 기능 컬럼은 현재 [상담][고객 관리]뿐 → 여기에 <b>[반품취소]</b> 추가.</figcaption>
+          </div>
+          <ul class="plain">
+            <li>관측 컬럼: 번호 · 꼬리표 · OB명 · 분배일 · 유입일 · 고객명 · 전화번호 · 언어 · 매체그룹명 · 통화시간 · 오더일 · 접수제품 · <b>상담상태</b> · <b>고객상태</b> · 관리타입 · 관리콜1 · 2차 · 기능.</li>
+            <li>기능 컬럼: 현재 [상담] · [고객 관리]만 있음.</li>
+          </ul>
+
+          <div class="note"><b>용어 주의 — [반품취소] = 반품 철회</b> 이 버튼은 "반품을 시작"하는 버튼이 <b>아님</b>. 중도해지 접수까지 진행한 건에서 고객이 "그냥 사용하겠다"고 할 때 <b>반품을 철회해 다시 <code>구매완료</code>로 되돌리는</b> 버튼임.</div>
+
+          <ol class="req">
+            <li><b>중도해지(반품접수) 시작</b>은 <b>상담창에서 선택</b> — 상담상태 <code>반품</code> 대분류 &gt; <code>중도해지(반품접수)</code> 소분류 선택(<a href="#s-cancel">3번 상담창</a> 방식). 선택 시 <a href="#s-template">반품접수창(7번, 국내 동일)</a> 진행.</li>
+            <li><b>[반품취소] 버튼(철회)</b>은 진행 중인 <code>중도해지</code>~<code>환불요청</code> 구간에 노출<span class="exp">팀 무관 · 타입 아웃바운드매니저</span> — 매니저 계정에만 표시. 클릭 시 확인 후 <code>구매완료</code>로 복귀(이력 기록).</li>
+            <li>고객상태 컬럼에 진행상태 표시: <code>중도해지</code> · <code>입고대기</code> · <code>반품입고</code> · <code>위약금 미입금</code> · <code>위약금 협의</code> · <code>위약금 입금</code> · <code>환불요청</code> 등.</li>
+          </ol>
+          <div class="note"><b>처리 위치</b> 반품입고 = 4-1 입고 / 5-2-1 입고업로드 / 4-3 수동입고처리, 환불 최종처리 = 3-6 환불에서 진행. 따라서 1-2 기능 컬럼에는 [상담] · [중도해지 승인] · [반품취소(철회)] · [고객 관리]만 둠.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. 국내 반품접수창 -->
+    <section id="s-template">
+      <h2><span class="num">7</span> 국내 CMS 반품접수창 (참고 템플릿)</h2>
+      <p class="lead">"국내 CMS 반품접수와 동일"의 실제 기준 화면. 국내 접수창은 위저드가 아니라 <b>하나의 긴 스크롤 페이지</b>이며(아래 4장은 길어서 잘라 캡쳐), 위→아래로 ①접수조건 → ②위약금 정산 → ③결제·환불 → ④상담내용을 한 화면에서 작성·저장.
+        <b>베트남은 청약철회/계약해지 구분이 없고 위약금결제 · 기기반납 2가지만</b> 있음. 아래 초록 박스가 베트남 적용 포인트.</p>
+
+      <div class="spec">
+        <div class="sphead"><span class="pg">참고</span><h3>국내 반품접수창 — 한 페이지 (4개 영역)</h3></div>
+        <div class="spbody">
+
+          <h3 style="margin-top:8px">① 접수 조건 · 위약금 산정 기준 <span style="font-weight:400;color:var(--gray);font-size:13px">— 반품접수창 上</span></h3>
+          <div class="fig">
+            <img src="%EA%B5%AD%EB%82%B4%20CMS%20%EB%B0%98%ED%92%88%20%EC%A0%91%EC%88%98%EC%B0%BD1.png" alt="국내 반품접수창 1" />
+            <figcaption>위약금 산정 기준일 · 해지형태 · 계약/납부 현황 · 사은품 정산 · 수거방식</figcaption>
+          </div>
+          <ul class="plain">
+            <li><b>위약금 산정 기준일</b> — 날짜 + [오늘로 설정하기]. 이 날짜 기준으로 위약금 · 환불 계산(고객 합의일 입력).</li>
+            <li><b>해지 형태</b>(국내) — 청약철회 / 중도해지.</li>
+            <li><b>계약 정보 및 납부 현황</b> — 월 납부액 · 잔여 회차 · 잔여 총액 · 계약일 · 이용권 발행일 · 요청일.</li>
+            <li><b>사은품 및 비용 정산</b> — 품목/수량/처리상태([미개봉][개봉])/정가/청구율/경과일수/청구액/조정(할인)/최종금액/수거여부.</li>
+            <li><b>수거(반품) 방식</b> — 택배 회수 요청 / 고객 선불 발송 → [위약금 계산하기].</li>
+          </ul>
+          <div class="vn"><b>베트남 적용</b> — 청약철회/계약해지 구분 없음. 페이지 상단에서 <b>반품방식(위약금결제 / 기기반납)</b>을 먼저 선택. 운송비는 기기반납일 때만 부과. '돈버는학습' 등 국내 전용 항목 제외.</div>
+
+          <h3>② 위약금 및 비용 정산 (계산 결과) <span style="font-weight:400;color:var(--gray);font-size:13px">— 반품접수창 中</span></h3>
+          <div class="fig">
+            <img src="%EA%B5%AD%EB%82%B4%20CMS%20%EB%B0%98%ED%92%88%20%EC%A0%91%EC%88%98%EC%B0%BD2.png" alt="국내 반품접수창 2" />
+            <figcaption>위약금 산식 + 항목별 산정/조정/최종금액 + 정산 내역 설명</figcaption>
+          </div>
+          <ul class="plain">
+            <li><b>위약금 산식</b> — 예: "0원 (중도해지 30일 이내, 기본위약금 없음)"처럼 적용 규칙 자동 표기.</li>
+            <li><b>항목</b> — 1회차 할인금액 / 면제 환급금 / 미납원금 / 연체가산금 / 기본 위약금 / 돈버는 학습 반환금 / 운송비. 각 산정금액 · 조정(할인) · 최종금액.</li>
+          </ul>
+          <div class="vn"><b>베트남 적용</b> — 항목 구성을 베트남 위약금 정책에 맞춰 재정의 필요. 잔여 할부금 / 면제 환급 / 운송비가 핵심. 금액 단위 동(VND) 표기.</div>
+
+          <h3>③ 결제 및 환불 수단 <span style="font-weight:400;color:var(--gray);font-size:13px">— 반품접수창 下</span></h3>
+          <div class="fig">
+            <img src="%EA%B5%AD%EB%82%B4%20CMS%20%EB%B0%98%ED%92%88%20%EC%A0%91%EC%88%98%EC%B0%BD3.png" alt="국내 반품접수창 3" />
+            <figcaption>위약금 최종 청구액 + 기존 승인내역 + 청구/환불 수단 탭 + 안내 체크리스트</figcaption>
+          </div>
+          <ul class="plain">
+            <li><b>위약금 최종 청구액</b> — 상단 강조(예: 104,900원).</li>
+            <li><b>기존 승인 내역</b> — 무통장 입금자명 / 결제금액 / 카드사 · 카드번호 · 유효기간 / 할부 / 결제방법.</li>
+            <li><b>수단 탭</b> — [청구(카드)] / [청구(계좌)] / [환불(계좌)]. '수금관리 카드정보 사용' 버튼.</li>
+            <li><b>안내 체크리스트</b> — 반품 택배비 / 사은품 개봉 비용 / 파손 · 훼손 수리비용 안내 확인.</li>
+          </ul>
+          <div class="vn"><b>베트남 적용</b> — 위약금 입금(재무담당자) · 환불(계좌)이 여기서 처리. 가상계좌/금액 양식 업로드(11번)와 연계. 베트남 결제수단(카드/계좌)에 맞게 탭 구성.</div>
+
+          <h3>④ 상담내용 확인 · 저장 <span style="font-weight:400;color:var(--gray);font-size:13px">— 최종</span></h3>
+          <div class="fig">
+            <img src="%EA%B5%AD%EB%82%B4%20CMS%20%EB%B0%98%ED%92%88%20%EC%A0%91%EC%88%98%EC%B0%BD4.png" alt="국내 반품접수창 4" />
+            <figcaption>상담내용 확인(선택값 불러옴) → [저장하기] / [닫기]</figcaption>
+          </div>
+          <ul class="plain">
+            <li>이름/전화번호 · 기기/사은품 개봉여부 · 위약금 · 위약금 결제방법 및 할부개월 · 픽업유무 요약.</li>
+            <li>[저장하기] 시 상담이력 기록 + 고객상태 전환.</li>
+          </ul>
+          <div class="vn"><b>베트남 적용</b> — 저장 시 고객상태(<code>중도해지</code>/<code>입고대기</code>/<code>위약금 미입금</code> 등) 전환 + 1-2 리스트 진행상태 컬럼 갱신.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. 반품방식 -->
+    <section id="s-switch">
+      <h2><span class="num">8</span> 반품방식 선택 · 전환</h2>
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">반품접수 창</span><h3>기기반납 / 위약금결제 선택 및 상호 전환</h3></div>
+        <div class="spbody">
+          <p class="purpose">중도해지 접수 후 반품 방식을 선택. 선택 이후에도 고객 요청 시 상호 전환이 가능해야 함.</p>
+          <div class="note">참고 화면 — <a href="#s-template">7. 국내 반품접수창 ①</a>의 수거(반품) 방식 설정(택배회수=기기반납 / 위약금 계산=위약금결제).</div>
+          <ol class="req">
+            <li>반품방식 선택 — <b>기기반납</b>(9번) 또는 <b>위약금결제</b>(10번).</li>
+            <li>승인 전 · 진행 중 <b>방식 전환 버튼</b> 제공. 노출: 매니저<span class="exp">팀 무관 · 타입 아웃바운드매니저</span>.</li>
+            <li>중도해지 승인도 매니저<span class="exp">타입 아웃바운드매니저</span>에서만 가능.</li>
+          </ol>
+          <div class="note q"><b>협의 필요</b> 전환 허용 시점(승인 전까지만 vs 진행 중 언제든)과 이미 입력된 위약금/입고 데이터 처리 정책.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. 기기반납 -->
+    <section id="s-device">
+      <h2><span class="num">9</span> 기기반납 처리</h2>
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">반품접수 창</span><h3>기기반납 (입고대기 → 반품입고)</h3></div>
+        <div class="spbody">
+          <p class="purpose">기기 회수를 통한 중도해지. 입고 확인 후 환불 처리로 이어짐.</p>
+          <div class="note">참고 화면 — <a href="#s-template">7. 국내 반품접수창 ①</a>(수거방식 · 사은품 수거여부).</div>
+          <ol class="req">
+            <li>중도해지 승인(매니저<span class="exp">타입 아웃바운드매니저</span>) → 고객상태 <code>입고대기</code>.</li>
+            <li>기기 회수 · 입고는 <b>4-1 입고 / 5-2-1 입고업로드 리스트 / 4-3 수동입고처리</b>에서 처리 → <code>반품입고</code> 전환. (1-2 기능 컬럼 버튼 아님) 노출: 매니저 · 관리자<span class="exp">아웃바운드매니저 / 관리 · 관리자</span>.</li>
+            <li>이후 3-6 환불에서 환불요청 → 환불승인 → <code>중도해지(기기반납)</code> 종결.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. 위약금 -->
+    <section id="s-penalty">
+      <h2><span class="num">10</span> 위약금결제 처리</h2>
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">반품접수 창</span><h3>위약금결제 (미입금 → 협의/수정 → 입금)</h3></div>
+        <div class="spbody">
+          <p class="purpose">기기 회수 없이 위약금 결제로 중도해지. 단계별로 담당 권한이 다름.</p>
+          <div class="note">참고 화면 — <a href="#s-template">7. 국내 반품접수창 ② · ③</a>(위약금 산정 · 청구/환불).</div>
+          <ol class="req">
+            <li>중도해지 승인(매니저<span class="exp">타입 아웃바운드매니저</span>) → 고객상태 <code>위약금 미입금</code> 추가.</li>
+            <li><b>위약금 협의·수정</b> — <span class="pill p-role">미납담당자</span><span class="exp">재무 · 아웃바운드(매니저)</span> · <span class="pill p-cons">상담상태</span>. 위약금 금액 협의/수정.</li>
+            <li><b>위약금 입금</b> — <span class="pill p-role">재무담당자</span><span class="exp">재무 · 관리자</span> · <span class="pill p-cons">상담상태</span>. 입금 확인.</li>
+            <li>이후 환불요청 → 환불승인(4번) → <code>중도해지(위약금)</code> 종결 + <b>컨텐츠 자동 사용중단</b>.</li>
+          </ol>
+          <div class="note q"><b>협의 필요</b> 위약금 산정 기준(잔여 할부금/정책)과 협의·수정 시 변경 이력 보존 여부.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. 업로드 -->
+    <section id="s-upload">
+      <h2><span class="num">11</span> 가상계좌 · 금액 양식 업로드</h2>
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">신규 / 연계</span><h3>할부금 · 위약금 양식 업로드</h3></div>
+        <div class="spbody">
+          <p class="purpose">할부금 및 위약금을 가상계좌/금액 양식(엑셀 등)으로 업로드해 반영. 1차는 수동, 이후 자동반영 확장 계획.</p>
+          <div class="note new"><b>현재 화면 없음 — 신규 개발</b> 가상계좌/금액 업로드 양식이 베트남 CMS에 존재하지 않음. 아래 사양대로 신규 설계.</div>
+          <ol class="req">
+            <li>양식(엑셀) 다운로드 → 입금/금액 정보 입력 → 업로드. 노출: 재무담당자<span class="exp">재무 · 관리자</span>.</li>
+            <li>업로드 데이터로 위약금 입금(10번) · 구매완료(5번) 상태 반영.</li>
+            <li>1차는 수동 업로드, 추후 자동반영으로 확장.</li>
+          </ol>
+          <div class="note q"><b>협의 필요</b> 양식 컬럼 정의(주문키 · 가상계좌 · 금액 · 입금일 등).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. 권한 -->
+    <section id="s-perm">
+      <h2><span class="num">12</span> 권한 매핑</h2>
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">1-3 사용자관리</span><h3>유저타입 ↔ 처리권한 매핑</h3></div>
+        <div class="spbody">
+          <p class="purpose">신규 흐름의 역할은 모두 기존 1-3 팀·타입 조합으로 표현 가능. 별도 타입 신설 없이, 각 화면 요소를 아래 <b>팀·타입 조건으로 노출 제어</b>. 로그인 사용자의 (팀, 타입)이 조건과 일치할 때만 해당 버튼/입력 요소 노출. <b>단, 관리자(관리 · 관리자)는 전체 메뉴 · 요소를 모두 노출</b>(최상위 권한).</p>
+          <div class="fig">
+            <img src="1-3%20%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B4%80%EB%A6%AC.png" alt="1-3 사용자관리" />
+            <figcaption><b>현재 1-3 사용자 관리</b> — 권한 축: 팀(관리 · 재무 · 1팀…) + 타입(관리자 · 아웃바운드 · 아웃바운드매니저). 행별 [수정][삭제] + 메뉴설정 [보기].</figcaption>
+          </div>
+
+          <h3>역할 ↔ 팀 · 타입</h3>
+          <table>
+            <tr><th style="width:120px">역할</th><th style="width:80px">팀</th><th>타입</th></tr>
+            <tr><td>매니저</td><td>무관</td><td>아웃바운드매니저</td></tr>
+            <tr><td rowspan="2">미납담당자</td><td>재무</td><td>아웃바운드 <span style="color:var(--sub)">— 통화 계정</span></td></tr>
+            <tr><td>재무</td><td>아웃바운드매니저 <span style="color:var(--sub)">— 승인 계정 (1인 2계정)</span></td></tr>
+            <tr><td>재무담당자</td><td>재무</td><td>관리자</td></tr>
+            <tr><td>관리자</td><td>관리</td><td>관리자</td></tr>
+            <tr><td>상담원(기본 OB)</td><td>무관</td><td>아웃바운드</td></tr>
+          </table>
+
+          <h3>화면 요소별 노출 조건</h3>
+          <table>
+            <tr><th>화면 요소 (위치)</th><th style="width:80px">팀</th><th style="width:180px">타입</th><th style="width:100px">담당</th></tr>
+            <tr><td>취소접수 · 중도해지 접수 · 입고대기 · 환불요청 (상담창 / 1-2)</td><td>무관</td><td>아웃바운드</td><td>상담원</td></tr>
+            <tr><td><b>[반품취소] 버튼(철회)</b> (1-2 기능 컬럼)</td><td>무관</td><td>아웃바운드매니저</td><td>매니저</td></tr>
+            <tr><td>중도해지 승인 (1-2 / 상담창)</td><td>무관</td><td>아웃바운드매니저</td><td>매니저</td></tr>
+            <tr><td>반품방식 전환 승인 (반품접수창)</td><td>무관</td><td>아웃바운드매니저</td><td>매니저</td></tr>
+            <tr><td>위약금 협의·수정 (상담창 상담상태)</td><td>재무</td><td>아웃바운드 / 아웃바운드매니저</td><td>미납담당자</td></tr>
+            <tr><td>입금처리(3-9) · 위약금 입금 · 가상계좌/금액 양식 업로드</td><td>재무</td><td>관리자</td><td>재무담당자</td></tr>
+            <tr><td>구매완료 확정(3-10) · 환불승인(3-6)</td><td>관리</td><td>관리자</td><td>관리자</td></tr>
+            <tr><td rowspan="2">송장 업로드(4-6) · 반품입고(4-1 / 4-3 / 5-2-1)</td><td>무관</td><td>아웃바운드매니저</td><td>매니저</td></tr>
+            <tr><td>관리</td><td>관리자</td><td>관리자</td></tr>
+            <tr><td>17-1 회원현황 · 17-6 리포트 (수금·미납 조회 / 수금현황 엑셀)</td><td>재무</td><td>관리자</td><td>재무담당자</td></tr>
+            <tr><td>18-2 미납콜 상담 (위약금 협의·수정)</td><td>재무</td><td>아웃바운드 / 아웃바운드매니저</td><td>미납담당자</td></tr>
+            <tr><td>1-34 패키지 구성 관리 · 15-2-2 DB 재분배 관리</td><td>관리</td><td>관리자</td><td>관리자</td></tr>
+          </table>
+          <div class="note"><b>관리자(팀 관리 · 타입 관리자)는 전체 메뉴 · 요소 노출</b> — 위 모든 노출 조건의 최상위 권한으로, 조건과 무관하게 항상 표시. 팀 '무관'은 타입만으로 판정. 미납담당자는 통화(아웃바운드)와 승인(아웃바운드매니저)을 겸하므로 재무팀 아웃바운드 계열 두 타입 모두 노출.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. 17-1 회원현황 -->
+    <section id="s-members">
+      <h2><span class="num">13</span> 17-1 회원현황 <span class="pill tag-new" style="font-size:12px">신규</span></h2>
+      <p class="lead">전체 회원의 <b>납부 · 미납 현황</b> 조회 목록. 회원명 클릭 시 개별 상세(회원정보 · 계약/입금 · 정산 · 납부현황 · 히스토리)로 이동. 노출: 재무담당자<span class="exp">재무 · 관리자</span> · 관리자.</p>
+      <div class="note new" style="background:var(--green-bg);border-left-color:var(--green)"><b style="color:var(--green)">🇻🇳 베트남 결제 방식</b> 카드 자동결제가 아니라 <b>고객 입금(계좌이체 · 가상계좌)</b> 방식. 국내의 카드사 · 카드번호 · 유효기간 항목이 <b>없고</b>, 대신 <b>입금방식 · 입금은행 · 가상계좌 · 입금자명</b>으로 관리.</div>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">17-1 회원현황</span><h3>납부 · 미납 현황 목록</h3></div>
+        <div class="spbody">
+          <div class="fig">
+            <img src="17-1%20%EC%88%98%EA%B8%88%EA%B4%80%EB%A6%AC.png" alt="17-1 회원현황 목록" />
+            <figcaption><b>17-1 회원현황 목록</b> — 상단 필터 + 회원별 납부/미납 행 + 수금현황 · 주마감 RAW 엑셀 다운로드.</figcaption>
+          </div>
+          <ul class="plain">
+            <li><b>필터</b> — 분류(계약중 / 계약종료 / 미납) · 회원명 · 전화번호 · 구매제품 · 고객상태 · 입금방식(가상계좌 / 계좌이체) · 선납유무(선납 / 일반).</li>
+            <li><b>컬럼</b> — 순번 · 회원명 · 전화번호 · 구매제품 · 입금방식 · 상담원 · 고객상태 · 결제시작일 · 약정일 · 월납부금 · 선납금 · 미납횟수 · 누적미납금 · 경과차수. (금액 단위 VND)</li>
+            <li><b>엑셀</b> — [수금현황 엑셀(베트남)] · [주마감 RAW 엑셀(베트남)]. 두 엑셀 모두 <code>제품명</code> 우측에 <b>🔒패키지 내부코드</b> 컬럼 포함(<a href="#s-pkg">16번</a>). <span class="note" style="display:inline;padding:2px 8px;margin:0">다운로드 시 CMS 속도 저하 → 가급적 비업무시간 다운로드</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">17-1 개별 상세</span><h3>회원 개별 상세 (회원명 클릭)</h3></div>
+        <div class="spbody">
+          <p class="purpose">국내 수금관리 개별 화면과 동일 구성이되, <b>카드 항목을 입금 기준으로 대체</b>. 상단 액션: 가상계좌발급 · 입금내역 · 해지방어변경요청 · 정보변경요청 · 미납SMS · 미납콜 이동.</p>
+          <div class="fig">
+            <img src="17-1%20%EC%88%98%EA%B8%88%EA%B4%80%EB%A6%AC%20%EA%B0%9C%EB%B3%84%20%ED%99%94%EB%A9%B41.png" alt="17-1 개별 상세 1" />
+            <figcaption><b>회원 상세정보 · 계약/입금 정보</b> — 회원명 · 성별/생년월일 · 전화 · 이메일 · CCCD(신분증) · 추심위임 · 연체등록 · 입금방식 · 입금은행 · 가상계좌 · 입금자명 · 구매제품 · 주소 / 계약일 · 만료일 · 최근입금일 · 약정개월 · 결제기간 · 약정일 · 월납부금 · 선납금 · 월납총액 · 제품총금액.</figcaption>
+          </div>
+          <div class="fig">
+            <img src="17-1%20%EC%88%98%EA%B8%88%EA%B4%80%EB%A6%AC%20%EA%B0%9C%EB%B3%84%20%ED%99%94%EB%A9%B42.png" alt="17-1 개별 상세 2" />
+            <figcaption><b>정산 현황 · 입금자 정보</b> — 계약담당자 · 경과회차 · 감면/조정 · 받아야할 금액(경과회차×월납금) · 누적납부 · 미경과분 · 미납횟수 · 미납원금 · 연체가산금 · 총미납 / 입금자명 · 생년월일 · 성별 · 전화 · 이메일 · 입금방식 · 입금은행 · 가상계좌 · 회원구분.</figcaption>
+          </div>
+          <div class="fig">
+            <img src="17-1%20%EC%88%98%EA%B8%88%EA%B4%80%EB%A6%AC%20%EA%B0%9C%EB%B3%84%20%ED%99%94%EB%A9%B43.png" alt="17-1 개별 상세 3" />
+            <figcaption><b>납부현황 그리드 · 히스토리</b> — 회차별 카드(결제성공 / 미납 / 예정) + 합계(감면·조정 · 연체가산금 · 미납금) / 고객 히스토리(구분 · 내용 · 작성시간 · 작성자) · 입금 히스토리(등록일시 · 입금일 · 입금은행/가상계좌 · 입금방식 · 요청금액 · 입금금액 · 결과).</figcaption>
+          </div>
+          <div class="note"><b>연체가산금 — 현재 미적용</b> 베트남은 현재 연체가산금이 없음. 항목(컬럼)은 그대로 두되 <b>값은 항상 0으로 계산</b>. 추후 정책 도입 시 요율 · 기산일만 반영하도록 구조만 유지. 따라서 현재 <code>총미납 = 미납원금</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14. 17-6 리포트 -->
+    <section id="s-report">
+      <h2><span class="num">14</span> 17-6 미납 · 입금 리포트 <span class="pill tag-new" style="font-size:12px">신규</span></h2>
+      <p class="lead">수금 · 미납 데이터를 리포트로 조회 · 다운로드. 노출: 재무담당자<span class="exp">재무 · 관리자</span> · 관리자.</p>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">17-6.1</span><h3>리포트 — 미납자현황</h3></div>
+        <div class="spbody">
+          <p class="purpose">미납이 발생한 <b>전체 회원</b>을 한 화면에서 조회 · 다운로드 · 일괄 SMS 발송하는 리포트. 국내 CMS 화면을 기준으로 하되 <b>카드 결제 항목을 입금(가상계좌 · 계좌이체) 기준으로 치환</b>함.</p>
+          <div class="fig">
+            <img src="17-6.1%20%EB%A6%AC%ED%8F%AC%ED%8A%B8(%EB%AF%B8%EB%82%A9%EC%9E%90%ED%98%84%ED%99%A9).png" alt="국내 CMS 17-6.1 미납자현황" />
+            <figcaption><b>참고 — 국내 CMS 17-6.1 리포트(미납자현황)</b> 상단 양식 버튼 + 필터 + 미납자 목록. 베트남은 아래 표대로 치환 적용.</figcaption>
+          </div>
+
+          <h3 style="font-size:14px">① 상단 버튼</h3>
+          <table>
+            <tr><th style="width:34%">국내 CMS</th><th>베트남 적용</th></tr>
+            <tr><td>관리용 Excel</td><td><b>관리용 Excel</b> — 화면 목록 전체 다운로드 (유지)</td></tr>
+            <tr><td>출금일 선택</td><td><b>약정일(납부일) 선택</b> — 특정 약정일 대상만 필터</td></tr>
+            <tr><td>효성 CMS고객 양식<br />효성 카드고객 양식</td><td><b>은행 수납 양식</b> 1종으로 통합 — 베트남은 카드 자동결제가 없으므로 <b>가상계좌 수납 요청 양식</b>만 사용. <span class="pill p-role">확인필요</span> 실제 연동 은행 양식 확정 필요</td></tr>
+            <tr><td>미납 전체 SMS 발송</td><td><b>미납 전체 SMS · Zalo ZNS 발송</b> — 검색 결과 전체 대상 일괄 발송</td></tr>
+            <tr><td>엑셀(우측)</td><td>화면 그대로 엑셀 (유지)</td></tr>
+          </table>
+
+          <h3 style="font-size:14px">② 검색 필터</h3>
+          <ul class="plain">
+            <li><b>국내 동일</b> — 경과회차(범위) · 약정일 · 미납횟수(범위) · 미납일수(구간 선택) · 상담원 재직여부(전체 / 재직 / 퇴사).</li>
+            <li><b>베트남 추가</b> — <b>입금방식</b>(가상계좌 / 계좌이체) · <b>지역</b>(행정구역) · <b>담당팀</b>.</li>
+            <li>[검색] · [검색 초기화] 버튼, 상단에 <code>Total : n, Page : x / y</code> 표기.</li>
+          </ul>
+
+          <h3 style="font-size:14px">③ 목록 컬럼</h3>
+          <table>
+            <tr><th style="width:26%">국내 CMS</th><th style="width:26%">베트남</th><th>비고</th></tr>
+            <tr><td>순번 / 미납횟수 / 경과회차</td><td>동일</td><td>—</td></tr>
+            <tr><td>연체가산금</td><td>동일(컬럼 유지)</td><td><b>값은 항상 0</b> — 베트남 연체가산금 미적용</td></tr>
+            <tr><td>총미납금</td><td>동일</td><td>VND, 천단위 구분. 현재 <code>총미납 = 미납원금</code></td></tr>
+            <tr><td>최초미납발생</td><td>동일</td><td><code>n회차 (YYYY-MM-DD)</code> 2줄 표기</td></tr>
+            <tr><td>회원명 / 회원번호 / 전화번호</td><td>동일</td><td>회원명 클릭 → <a href="#s-members">17-1 개별 상세</a></td></tr>
+            <tr><td>구매제품</td><td>동일</td><td>패키지명 + 포함 SW (<a href="#s-pkg">1-34</a> 등록값). <b>엑셀에는 우측에 🔒패키지 내부코드 컬럼 추가</b></td></tr>
+            <tr><td>카드사</td><td><b>입금방식</b></td><td>가상계좌 / 계좌이체</td></tr>
+            <tr><td>카드번호</td><td><b>가상계좌번호</b></td><td>미발급 시 공란</td></tr>
+            <tr><td>유효기간</td><td><b>입금은행</b></td><td>가상계좌 발급 은행</td></tr>
+            <tr><td>상담원</td><td>동일</td><td><code>(지역)이름</code> 형식 유지</td></tr>
+            <tr><td>결제시작일 / 약정일 / 월납부금</td><td>동일</td><td>결제시작일 아래 고객구분(예: 기간만료고객) 표기</td></tr>
+          </table>
+          <div class="vn"><b>🇻🇳 삭제 항목</b> 카드사 · 카드번호 · 유효기간은 <b>컬럼 자체를 없애지 않고 입금 정보로 치환</b>. 효성 등 국내 PG 전용 양식 버튼은 삭제.</div>
+          <div class="note">미납 SMS · Zalo 발송 시 발송 이력은 <a href="#s-overdue">18-2 미납콜 상담</a>의 [당일 문자발신] · [당일 Zalo ZNS] 카운트에 반영.</div>
+        </div>
+      </div>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">17-6.3</span><h3>리포트 — 입금현황</h3></div>
+        <div class="spbody">
+          <p class="purpose">조회기간 동안 발생한 <b>모든 입금</b>을 수납 경로별 카드로 집계. 카드마다 금액 · 입금고객 · 건수 + 개별 [Excel] 다운로드.</p>
+          <div class="fig">
+            <img src="17-6.3%20%EB%A6%AC%ED%8F%AC%ED%8A%B8(%EC%9E%85%EA%B8%88%ED%98%84%ED%99%A9).png" alt="국내 CMS 17-6.3 입금현황" />
+            <figcaption><b>참고 — 국내 CMS 17-6.3 리포트(입금현황)</b> 좌측 총합 카드 + 수납경로별 카드 8종. 베트남은 카드결제 경로를 제거하고 입금 경로로 재구성.</figcaption>
+          </div>
+
+          <h3 style="font-size:14px">① 수납 경로 카드 (국내 8종 → 베트남 6종)</h3>
+          <table>
+            <tr><th style="width:34%">국내 CMS</th><th>베트남 적용</th></tr>
+            <tr><td>결제시스템(정기결제)</td><td><b>가상계좌 정기수납</b> — 약정일 도래 건의 정상 입금</td></tr>
+            <tr><td>결제시스템(미납자)</td><td><b>가상계좌 미납수납</b> — 미납분 회수 입금</td></tr>
+            <tr><td>결제시스템(카드&amp;예약)</td><td><b>삭제</b> — 베트남 카드 자동결제 없음</td></tr>
+            <tr><td>결제시스템(1회차)</td><td><b>선납금 · 1회차 입금</b> — 계약 시 최초 입금</td></tr>
+            <tr><td>무통장 입금</td><td><b>계좌이체 입금</b> — 법인계좌 직접 이체</td></tr>
+            <tr><td>수기결제</td><td><b>수기입금 등록</b> — 담당자가 수동 등록한 입금건</td></tr>
+            <tr><td>가상계좌 입금</td><td><b>가상계좌 임의입금</b> — 약정일 외 고객 자발 입금</td></tr>
+            <tr><td>추심위임 직납</td><td><b>추심위임 직납</b> (유지) <span class="pill p-role">확인필요</span> 베트남 추심 위탁사 도입 여부</td></tr>
+            <tr><td>—</td><td><b>위약금 입금</b> <span class="pill tag-new">추가</span> — 중도해지 위약금 (<a href="#s-penalty">10번</a>과 연결)</td></tr>
+          </table>
+
+          <h3 style="font-size:14px">② 표시내역 정의 (화면 우측 안내문)</h3>
+          <ul class="plain">
+            <li><b>입금 고객수</b> — 입금이 발생한 고객 수. 1인이 여러 건 입금해도 <b>1명으로 카운트</b>, 회차 미반영 입금 포함.</li>
+            <li><b>입금 건수</b> — 모든 입금 회수의 합. 회차 미반영 입금분 포함.</li>
+            <li><b>납부대상자</b><span class="exp">국내 "출금대상자"</span> — 약정일이 조회기간에 해당하는 <code>계약중</code> 고객 + 조회기간에 수납 예약된 <code>일시정지</code> 고객.</li>
+          </ul>
+
+          <h3 style="font-size:14px">③ 집계 · 조회</h3>
+          <ul class="plain">
+            <li><b>집계 시점</b> — 매일 마감 후 <b>20시(현지시각 ICT, UTC+7)</b> 취합. 국내 대비 2시간 시차 → 배치 스케줄 현지 기준으로 설정.</li>
+            <li><b>조회기간</b> — 시작일 ~ 종료일(기본 당일) + [검색]. 좌측 첫 카드에 기간 합계(금액 · 입금고객 · 건수) 표기.</li>
+            <li><b>엑셀</b> — 총합 카드 + 각 경로 카드마다 [Excel] 개별 다운로드.</li>
+            <li>모든 금액 <b>VND 정수</b>, 천단위 구분(예: 163,749,528원 → <code>163,749,528 ₫</code>).</li>
+          </ul>
+          <div class="note">데이터 출처는 <b>선납금(계약 1건) + 할부금(회차별) + 위약금(반품)</b> 3계열을 통합. 화면 상단 안내문에 수집 대상 화면(<a href="#s-members">17-1</a> · 17-5.1 수기입금 · 17-4 가상계좌)을 국내와 동일하게 명시.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15. 18-2 미납콜 상담 -->
+    <section id="s-overdue">
+      <h2><span class="num">15</span> 18-2 미납콜 상담 <span class="pill tag-new" style="font-size:12px">신규</span></h2>
+      <p class="lead">미납 고객 대상 아웃바운드 콜 전담 화면. 상담원이 위에서부터 순서대로 통화하고 결과를 [처리]하는 워크리스트 방식. 노출: 미납담당자<span class="exp">재무 · 아웃바운드(매니저)</span> · 관리자.</p>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">18-2</span><h3>미납콜 상담 목록</h3></div>
+        <div class="spbody">
+          <div class="fig">
+            <img src="18-2%20%EB%AF%B8%EB%82%A9%EC%BD%9C%20%EC%83%81%EB%8B%B4.png" alt="국내 CMS 18-2 미납콜 상담" />
+            <figcaption><b>참고 — 국내 CMS 18-2 미납콜 상담</b> 상단 상담원 실적 바 + 검색 필터 + 우선순위 안내 + 워크리스트. 베트남도 동일 구조로 구현하되 아래 항목만 치환.</figcaption>
+          </div>
+
+          <h3 style="font-size:14px">① 상단 상담원 실적 바</h3>
+          <ul class="plain">
+            <li>이름 · <b>현재DB</b>(보유 미납콜 건수) · <b>월 누적회수금</b>(VND) · 당일 문자발신 · <b>당일 Zalo ZNS</b><span class="exp">국내 "당일 알림톡"</span> · 당일 시도수 · 당일 통화시간.</li>
+            <li>로그인 상담원 본인 실적만 표기. 매니저 · 관리자는 상담원 선택 조회 가능.</li>
+          </ul>
+
+          <h3 style="font-size:14px">② 검색 필터</h3>
+          <ul class="plain">
+            <li><b>1행</b> — 이름 · 전화번호 · 고객번호 · <b>입금자 생년월일</b><span class="exp">국내 "결제자생년월일"</span> · 중복계약(전체/Y/N) · 통화예약일(기간) · <b>입금예약일</b>(기간)<span class="exp">국내 "출금예약일"</span> · 이력확인필요 · 기한이익상실 · 고객성향.</li>
+            <li><b>2행</b> — 미납분배일(기간) · 최초연체발생일(기간) · 미납횟수(범위) · 연체경과일(범위) · 컨택경과일(범위) · 상담상태 · [검색] · [검색초기화] · [EXCEL 다운].</li>
+            <li>상단에 <code>Total : n, Page : x / y</code> 표기.</li>
+          </ul>
+
+          <h3 style="font-size:14px">③ 화면 안내문 · 우선순위 정렬 (국내와 동일 적용)</h3>
+          <ol class="req">
+            <li>리스트 <b>상단부터 통화 시도</b>, 상담을 마친 후 통화상태를 [처리].</li>
+            <li><b>이름 클릭</b> → <a href="#s-members">17-1 회원현황 개별 상세(납부현황)</a> 실행 / <b>전화번호 클릭</b> → 전화걸기 실행.</li>
+            <li>통화처리 내용 · 이력은 개별 상세 내 <b>고객 히스토리</b>에 남김.</li>
+            <li><b>기본 우선순위</b><br />
+              당일 예약건 &gt; 미통화건 – 단기연체(3일~1주일, 숫자가 적을수록 상위) &gt;&gt; 미통화건 – 단기연체(15일~31일) &gt;&gt; 미통화건 장기연체(1달 초과 ~ 추심이관 전)</li>
+            <li>기본 우선순위와 별개로 하단 검색창을 이용해 조건별 정렬 가능.</li>
+          </ol>
+          <div class="note q"><b>확인필요 — 전화걸기 연동</b> 베트남 현지 콜 시스템(CTI · 소프트폰) 사용 여부에 따라 전화번호 클릭 동작 확정 필요. 미연동 시 <b>번호 복사</b>로 대체.</div>
+
+          <h3 style="font-size:14px">④ 목록 컬럼</h3>
+          <table>
+            <tr><th style="width:24%">컬럼</th><th>설명 · 베트남 적용</th></tr>
+            <tr><td>순번 / 이력확인필요</td><td>이력확인필요 = 직전 상담 이력 미확인 건 표시</td></tr>
+            <tr><td>이름 / 전화번호</td><td>이름 클릭 → 17-1 개별 상세 / 번호 클릭 → 전화걸기</td></tr>
+            <tr><td>고객성향</td><td><span class="pill p-cust">긍정</span> / <span class="pill tag-new">부정</span> 뱃지 + 이름 아래 나이 표기</td></tr>
+            <tr><td>기한이익상실</td><td>Y / N <span class="pill p-role">확인필요</span> 베트남 계약서상 기한이익상실 조항 존재 여부</td></tr>
+            <tr><td>중복구분</td><td>동일 고객 다중계약 표시</td></tr>
+            <tr><td><b>입금자 생년월일</b></td><td>국내 "결제자생년월일" → 입금자 기준으로 변경</td></tr>
+            <tr><td>고객번호 / 월납금 / 개월수 / 약정일</td><td>월납금 VND. 약정일은 일자 또는 <code>말일</code></td></tr>
+            <tr><td>미납횟수 / 진행차수 / 연체경과일 / 컨택경과일</td><td>연체경과일 = 최초연체일 기준 경과일수, 컨택경과일 = 마지막 컨택 후 경과일수</td></tr>
+            <tr><td>컨택이력</td><td>행 내 직접 입력 필드</td></tr>
+            <tr><td>업무요청 / 요청메세지</td><td>체크 + 메시지 입력 → 재무담당자에게 전달</td></tr>
+            <tr><td>미납콜 담당자 / 상담상태</td><td>상담상태에 <code>통화예약 2026-07-22</code>처럼 예약일 함께 표기</td></tr>
+            <tr><td>선택 / Action</td><td>행별 [통화상태 ▾] + [처리], 상단 [전체선택] + [통화상태 ▾] + [일괄 처리]</td></tr>
+          </table>
+
+          <h3 style="font-size:14px">⑤ 통화상태 값</h3>
+          <ul class="plain">
+            <li>부재 · 통화완료 · 통화예약(예약일 입력) · 입금약속(약속일 입력) · SMS발송 · <b>Zalo 발송</b> · 결번/오번 · 해지요청 · 기타통화.</li>
+            <li>선택 즉시 상담상태 갱신 + 고객 히스토리 자동 기록.</li>
+          </ul>
+
+          <h3 style="font-size:14px">⑥ 위약금 미납 건 처리</h3>
+          <ol class="req">
+            <li>중도해지 위약금 미납 고객도 동일 목록에 포함(구분 컬럼으로 식별).</li>
+            <li>상담창에서 상담상태 <code>반품 &gt; 위약금 협의·수정</code> 선택 → <b>최초 / 할인 / 최종 위약금</b> 입력.</li>
+            <li>저장 시 고객상태는 <code>위약금 미입금</code> 유지, 상담상태만 <code>위약금 협의</code>로 갱신. 실제 입금 처리는 재무담당자가 <a href="#s-penalty">10번 위약금결제 처리</a>에서 진행.</li>
+          </ol>
+          <div class="vn"><b>🇻🇳 베트남 차이 정리</b> ① 알림톡 → <b>Zalo ZNS</b> ② 카드 관련 컬럼 없음(입금 기준) ③ 연체가산금 미적용 → 회수금 = 미납원금 ④ <b>추심이관</b> 기준·위탁사 미정 <span class="pill p-role">확인필요</span></div>
+          <div class="note"><a href="#s-members">17-1 개별 상세</a>의 [미납콜 이동] · [미납SMS], <a href="#s-report">17-6.1 미납자현황</a>의 [미납 전체 SMS 발송]과 연결되는 화면.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16. 1-34 패키지 구성 관리 -->
+    <section id="s-pkg">
+      <h2><span class="num">16</span> 1-34 패키지 구성 관리 <span class="pill p-role" style="font-size:12px">개선</span></h2>
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">1-34</span><h3>패키지 = 단말기 + 기본 컨텐츠(SW)</h3></div>
+        <div class="spbody">
+          <p class="purpose">패키지에 <b>단말기명</b>과 <b>기본 컨텐츠(SW)</b>를 등록하면, 1-2 접수창의 <b>상품명</b> 선택에 그대로 노출. 노출: 관리자<span class="exp">관리 · 관리자</span>.</p>
+          <div class="note new" style="background:var(--green-bg);border-left-color:var(--green)"><b style="color:var(--green)">🇻🇳 베트남 구성</b> 단말기 <b>Galaxy Tab A11 단일</b> · 기본 SW <b>6종</b>(워드 · 토크 · 기초영어 · 처음영어 · 기초한국어 · 실전한국어) · 패키지 유형 <b>영어(4종) / 한국어(2종) / 영어+한국어(6종)</b>.</div>
+          <ul class="plain">
+            <li><b>등록 항목</b> — 패키지명 · <b>🔒 내부코드</b> · 단말기(A11 단일) · 기본 컨텐츠(SW 체크) · 패키지 유형 · 상품가격(VND) · 렌탈창 노출(보임 / 숨김).</li>
+            <li>영어 4종 = 워드 · 토크 · 기초영어 · 처음영어 / 한국어 2종 = 기초한국어 · 실전한국어.</li>
+            <li>등록 패키지 목록에서 수정 · 노출 여부 관리.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">1-34</span><h3>🔒 내부코드 — 내부 전용 식별값 <span class="pill tag-new" style="font-size:12px">신규</span></h3></div>
+        <div class="spbody">
+          <p class="purpose">패키지별로 <b>내부 관리용 코드</b>를 부여. 화면상 고객·상담원에게는 보이지 않고, <b>관리자 엑셀 다운로드에만 컬럼으로 출력</b>되어 패키지를 구분하는 용도.</p>
+          <table>
+            <tr><th style="width:22%">구분</th><th>내용</th></tr>
+            <tr><td><b>입력 위치</b></td><td>1-34 패키지 구성 관리 &gt; 신규 등록 폼에 <b>[내부코드]</b> 입력란 추가. 등록 패키지 목록에도 컬럼으로 표시(관리자 화면이므로 노출 OK).</td></tr>
+            <tr><td><b>입력 규칙</b></td><td>필수 · <b>패키지별 고유값</b>(중복 등록 불가) · 영문/숫자/하이픈. 예: <code>VN-EN04</code>(영어 4종) · <code>VN-KR02</code>(한국어 2종) · <code>VN-EK06</code>(영어+한국어 6종)</td></tr>
+            <tr><td><b>노출 금지</b></td><td><b>1-2 접수창 상품명 선택에 노출 금지</b> — 상담원은 패키지명·가격만 확인. 계약서 PDF에도 미출력(고객 문서이므로).</td></tr>
+            <tr><td><b>수정</b></td><td>등록 후 수정 가능. 단, 이미 계약된 건은 <b>계약 시점 코드를 유지</b>할지 최신 코드로 따라갈지 <span class="pill p-role">확인필요</span></td></tr>
+          </table>
+
+          <h3 style="font-size:14px">엑셀 컬럼 추가 대상</h3>
+          <table>
+            <tr><th style="width:32%">다운로드</th><th style="width:24%">컬럼 위치</th><th>비고</th></tr>
+            <tr><td><a href="#s-cancel">1-2 고객관리</a> DB 리스트 엑셀</td><td>접수제품 <b>우측</b></td><td>관리자 · 매니저 권한에서만 다운로드 버튼 노출</td></tr>
+            <tr><td><a href="#s-members">17-1</a> 수금현황 엑셀</td><td><code>제품명</code> 우측</td><td>기존 컬럼 순서 유지하고 1열만 삽입</td></tr>
+            <tr><td><a href="#s-members">17-1</a> 주마감 RAW 엑셀</td><td><code>제품명</code> 우측</td><td>동일</td></tr>
+            <tr><td><a href="#s-report">17-6.3</a> 입금현황 엑셀</td><td><code>제품</code> 우측</td><td>동일</td></tr>
+            <tr><td><a href="#s-report">17-6.1</a> 미납자현황 엑셀</td><td><code>구매제품</code> 우측</td><td>관리용 Excel · 화면 엑셀 모두</td></tr>
+            <tr><td><a href="#s-overdue">18-2</a> 미납콜 EXCEL 다운</td><td><code>구매제품</code> 우측</td><td>동일</td></tr>
+          </table>
+          <div class="note"><b>컬럼명</b> 엑셀 헤더는 <code>패키지 내부코드</code>로 통일. 값이 없는 구건(내부코드 미부여 패키지)은 <b>공란</b>으로 출력.</div>
+          <div class="vn"><b>🇻🇳 목적</b> 베트남 패키지명이 <b>현지 표기·구성 변경으로 자주 바뀌어</b> 엑셀 집계 시 동일 패키지를 묶기 어려움. 이름과 무관한 <b>불변 코드</b>를 붙여 관리자 집계·정산 기준을 고정.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17. 15-2-2 DB 재분배 -->
+    <section id="s-redist">
+      <h2><span class="num">17</span> 15-2-2 DB회수 재분배 관리 <span class="pill p-role" style="font-size:12px">개선</span></h2>
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">15-2-2</span><h3>DB 회수 → 재분배</h3></div>
+        <div class="spbody">
+          <p class="purpose">국내 3사 레이아웃과 동일하게 적용. 노출: 관리자<span class="exp">관리 · 관리자</span>.</p>
+          <div class="note q"><b>국내 대비 차이점</b> ① 회수조건에 <b>지역</b>(베트남 행정구역) 추가. ② 분배조건의 <b>재콜그룹 → 성과그룹</b>으로 변경.</div>
+          <ul class="plain">
+            <li><b>A. 회수 조건</b> — 분배일 · 유입일(기간) · 성과그룹(검색·멀티) · 상담원(검색·멀티) · <b>지역(추가·검색·멀티)</b> · 임시저장 회수 · 기타(임시저장/결제보류 포함 회수, 재콜DB 회수 제외, <b>N회 분배된 재콜DB만 회수(0회 디폴트)</b>) · 회수 DB 개수(-1=전체). [회수DB 조회/재계산].</li>
+            <li><b>B. 분배 조건</b> — 분배대상 성과그룹(변경·검색·멀티) · 분배대상 상담원 · 분배제외 성과그룹 · 분배제외 상담원 · 분배일. [분배현황 조회] · [회수DB/분배지정 조회].</li>
+            <li><b>성과그룹 · 상담원 · 지역</b>은 값이 많으므로 <b>검색형 멀티체크</b> UI로 선택.</li>
+          </ul>
+          <div class="note">☆ 동일번호 유입일이 <b>최근 5일 이내</b>면 회수대상 제외.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18. 1-2 접수창 개선 -->
+    <section id="s-intake">
+      <h2><span class="num">18</span> 1-2 접수창 개선 · 항목 추가 <span class="pill p-role" style="font-size:12px">개선</span></h2>
+      <p class="lead">1-2 고객상담 &gt; [상담]창 &gt; <b>접수 단계</b>의 입력 편의 개선 + 계약서 출력에 필요한 항목 신설. 노출: 상담원 이상<span class="exp">아웃바운드 · 상담원</span>.</p>
+      <div class="note new"><b>진입 조건 — 상담대기 건만 접수 가능</b> 1-2 고객관리에서 고객상태가 <code>상담대기</code>인 DB의 [상담] 버튼 → 상담창에서 <b>상담상태 <code>결제 &gt; COD(구매_현금)</code> 선택</b> → 접수창 진행. 저장 시 상담상태 <code>구매_현금(COD)</code> · 고객상태 <code>배송대기</code>로 전환. 접수 전(<code>상담대기</code>) 건은 <b>계약서가 존재하지 않으므로 [계약서 출력] 버튼도 노출되지 않음</b>.</div>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">1-2 접수</span><h3>① 주소 드롭다운 — 검색 기능 추가</h3></div>
+        <div class="spbody">
+          <p class="purpose">주소 SELECT의 각 단계 드롭다운이 <b>목록만 스크롤</b>하는 구조라 선택에 시간이 걸림. <b>일부 단어 입력으로 필터링</b>되는 검색형 드롭다운으로 변경 요청.</p>
+          <div class="fig">
+            <img src="2-1%20%EC%A0%91%EC%88%98%EC%B0%BD%20%EC%A3%BC%EC%86%8C%EA%B2%80%EC%83%89.png" alt="1-2 접수창 주소 드롭다운" />
+            <figcaption><b>현재 — 주소 SELECT</b> vùng(성/시) 목록이 전체 나열되어 스크롤로만 선택 가능. 하위에 ĐẶC KHU · PHƯỜNG · XÃ 3단계가 이어짐.</figcaption>
+          </div>
+          <ul class="plain">
+            <li><b>대상</b> — 주소 SELECT의 <b>4단계 드롭다운 전부</b>(vùng / ĐẶC KHU / PHƯỜNG / XÃ).</li>
+            <li><b>동작</b> — 입력창에 일부 단어 입력 → 포함 항목만 실시간 필터. 예: <code>Hồ</code> 입력 → "Thành phố Hồ Chí Minh" 노출.</li>
+            <li><b>검색 조건</b> — <b>부분일치</b>(앞뒤 어디든 포함) + <b>성조 무시 매칭</b> 권장. 예: <code>ho chi</code> → Hồ Chí Minh. <span class="pill p-role">확인필요</span> 성조 무시 매칭 적용 여부</li>
+            <li>선택 후 하위 단계는 기존과 동일하게 상위 값에 종속 갱신.</li>
+          </ul>
+          <div class="vn"><b>🇻🇳 배경</b> 베트남 행정구역은 성/시 63개 + 하위 구역 수천 개라 스크롤 선택이 비현실적. 상담 통화 중 입력이라 <b>속도가 곧 상담품질</b>. <a href="#s-redist">15-2-2 지역 필터</a>도 동일한 검색형 UI로 통일.</div>
+        </div>
+      </div>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">1-2 접수</span><h3>② 접수 항목 추가 — 계약자명 · 결제방식 · 신분증 · 생년월일</h3></div>
+        <div class="spbody">
+          <p class="purpose">계약서 자동 생성에 필요한 항목이 접수창에 없어 신설. 여기서 입력한 값이 그대로 <a href="#s-contract">계약서 PDF</a>에 매핑됨.</p>
+          <div class="fig">
+            <img src="2-1%20%EC%A0%91%EC%88%98%EC%B0%BD%20%ED%95%AD%EB%AA%A9%EC%B6%94%EA%B0%80.png" alt="1-2 접수창 항목 추가" />
+            <figcaption><b>추가 요청 항목</b> — 계약자명(성별 좌측) / 결제방식 할부·구매 라디오 / 신분증 번호 · 발행일(년·월·일 3단 드롭다운) · 생년월일(년·월·일 3단 드롭다운).</figcaption>
+          </div>
+          <table>
+            <tr><th style="width:22%">항목</th><th style="width:20%">입력 형식</th><th>비고</th></tr>
+            <tr><td><b>계약자명</b></td><td>텍스트</td><td>성별 입력란 좌측에 배치. DB상 고객명과 별개 — <b>실제 계약 명의자</b>. 계약서 <code>Họ tên Khách hàng</code>에 매핑</td></tr>
+            <tr><td><b>결제방식</b> <span class="pill tag-new">필수</span></td><td>라디오 <code>할부</code> / <code>구매</code></td><td><b>접수 단계에서 할부 / 구매를 반드시 구분</b>. 선택값에 따라 하단 금액 입력 행이 전환되고(→ <a href="#s-cod">19번</a>), 계약서 양식(할부/구매)도 이 값으로 분기. 저장 시 상담상태 <code>할부_현금(COD)</code> / <code>구매_현금(COD)</code>로 구분 기록되고 1-2 리스트 <b>결제</b> 컬럼에도 그대로 노출</td></tr>
+            <tr><td><b>생년월일</b></td><td>년 · 월 · 일 3단 드롭다운</td><td>계약서 <code>Sinh ngày</code>에 매핑. <a href="#s-members">17-1 회원현황</a> 생년월일과 동일 값 사용</td></tr>
+            <tr><td><b>신분증 번호</b> <span class="pill p-role">선택</span></td><td>텍스트 (CCCD)</td><td>계약서 <code>Số CCCD</code>에 매핑</td></tr>
+            <tr><td><b>신분증 발행일</b> <span class="pill p-role">선택</span></td><td>년 · 월 · 일 3단 드롭다운</td><td>계약서 <code>Ngày cấp</code>에 매핑</td></tr>
+            <tr><td><b>신분증 발급처</b> <span class="pill p-role">선택</span></td><td>텍스트 (검색형 입력)</td><td>계약서 <code>Cấp bởi</code>에 매핑. 예: <code>Cục Cảnh sát QLHC về TTXH</code> · <code>CTCCSQLHCVTTXH</code></td></tr>
+          </table>
+          <div class="note new"><b>신분증 3항목은 접수 시 필수 아님</b> 신분증 <b>번호 · 발행일 · 발급처</b>는 <b>미입력 상태로도 접수 저장 가능</b>. 상담 통화 중 고객이 신분증을 갖고 있지 않은 경우가 많기 때문. 대신 <b>계약 이후 <a href="#s-contract">1-2 계약 정보 화면</a>에서 추가 · 수정 입력</b>할 수 있어야 하고, <b>계약서 출력 시점에는 3항목 모두 채워져 있어야 함</b>(미입력 시 경고 표시).</div>
+          <div class="note">상품명 영역은 <a href="#s-pkg">1-34 패키지 구성 관리</a>에서 등록한 <b>패키지(3종) · 단말기(Galaxy Tab A11) · SW(6종)</b>가 그대로 노출되는 구조 — 16번과 동일 건.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19. COD 접수창 -->
+    <section id="s-cod">
+      <h2><span class="num">19</span> 1-2 COD 접수창 — 할부 선택 시 금액 행 전환 <span class="pill p-role" style="font-size:12px">개선</span></h2>
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">1-2 고객상담 &gt; [상담] &gt; COD</span><h3>결제방식에 따른 금액 입력 행 전환</h3></div>
+        <div class="spbody">
+          <p class="purpose">결제방식 라디오 값에 따라 <b>금액 입력 행 자체를 다른 항목 세트로 전환</b>. 현재는 구매 기준(상품가격 · 할인금액 · 결제금액) 한 세트만 존재.</p>
+          <div class="fig">
+            <img src="2-1%20COD%20%EC%A0%91%EC%88%98%EC%B0%BD%20%ED%95%A0%EB%B6%80.png" alt="1-2 COD 접수창 할부 전환" />
+            <figcaption><b>할부 선택 시 노출 항목</b> — 상품가격(단위:동) · 선납금 · 선납금할인 · 할부 원금(자동) · 할부 개월(드롭다운) · 월 납부금(자동).</figcaption>
+          </div>
+
+          <h3 style="font-size:14px">① 결제방식 = 구매 (현행 유지)</h3>
+          <ul class="plain">
+            <li><b>상품가격(동)</b> 입력 · <b>할인금액(동)</b> 입력 · <b>결제금액(동)</b> = 상품가격 − 할인금액 <b>(자동계산 · 수정불가)</b>.</li>
+          </ul>
+
+          <h3 style="font-size:14px">② 결제방식 = 할부 (신규 전환)</h3>
+          <table>
+            <tr><th style="width:24%">항목</th><th style="width:16%">입력</th><th>계산식 · 비고</th></tr>
+            <tr><td>상품가격(단위:동)</td><td>입력</td><td>VAT 포함가</td></tr>
+            <tr><td>선납금</td><td>입력</td><td>계약 시 최초 1회 납부액. <a href="#s-report">17-6.3 입금현황</a> "선납금 · 1회차 입금" 카드에 집계</td></tr>
+            <tr><td>선납금할인</td><td>입력</td><td>선납 조건 할인액</td></tr>
+            <tr><td><b>할부 원금</b></td><td><b>자동 · 수정불가</b></td><td><code>상품가격 − 선납금 − 선납금할인</code></td></tr>
+            <tr><td>할부 개월</td><td>드롭다운</td><td>2 · 3 · 4 · 5 · 6 · 7 · … · 12 · 15 · 18 · 24</td></tr>
+            <tr><td><b>월 납부금</b></td><td><b>자동 · 수정불가</b></td><td><code>할부 원금 ÷ 할부 개월</code></td></tr>
+          </table>
+          <div class="note q"><b>확인필요 — 나눗셈 끝수 처리</b> 할부원금 ÷ 개월이 딱 떨어지지 않을 때 <b>절상 / 절사 / 마지막 회차 조정</b> 중 어느 방식인지 확정 필요. 계약서 지급일정표와 <a href="#s-members">17-1 납부현황</a> 회차 금액이 이 규칙을 그대로 따라야 함.</div>
+          <div class="note">여기서 확정된 <b>선납금 · 할부 개월 · 월 납부금</b>이 <a href="#s-contract">할부 계약서 지급일정표</a>와 17-1 회원현황의 <b>약정개월 · 월납부금 · 선납금</b>에 그대로 반영됨.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20. 계약서 -->
+    <section id="s-contract">
+      <h2><span class="num">20</span> 계약서 출력 · 양식 매핑 <span class="pill tag-new" style="font-size:12px">신규</span></h2>
+      <p class="lead">접수 단계 입력값으로 <b>베트남어 계약서 PDF</b>를 자동 생성 · 출력. 결제방식에 따라 <b>구매 계약서 / 할부 계약서</b> 2종으로 분기.</p>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">1-2 고객상담 &gt; [상담]</span><h3>① [계약서 출력] 버튼</h3></div>
+        <div class="spbody">
+          <div class="fig">
+            <img src="2-1%20%EA%B3%84%EC%95%BD%EC%84%9C%20%EC%B6%9C%EB%A0%A5.png" alt="1-2 계약서 출력 버튼" />
+            <figcaption><b>[계약서 출력] 버튼</b> — 상담창 기능 컬럼의 [수정] · [예약시간정보변경] 아래에 추가. 클릭 시 계약서 PDF 화면 노출.</figcaption>
+          </div>
+          <ol class="req">
+            <li>계약 후 고객상태가 <code>배송대기</code>로 전환되면 1-2 고객관리 &gt; [상담]창 &gt; <b>기능</b> 컬럼에 <b>[계약서 출력]</b> 버튼 노출. <b><code>상담대기</code>(접수 전) 건은 계약 자체가 없으므로 버튼 미노출</b> — <a href="#s-intake">18번 진입 조건</a> 참조.</li>
+            <li>해당 버튼은 <a href="#s-perm">1-3 사용자관리</a> 내 <b>유저타입 : 관리자</b>인 경우만 노출.</li>
+            <li>클릭 시 <b>계약서 PDF 화면</b>이 새 창으로 노출(미리보기 → 인쇄 · 저장).</li>
+            <li>파일명은 <code>[WM Viet Nam]HỢP ĐỒNG MUA BÁN_주문키</code>로 <b>자동 명명</b>.</li>
+          </ol>
+          <div class="note new"><b>계약 이후 신분증 정보 입력 · 수정</b> 접수 시 미입력한 <b>신분증 번호 · 발행일 · 발급처</b>는 이 화면에서 추가 입력 · 수정 후 저장 가능. 3항목 중 하나라도 비어 있으면 화면 상단에 <b>경고 배너</b>를 띄우고, 채워진 뒤에 [계약서 출력]하도록 안내. 수정 이력은 고객 히스토리에 기록.</div>
+          <div class="note q"><b>확인필요 — 노출 조건</b> ① <code>배송대기</code> 이후 상태(배송중 · 구매완료)에서도 계속 노출할지, 배송대기에서만 노출할지. ② 관리자 외 <b>매니저</b>에게도 열어줄지(현재 요청은 관리자 한정).</div>
+        </div>
+      </div>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">계약서 양식</span><h3>② 공통 매핑 (구매 · 할부 공통)</h3></div>
+        <div class="spbody">
+          <div class="fig">
+            <img src="%EA%B3%84%EC%95%BD%EC%84%9C%20%EC%96%91%EC%8B%9D%20%EA%B3%B5%ED%86%B5.png" alt="계약서 양식 공통 매핑" />
+            <figcaption><b>HỢP ĐỒNG MUA BÁN 상단</b> — ①계약번호 ②계약일 ③고객명 ④생년월일 ⑤주소 ⑥신분증번호 ⑦발행일 ⑧연락처 ⑨패키지명 ⑩단말기.</figcaption>
+          </div>
+          <table>
+            <tr><th style="width:8%">No</th><th style="width:26%">계약서 항목</th><th>CMS 출처</th></tr>
+            <tr><td>①</td><td>계약번호 <code>Số</code></td><td><b>주문키</b>(고유값)</td></tr>
+            <tr><td>②</td><td>계약일 <code>Hôm nay, ngày</code></td><td>양식에 맞춰 <b>계약 연 · 월 · 일 자동 기입</b></td></tr>
+            <tr><td>③</td><td>고객명 <code>Họ tên Khách hàng</code></td><td>접수 단계에서 입력한 <b>계약자명</b> (<a href="#s-intake">18번 신설</a>)</td></tr>
+            <tr><td>④</td><td>생년월일 <code>Sinh ngày</code></td><td>신설한 접수 단계의 <b>생년월일</b></td></tr>
+            <tr><td>⑤</td><td>주소 <code>Địa chỉ thường trú</code></td><td>접수 시 입력한 <b>배송 주소지</b></td></tr>
+            <tr><td>⑥</td><td>신분증 번호 <code>Số CCCD</code></td><td>신설한 접수 단계의 <b>신분증 번호</b></td></tr>
+            <tr><td>⑥-1</td><td>신분증 발급처 <code>Cấp bởi</code></td><td>신설한 접수 단계의 <b>발급처</b> <span class="pill tag-new">추가</span></td></tr>
+            <tr><td>⑦</td><td>발행일 <code>Ngày cấp</code></td><td>신설한 접수 단계의 <b>발행일</b></td></tr>
+            <tr><td>⑧</td><td>연락처 <code>Số điện thoại</code></td><td><b>CMS DB 내 고객 연락처</b></td></tr>
+            <tr><td>⑨</td><td>패키지명 (ĐIỀU 1 본문)</td><td>외국어 <code>ngoại ngữ</code> / 한국어 <code>Tiếng Hàn</code>로 구분<br />· 영어 패키지, 영어+한국어 패키지 → <b>ngoại ngữ</b><br />· 한국어 패키지 → <b>Tiếng Hàn</b></td></tr>
+            <tr><td>⑩</td><td>단말기 (ĐIỀU 1 본문)</td><td>신설한 접수 단계에서의 <b>단말기명</b> (예: Galaxy Tab A11)</td></tr>
+          </table>
+          <div class="note">매도인(BÊN A) 정보 — 회사명 · 세금코드 · 대표자 · 주소 · 연락처 · 입금계좌는 <b>양식 고정값</b>. 변경 시 수정 가능하도록 관리 항목으로 둘지 <span class="pill p-role">확인필요</span>.</div>
+        </div>
+      </div>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">계약서 양식</span><h3>③ 할부 계약서 (결제방식 = 할부)</h3></div>
+        <div class="spbody">
+          <div class="fig">
+            <img src="%EA%B3%84%EC%95%BD%EC%84%9C%20%EC%96%91%EC%8B%9D%20%ED%95%A0%EB%B6%80.png" alt="할부 계약서 매핑" />
+            <figcaption><b>ĐIỀU 2 — 상품가치 및 지급방법</b> ①할부기간 ②계약일 ③계약 종료일 ④계약 내용(지급일정표).</figcaption>
+          </div>
+          <table>
+            <tr><th style="width:8%">No</th><th style="width:26%">계약서 항목</th><th>CMS 출처 · 계산</th></tr>
+            <tr><td>①</td><td>할부기간 <code>kỳ trả góp</code></td><td>접수 단계에서 할부 선택 후 고른 <b>할부 개월</b></td></tr>
+            <tr><td>②</td><td>계약일</td><td>양식에 맞춰 계약 연 · 월 · 일 자동 기입</td></tr>
+            <tr><td>③</td><td>계약 종료일</td><td><b>계약일 + 할부기간 자동 계산</b></td></tr>
+            <tr><td>④</td><td>계약 내용(지급일정표)</td><td>아래 2행 자동 생성</td></tr>
+          </table>
+          <table>
+            <tr><th style="width:8%">번호</th><th style="width:24%">지급 일정</th><th style="width:34%">월 납부금(VND)</th><th>비고</th></tr>
+            <tr><td>1</td><td>선납금 <code>Lần thanh toán đầu tiên</code></td><td>할부 선택 후 입력한 <b>선납금</b></td><td>계약 체결 즉시 적용</td></tr>
+            <tr><td>2</td><td>할부금 <code>Các kỳ thanh toán tiếp theo</code></td><td>할부 선택 후 계산된 <b>월 납부금</b></td><td><b>1회 결제 / 월</b></td></tr>
+          </table>
+          <div class="note">지급일정표 금액은 <a href="#s-cod">19번 COD 접수창</a>의 계산 결과를 그대로 사용 — 끝수 처리 규칙이 확정되어야 계약서 · 납부현황 금액이 일치함.</div>
+        </div>
+      </div>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">계약서 양식</span><h3>④ 구매 계약서 (결제방식 = 구매)</h3></div>
+        <div class="spbody">
+          <div class="fig">
+            <img src="%EA%B3%84%EC%95%BD%EC%84%9C%20%EC%96%91%EC%8B%9D%20%EA%B5%AC%EB%A7%A4.png" alt="구매 계약서 매핑" />
+            <figcaption><b>ĐIỀU 2 · ĐIỀU 8</b> — ①결제금액 ②계약일(효력 발생일).</figcaption>
+          </div>
+          <table>
+            <tr><th style="width:8%">No</th><th style="width:26%">계약서 항목</th><th>CMS 출처 · 계산</th></tr>
+            <tr><td>①</td><td>결제금액 <code>Giá trị hợp đồng</code></td><td>접수 단계 <b>상품가격 − 할인금액</b> 결과로 노출되는 결제 금액 (VAT 포함)</td></tr>
+            <tr><td>②</td><td>계약일 <code>có hiệu lực kể từ ngày</code></td><td>양식에 맞춰 계약 연 · 월 · 일 자동 기입</td></tr>
+          </table>
+          <div class="note">구매 계약서는 지급일정표(ĐIỀU 2.2 표)가 없고 <b>일시불 결제금액 1건</b>만 기입. 나머지 조항(ĐIỀU 3 입금계좌 · ĐIỀU 4 품질보증 · ĐIỀU 7~8 해지·일반조항)은 양식 고정 문구.</div>
+          <div class="note q"><b>계약서 양식 원본</b> 상세 문구 · 서식은 <b>계약서 양식 엑셀 첨부파일</b> 기준. PDF 생성 시 양식 레이아웃(2페이지 구성 · 서명란 BÊN A / BÊN B)을 그대로 유지.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21. 기기 PW 발송 -->
+    <section id="s-devicepw">
+      <h2><span class="num">21</span> 상담창 기기 PW 발송 <span class="pill tag-new" style="font-size:12px">신규</span></h2>
+      <p class="lead">뇌새김 CMS <b>7-1 전화상담툴</b>의 <b>[기기 PW 발송]</b> 기능만 떼어 베트남 CMS 상담창에 이식. 노출: <b>관리자 전용</b><span class="exp">관리 · 관리자</span>.</p>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">1-2 고객상담 &gt; [상담]</span><h3>[기기 PW 발송] 버튼</h3></div>
+        <div class="spbody">
+          <p class="purpose">고객이 단말기 잠금 PW를 분실했을 때, 상담 중 <b>시리얼번호로 기기를 조회해 해당 기기 PW를 고객 휴대폰으로 SMS 발송</b>. 뇌새김 7-1과 동일 동작.</p>
+          <ol class="req">
+            <li>상담창 상단 기능 영역에 <b>[기기 PW 발송]</b> 버튼 노출. <b><a href="#s-perm">1-3 사용자관리</a> 유저타입 = 관리자</b>인 경우만 노출(상담원·매니저 비노출).</li>
+            <li>클릭 시 입력 영역 노출 — <b>시리얼번호</b>(단말기 뒷면 S/N) · <b>휴대폰번호</b>(기본값 = 해당 고객 연락처, 수정 가능).</li>
+            <li>[발송] 클릭 → <b>시리얼번호로 단말기 조회</b>.
+              <br>· 조회 성공 → 해당 기기 PW를 입력한 번호로 SMS 발송 + 완료 메시지.
+              <br>· 조회 실패 → <b>발송하지 않고</b> "조회 결과 없음" 오류 표시.</li>
+            <li>발송 결과는 <b>상담 이력</b>에 자동 기록 — <code>[일시 · 발송자 · 기기 PW 발송] S/N · 수신번호</code>.</li>
+          </ol>
+          <table>
+            <tr><th style="width:22%">항목</th><th>내용</th></tr>
+            <tr><td><b>입력값</b></td><td>시리얼번호(필수) · 휴대폰번호(필수, 고객 연락처 자동 채움)</td></tr>
+            <tr><td><b>조회 기준</b></td><td>단말기 마스터의 <b>시리얼번호 = 기기 PW</b> 매핑. 대소문자 무시 완전일치</td></tr>
+            <tr><td><b>발신번호</b></td><td><b>한국 번호</b> — 기존 뇌새김 SMS 발송 게이트웨이를 그대로 사용</td></tr>
+            <tr><td><b>PW 표시</b></td><td>화면에는 <b>마스킹</b>(****) 처리, 실제 PW는 SMS 본문에만 기재</td></tr>
+            <tr><td><b>이력</b></td><td>고객 히스토리에 발송 기록 남김(PW 값은 미기록)</td></tr>
+          </table>
+          <div class="note q"><b>확인필요</b> ① 한국 번호 발신으로 <b>베트남 휴대폰 수신이 가능한지</b>(국제 SMS 도달률 · 건당 비용) — 불가 시 현지 SMS 또는 <b>Zalo ZNS</b>로 대체. ② 단말기 시리얼-PW 마스터를 베트남 CMS가 직접 보유할지, 한국 시스템 <b>API 조회</b>로 가져올지. ③ 재발송 횟수 제한(예: 1일 3회) 필요 여부.</div>
+          <div class="note">그 외 7-1 전화상담툴의 나머지 기능은 <b>이식 대상 아님</b> — 이 버튼 하나만 상담창에 추가.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toolbar">
+  <button onclick="window.print()">인쇄 / PDF 저장</button>
+</div>
+
+<script>
+  const links=[...document.querySelectorAll('nav.toc a')];
+  const map=new Map(links.map(a=>[a.getAttribute('href').slice(1),a]));
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){
+      links.forEach(l=>l.classList.remove('active'));
+      const a=map.get(e.target.id); if(a)a.classList.add('active');
+    }});
+  },{rootMargin:'-20% 0px -70% 0px'});
+  document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,2818 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>베트남 WM-CMS 프로토타입 — 취소 · 중도해지(반품) 인터랙션</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --ink:#222;--sub:#666;--line:#dcdfe5;--bg:#eef0f3;
+    --purple:#7a5ea8;--purple2:#6a4f97;--nav:#2b2f36;
+    --blue:#2c6fdb;--blbg:#eaf1fd;--green:#1c8b5a;--gnbg:#e6f6ee;
+    --red:#d64545;--rdbg:#fcebeb;--amber:#c77700;--amBg:#fff4e0;--gray:#8a93a0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Malgun Gothic","Pretendard",sans-serif;background:var(--bg);color:var(--ink);font-size:13px}
+  /* ===== CMS shell ===== */
+  .topbar{background:linear-gradient(#8a6cbf,var(--purple));color:#fff;padding:7px 16px;display:flex;align-items:center;gap:14px;font-weight:700}
+  .topbar .brand{font-size:15px;letter-spacing:.02em}
+  .topbar .spacer{flex:1}
+  .topbar .rolebox{background:#fff;color:var(--ink);border-radius:6px;padding:4px 8px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .topbar select{border:1px solid var(--line);border-radius:4px;padding:3px 6px;font-weight:700;color:var(--purple2)}
+  .topbar .langbox select{min-width:120px;background:#fff}
+  .topbar small{font-weight:400;opacity:.9}
+  .nav{background:var(--nav);color:#cfd4db;display:flex;gap:2px;padding:0 8px}
+  .nav a{padding:10px 16px;color:#cfd4db;cursor:pointer;font-weight:600;text-decoration:none;border-bottom:3px solid transparent}
+  .nav a:hover{color:#fff}
+  .nav a.on{color:#fff;border-bottom-color:#b69bdf;background:#363b44}
+  /* 2단 하위 메뉴 */
+  .subnav{background:#eef0f3;border-bottom:1px solid var(--line);display:flex;gap:2px;padding:6px 10px;flex-wrap:wrap}
+  .subnav a{padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:600;color:#555;white-space:nowrap}
+  .subnav a:hover{background:#e0e3e8}
+  .subnav a.on{background:var(--purple);color:#fff}
+  .subnav a.dis{color:#aab1bb;font-weight:500}
+  .subnav a.dis::after{content:' ·기존';font-size:10px;color:#c2c8d0}
+  html[data-lang="vi"] .subnav a.dis::after{content:' ·hiện có'}
+  .subnav a small{opacity:.8}
+
+  .page{padding:16px 20px 80px}
+  .ptitle{font-size:18px;color:var(--purple2);font-weight:800;margin:4px 0 2px}
+  .pdesc{color:var(--sub);margin:0 0 14px}
+
+  /* 🟥 개발요청 화면 강조 박스 (신규·개선 개발 대상 — 기존 화면과 구분) */
+  .page.reqscreen{position:relative;border:2.5px solid var(--red);border-radius:10px;
+    margin:12px;padding:46px 20px 40px;background:#fffafa}
+  .page.reqscreen::before{content:"● 개발요청 화면 — 신규 · 개선 개발 대상";position:absolute;
+    top:0;left:0;right:0;background:var(--red);color:#fff;font-size:12px;font-weight:800;
+    padding:8px 16px;border-radius:7px 7px 0 0;letter-spacing:.02em}
+
+  .hint{background:var(--amBg);border:1px solid #f0d9a8;color:#8a5a00;border-radius:8px;
+    padding:9px 13px;margin:0 0 14px;font-size:12.5px}
+  .hint b{color:var(--amber)}
+
+  /* ===== table ===== */
+  table.list{width:100%;border-collapse:collapse;background:#fff;font-size:12.5px}
+  table.list th,table.list td{border:1px solid var(--line);padding:7px 8px;text-align:center;vertical-align:middle}
+  table.list th{background:#f3f4f7;color:#444;font-weight:700;font-size:12px}
+  table.list tr:hover td{background:#fafbff}
+  .name{font-weight:700;text-align:left!important}
+  .muted{color:var(--gray);font-size:11.5px}
+
+  /* status badges */
+  .b{display:inline-block;font-weight:700;font-size:11.5px;padding:2px 8px;border-radius:14px;white-space:nowrap}
+  .s-ship{background:var(--gnbg);color:var(--green)}
+  .s-done{background:#e7eefc;color:var(--blue)}
+  .s-canc{background:var(--rdbg);color:var(--red)}
+  .s-work{background:#f3ecff;color:#7a4dd0}
+  .s-end{background:#3a3f47;color:#fff}
+  .cons{background:#eef1f5;color:#555}
+
+  /* buttons */
+  button{font-family:inherit;cursor:pointer;border-radius:5px;font-weight:700;font-size:12px;padding:5px 10px;border:1px solid transparent}
+  .b1{background:#eef4ff;color:var(--blue);border-color:#cfe0fb}
+  .b2{background:#e9f7ef;color:var(--green);border-color:#bfe6cf}
+  .b-red{background:#fdeaea;color:var(--red);border-color:#f3c5c5}
+  .b-ghost{background:#f3f4f7;color:#555;border-color:#d8dce2}
+  .b-amber{background:var(--amBg);color:var(--amber);border-color:#f0d9a8}
+  .b-pri{background:var(--purple);color:#fff;padding:8px 16px}
+  .b-pri:hover{background:var(--purple2)}
+  .acts{display:flex;flex-direction:column;gap:4px;align-items:stretch}
+  .acts button{white-space:nowrap}
+
+  /* ===== modal ===== */
+  .mask{position:fixed;inset:0;background:rgba(20,22,28,.5);display:none;align-items:flex-start;
+    justify-content:center;padding:32px 16px;z-index:100;overflow:auto}
+  .mask.show{display:flex}
+  .modal{background:#fff;border-radius:12px;width:min(880px,100%);box-shadow:0 18px 50px rgba(0,0,0,.3);overflow:hidden}
+  .modal.sm{width:min(480px,100%)}
+  .mhead{background:#f6f3fb;border-bottom:1px solid var(--line);padding:13px 18px;display:flex;align-items:center;gap:10px}
+  .mhead h3{margin:0;color:var(--purple2);font-size:16px}
+  .mhead .x{margin-left:auto;background:none;border:none;font-size:20px;color:#888;cursor:pointer}
+  .mbody{padding:18px 20px;max-height:70vh;overflow:auto}
+  .mfoot{border-top:1px solid var(--line);padding:12px 18px;display:flex;gap:8px;justify-content:flex-end;background:#fafbfc}
+
+  /* form bits */
+  .frm table{width:100%;border-collapse:collapse;margin:6px 0}
+  .frm th,.frm td{border:1px solid var(--line);padding:8px 10px;font-size:12.5px}
+  .frm th{background:#f5f6f9;text-align:left;width:130px;font-weight:700}
+  .frm input[type=text],.frm input[type=date],.frm input[type=number],.frm select{border:1px solid var(--line);border-radius:5px;padding:5px 8px;font-size:12.5px}
+  .sec{font-weight:800;color:var(--purple2);margin:18px 0 6px;font-size:13.5px;border-left:3px solid var(--purple);padding-left:8px}
+  .radioL{display:inline-flex;gap:4px;align-items:center;margin-right:14px;cursor:pointer}
+  .ckL{display:inline-flex;gap:4px;align-items:center;margin-right:14px;cursor:pointer;white-space:nowrap}
+  .radio{display:inline-flex;gap:16px;align-items:center}
+  .radio label{display:inline-flex;gap:5px;align-items:center;cursor:pointer}
+  .calc{background:var(--rdbg);border:1px solid #f3c5c5;border-radius:8px;padding:10px 14px;color:var(--red);font-weight:700;margin:8px 0}
+  .totrow{background:#fff5f5;font-weight:800;color:var(--red)}
+  .pick{display:flex;gap:14px;margin:8px 0}
+  .pick .opt{flex:1;border:2px solid var(--line);border-radius:10px;padding:16px;cursor:pointer;text-align:center;transition:.12s}
+  .pick .opt:hover{border-color:#b69bdf;background:#faf8ff}
+  .pick .opt.sel{border-color:var(--purple);background:#f3ecff}
+  .pick .opt h4{margin:0 0 4px;font-size:15px}
+  .pick .opt p{margin:0;font-size:11.5px;color:var(--sub)}
+  /* 상담상태 2단 선택 (국내 CMS 방식) */
+  .statesel{display:flex;gap:10px;align-items:flex-start}
+  .statesel select{height:140px;min-width:160px;border:1px solid #9bb0d0;border-radius:4px;padding:3px;font-size:12.5px;background:#fff}
+  .statesel select option{padding:3px 6px}
+  .stars{color:#e8820c;font-size:15px;letter-spacing:1px}
+  .hist{border:1px solid var(--line);border-radius:8px;background:#fafbfc;padding:8px 10px;max-height:130px;overflow:auto;font-size:12px}
+  .hist .h{padding:4px 0;border-bottom:1px dashed var(--line)}
+  .hist .h:last-child{border-bottom:none}
+  .hist .meta{color:var(--purple2);font-weight:700}
+
+  /* steps */
+  .steps{display:flex;gap:6px;margin-bottom:14px}
+  .steps .st{flex:1;text-align:center;font-size:11.5px;font-weight:700;color:#aaa;padding:6px 4px;border-bottom:3px solid #e3e3e3}
+  .steps .st.on{color:var(--purple2);border-bottom-color:var(--purple)}
+  .steps .st.done{color:var(--green);border-bottom-color:var(--green)}
+
+  /* toast */
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+    background:#2b2f36;color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:600;
+    opacity:0;transition:.25s;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:90vw}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast b{color:#ffd479}
+
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 0;font-size:11.5px;color:var(--sub)}
+  .backlink{display:inline-block;margin:0 0 8px;color:var(--blue);text-decoration:none;font-size:12px}
+  .filter{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:10px;flex-wrap:wrap}
+  .filter select,.filter input{border:1px solid var(--line);border-radius:5px;padding:5px 8px}
+  .uparea{border:2px dashed #c3cbd6;border-radius:10px;padding:26px;text-align:center;color:#7b8794;background:#fbfcfd;margin-bottom:12px}
+  /* ===== multi-check searchable dropdown ===== */
+  .msdd{position:relative;display:inline-block;min-width:190px;vertical-align:top}
+  .msdd .box{border:1px solid var(--line);border-radius:5px;padding:5px 8px;background:#fff;cursor:pointer;min-height:31px;font-size:12.5px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+  .msdd .box .ph{color:#9aa1ab}
+  .msdd .box .tag{background:#f3ecff;color:var(--purple2);border-radius:10px;padding:1px 8px;font-weight:700;font-size:11.5px}
+  .msdd .box::after{content:'▾';margin-left:auto;color:#9aa1ab}
+  .msdd .panel{display:none;position:absolute;z-index:60;top:calc(100% + 2px);left:0;min-width:100%;width:max-content;max-width:280px;background:#fff;border:1px solid #9bb0d0;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.15);padding:8px}
+  .msdd.open .panel{display:block}
+  .msdd .panel input.srch{width:100%;border:1px solid var(--line);border-radius:5px;padding:5px 7px;margin-bottom:6px;font-size:12px}
+  .msdd .opts{max-height:170px;overflow:auto}
+  .msdd .opts label{display:flex;align-items:center;gap:6px;padding:4px 5px;border-radius:5px;cursor:pointer;font-size:12.5px;margin:0}
+  .msdd .opts label:hover{background:#f3ecff}
+  .msdd .opts label.hide{display:none}
+  /* ===== 국내 CMS 스타일: 수기 등록 / 파일 업로드 ===== */
+  .dm-panel{border:1px solid var(--line);background:#fff;padding:20px 18px;text-align:center;margin:0 0 10px;
+    display:flex;flex-wrap:wrap;gap:8px 6px;align-items:center;justify-content:center}
+  .dm-panel label{font-weight:600;color:#444;margin:0 2px 0 8px}
+  .dm-panel input[type=text],.dm-panel input[type=number],.dm-panel input[type=date],.dm-panel select{border:1px solid #cfd4db;border-radius:2px;
+    padding:7px 9px;font-size:12.5px;min-width:170px;background:#fff}
+  .dm-panel input[type=date]{min-width:140px}
+  .dm-panel select{min-width:110px}
+  .dm-btn-reg{background:#fff;border:1px solid var(--red);color:var(--red);border-radius:3px;padding:7px 14px;
+    font-weight:700;margin-left:6px}
+  .dm-btn-reg:hover{background:var(--rdbg)}
+  .dm-upload{border:1px solid var(--line);background:#fff;padding:24px 18px;text-align:center;margin:0 0 10px}
+  .dm-upload .up-msg{color:#555;margin-bottom:12px;font-size:13px}
+  .dm-selectfiles{background:#555;color:#fff;border-radius:20px;padding:9px 24px;font-weight:700;letter-spacing:.04em;border:none}
+  .dm-selectfiles:hover{background:#3a3f47}
+  .dm-tpl{text-align:center;margin:0 0 16px}
+  .dm-tpl button{background:#f3f4f7;border:1px solid #d0d5dc;color:#555;padding:7px 16px;border-radius:3px;font-weight:600}
+  .dm-tpl button:hover{background:#e8ebef}
+</style>
+</head>
+<body>
+  <a class="backlink" href="index.html" style="display:block;background:#fff;padding:6px 16px;border-bottom:1px solid var(--line)">← 화면설명서(문서)로 돌아가기</a>
+
+  <!-- ===== CMS shell ===== -->
+  <div class="topbar">
+    <span class="brand">WeaversMIND™</span>
+    <small>베트남 CMS 프로토타입 · wm-vn.wcomms.kr/cms_wm</small>
+    <span class="langbox">
+      <select id="lang" onchange="setLang(this.value)">
+        <option value="ko" selected>한국어</option>
+        <option value="vi">Việt Nam</option>
+      </select>
+    </span>
+    <span class="spacer"></span>
+    <span class="rolebox">👤 로그인 권한:
+      <select id="role" onchange="setRole(this.value)">
+        <option value="상담원">상담원</option><option value="관리자" selected>관리자</option><option value="매니저">매니저</option>
+        <option value="미납담당자">미납담당자</option><option value="재무담당자">재무담당자</option><option value="물류">물류</option>
+      </select>
+    </span>
+  </div>
+  <div class="nav" id="topnav"></div>
+  <div class="subnav" id="subnav"></div>
+
+  <!-- ===== Screen: DB List ===== -->
+  <div class="page" id="screen-list">
+    <h2 class="ptitle">DB 리스트</h2>
+    <p class="pdesc">고객 행의 <b>기능</b> 버튼을 클릭해 보세요. 상단 <b>로그인 권한</b>을 바꾸면 노출되는 버튼이 달라집니다(🟠 권한별 노출).</p>
+
+    <div class="hint" id="listHint"></div>
+    <div style="margin-bottom:8px" id="dbExcelWrap">
+      <button class="b-amber" onclick="downloadDbExcel()">⬇ DB 리스트 엑셀 (관리자)</button>
+      <span class="muted">🔒 패키지 <b>내부코드</b> 컬럼 포함 — 화면에는 표시되지 않습니다.</span>
+    </div>
+    <div style="overflow-x:auto;border:1px solid var(--line);border-radius:8px">
+    <table class="list" style="min-width:1980px;border:none">
+      <thead><tr>
+        <th>꼬리표</th><th>No</th><th>DBIDX</th><th>DB포인트</th><th>OB명</th><th>분배일</th><th>유입일</th>
+        <th>고객명</th><th>고객전화번호</th><th>CALL</th><th>DB정보</th><th>최종통화시간</th><th>통화예약시간</th><th>오더일</th>
+        <th>접수 제품</th><th>상담상태</th><th>오토콜</th><th>고객상태</th><th>관리콜1차</th><th>관리콜2차</th>
+        <th style="width:150px">기능</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    </div>
+    <div class="legend">
+      <span>🟦 배송/판매</span><span>🟪 반품 진행</span><span>🟥 취소/환불</span><span>⬛ 종결</span>
+      <span style="margin-left:auto">※ 샘플 데이터 — 실제 동작 시연용</span>
+    </div>
+  </div>
+
+  <!-- ===== Screen: 4-6 송장번호 업로드 ===== -->
+  <div class="page reqscreen" id="screen-ship" style="display:none">
+    <h2 class="ptitle">4-6 송장번호 업로드 <span class="muted" style="font-size:13px">📦 물건 발송</span></h2>
+    <p class="pdesc">송장 미등록 건에 <b>송장번호를 입력/업로드</b>합니다. 권한: <b>물류 / 관리자</b>.</p>
+    <div class="hint">송장번호가 등록되면 1-2 고객관리의 해당 건 <b>📦송장 ✅</b> + <b>상담창(OB CALL 관리)에 송장번호</b>가 표시됩니다. <b>선납금 입금(3-9) + 송장 등록</b>이 모두 완료되면 자동 <b>구매완료(3-10)</b> 처리됩니다.</div>
+
+    <div class="sec" style="margin-top:0">송장번호 등록 <span class="muted">(수기 · 국내 CMS 방식)</span></div>
+    <div class="dm-panel">
+      <label>주문키(고객키) :</label><input type="text" id="shipKey" placeholder="WV...OHWS 또는 번호">
+      <label>송장번호 :</label><input type="text" id="shipInv">
+      <button class="dm-btn-reg" onclick="addShipManual()">등록</button>
+    </div>
+    <div class="dm-upload">
+      <div class="up-msg">파일을 올려주세요 <span class="muted">(주문키 | 송장번호 2열)</span></div>
+      <button class="dm-selectfiles" onclick="shipFileUpload()">SELECT FILES</button>
+    </div>
+    <div class="dm-tpl"><button onclick="downloadShipTemplate()">양식 다운로드</button></div>
+
+    <div class="sec" style="margin-top:22px">송장 미등록 목록 <span class="muted">(행별 송장번호 입력 후 처리)</span></div>
+    <table class="list" id="shipTable"></table>
+    <div style="margin:10px 0 4px"><button class="b-pri" onclick="doShip()">📦 선택 건 송장 등록</button></div>
+  </div>
+
+  <!-- ===== Screen: 3-9 입금처리 ===== -->
+  <div class="page reqscreen" id="screen-pay" style="display:none">
+    <h2 class="ptitle">3-9 선납금 입금 <span class="b s-canc">신규 화면</span></h2>
+    <p class="pdesc">선납금 입금 건을 <b>입금액과 함께</b> 확인 처리합니다. 권한: <b>재무담당자 / 관리자</b>.</p>
+    <div class="hint">입금처리되면 1-2 고객관리의 해당 건 <b>💰입금 ✅</b>로 갱신됩니다. <b>선납금 입금 + 송장 등록(4-6)</b>이 모두 완료되면 자동 <b>구매완료(3-10)</b> 처리됩니다.</div>
+
+    <div class="sec" style="margin-top:0">선납금 입금 등록 <span class="muted">(수기 · 국내 CMS 방식)</span></div>
+    <div class="dm-panel">
+      <label>구분 :</label><select id="payType"><option value="선납금">선납금</option></select>
+      <label>고객키 :</label><input type="text" id="payKey" placeholder="WV...OHWS 또는 번호">
+      <label>입금액 :</label><input type="number" id="payAmt" placeholder="VND">
+      <button class="dm-btn-reg" onclick="addPayManual()">등록</button>
+    </div>
+    <div class="dm-upload">
+      <div class="up-msg">파일을 올려주세요 <span class="muted">(구분 | 고객키 | 입금액 3열)</span></div>
+      <button class="dm-selectfiles" onclick="payFileUpload()">SELECT FILES</button>
+    </div>
+    <div class="dm-tpl"><button onclick="downloadPayTemplate()">양식 다운로드</button></div>
+    <table class="list" id="payManualTable"></table>
+
+    <div class="sec" style="margin-top:22px">입금 미확인 목록 <span class="muted">(행별 입금액 입력 후 처리)</span></div>
+    <table class="list" id="payTable"></table>
+    <div style="margin:10px 0 4px"><button class="b-pri" onclick="doPay()">💰 선택 건 입금처리</button></div>
+  </div>
+
+  <!-- ===== Screen: 3-10 구매완료 처리 ===== -->
+  <div class="page reqscreen" id="screen-complete" style="display:none">
+    <h2 class="ptitle">3-10 구매완료 처리 <span class="b s-canc">신규 화면</span></h2>
+    <p class="pdesc"><b>송장 + 입금이 모두 완료된 건</b>을 <b>구매완료</b>로 확정합니다. 구매완료가 되어야 비로소 중도해지(반품)가 가능합니다.</p>
+    <div class="hint"><b>선납금 입금(3-9) + 송장 등록(4-6)</b>이 모두 완료되면 <b>자동 구매완료</b> 처리됩니다. 아래 목록은 두 조건이 충족됐으나 아직 구매완료 전인 건으로, <b>임의(수동) 구매완료</b>가 필요할 때 사용합니다. 구매완료가 되어야 1-2 고객관리에서 중도해지(상담창) 진행이 가능합니다.</div>
+    <table class="list" id="completeTable"></table>
+    <div style="margin:10px 0 4px"><button class="b-pri" onclick="doComplete()">✓ 선택 건 구매완료 처리</button></div>
+  </div>
+
+  <!-- ===== Screen: 4-3 수동입고처리 ===== -->
+  <div class="page" id="screen-receive" style="display:none">
+    <h2 class="ptitle">4-3 수동입고처리</h2>
+    <p class="pdesc">기기반납 건의 <b>입고를 확인</b>합니다. (4-1 입고 / 5-2-1 입고업로드 리스트 / 4-3 수동입고처리에서 동일하게 반영) 권한: <b>물류 / 관리자</b>.</p>
+    <div class="hint">입고대기 상태(기기반납 경로)인 건만 표시됩니다. 입고 처리하면 고객상태가 <b>반품입고</b>로 바뀌고, 이후 <b>3-6 환불</b>에서 환불 처리합니다.</div>
+    <table class="list" id="receiveTable"></table>
+    <div style="margin:10px 0 4px"><button class="b-pri" onclick="doReceive()">📥 선택 건 입고 처리</button></div>
+  </div>
+
+  <!-- ===== Screen: 3-6 환불 ===== -->
+  <div class="page reqscreen" id="screen-refund" style="display:none">
+    <h2 class="ptitle">3-6 환불</h2>
+    <p class="pdesc">취소·기기반납·위약금 경로의 <b>환불을 최종 처리</b>합니다. 환불요청 → 환불승인(최종) 2단계. 권한: 환불요청=상담원/관리자, 환불승인=관리자/매니저.</p>
+    <div class="hint">환불 파이프라인(취소접수 · 반품입고 · 위약금입금 · 환불요청)에 있는 건이 표시됩니다. 환불승인 시 종결 상태(취소 / 중도해지(기기반납) / 중도해지(위약금))로 마감되고, 위약금 경로는 ★컨텐츠 자동 사용중단됩니다.</div>
+    <div style="margin-bottom:10px"><button class="b-amber" onclick="downloadPenaltyCSV()">⬇ 위약금 산정내역 다운로드 (CSV)</button> <span class="muted">최초 산정 위약금 · 할인 금액 · 최종 위약금 컬럼 포함</span></div>
+    <table class="list" id="refundTable"></table>
+  </div>
+
+  <!-- ===== Screen: Virtual account upload ===== -->
+  <div class="page reqscreen" id="screen-upload" style="display:none">
+    <h2 class="ptitle">3-11 가상계좌 / 금액 양식 업로드 <span class="b s-canc">신규 화면</span></h2>
+    <p class="pdesc">할부금 · 위약금을 <b>엑셀 양식으로 업로드</b>하거나, 아래에서 <b>개별 등록</b>할 수 있습니다. (현재 없는 화면 — 신규 개발 / 추후 자동반영 계획)</p>
+
+    <div class="sec">개별 등록 <span class="muted">(위약금/할부금 · 가상계좌 · 금액)</span></div>
+    <div class="dm-panel">
+      <label>구분 :</label><select id="ivType"><option value="위약금">위약금</option><option value="할부금">할부금</option></select>
+      <label>가상계좌 :</label><input type="text" id="ivAcct" placeholder="숫자만" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+      <label>금액 :</label><input type="number" id="ivAmt" placeholder="VND">
+      <label>입금일 :</label><input type="date" id="ivDate" value="2026-06-29">
+      <button class="dm-btn-reg" onclick="addIndiv()">등록</button>
+    </div>
+    <table class="list" id="indivTable"></table>
+
+    <div class="sec" style="margin-top:22px">엑셀 일괄 업로드</div>
+    <div class="dm-upload">
+      <div class="up-msg">파일을 올려주세요 <span class="muted">(구분 | 가상계좌 | 금액 | 입금일)</span></div>
+      <button class="dm-selectfiles" onclick="fakeUpload()">SELECT FILES</button>
+    </div>
+    <div class="dm-tpl"><button onclick="toast('양식(.xlsx) 다운로드 — 컬럼: 구분(위약금/할부금)·가상계좌·금액·입금일')">양식 다운로드</button></div>
+    <div id="upPreview" style="display:none">
+      <div class="sec">업로드 미리보기</div>
+      <table class="list">
+        <thead><tr><th>구분</th><th>가상계좌</th><th>금액(VND)</th><th>입금일</th></tr></thead>
+        <tbody>
+          <tr><td>위약금</td><td>970422-...-3710</td><td>99,900</td><td>2026-06-29</td></tr>
+          <tr><td>할부금</td><td>970422-...-5535</td><td>1,547,000</td><td>2026-06-29</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px"><button class="b-pri" onclick="toast('업로드 반영 완료 — 위약금 입금/구매완료 상태에 매칭')">✓ 반영하기</button></div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: 17-1 회원현황 (목록) ===== -->
+  <div class="page reqscreen" id="screen-members" style="display:none">
+    <h2 class="ptitle">▶ 회원현황</h2>
+    <p class="pdesc">전체 회원의 <b>납부·미납 현황</b> 조회. <b>고객명</b>을 클릭하면 상세(회원정보 · 납부현황 · 히스토리)로 이동합니다.</p>
+    <div class="hint">🇻🇳 베트남은 <b>카드 자동결제가 아닌 고객 입금(계좌이체 · 가상계좌) 방식</b>이라 <s>카드사 · 카드번호 · 유효기간</s> 항목이 없습니다. 대신 <b>입금방식 · 입금은행 · 가상계좌</b>로 관리합니다.</div>
+    <div class="filter">
+      <span>분류</span>
+      <select><option>- 전체 -</option><option>계약중</option><option>계약종료</option><option>미납</option></select>
+      <input type="text" placeholder="회원명" style="width:110px">
+      <input type="text" placeholder="전화번호" style="width:120px">
+      <input type="text" placeholder="구매제품" style="width:130px">
+      <span>고객상태</span>
+      <select><option>- 전체 -</option><option>계약중</option><option>계약종료</option></select>
+      <span>입금방식</span>
+      <select><option>- 전체 -</option><option>가상계좌</option><option>계좌이체</option></select>
+      <span>선납유무</span>
+      <select><option>- 전체 -</option><option>선납</option><option>일반</option></select>
+      <button class="b-pri" onclick="renderMembers()">🔍 검색</button>
+      <button class="b-ghost" onclick="toast('검색 조건 초기화')">검색 초기화</button>
+    </div>
+    <div style="margin-bottom:10px">
+      <button class="b-amber" onclick="downloadCollectExcel()">⬇ 수금현황 엑셀 (베트남)</button>
+      <button class="b-amber" onclick="downloadWeeklyRawExcel()">⬇ 주마감 RAW 엑셀 (베트남)</button>
+      <span class="muted">※ 엑셀 다운로드 시 CMS 속도 저하 → 가급적 비업무시간에 다운로드</span>
+    </div>
+    <div class="muted" style="margin-bottom:6px">[Total: <span id="colTotal">0</span>] · 단위: VND</div>
+    <table class="list" id="membersTable"></table>
+  </div>
+
+  <!-- ===== Screen: 17-1 수금관리 개별(상세) ===== -->
+  <div class="page reqscreen" id="screen-memberDetail" style="display:none">
+    <h2 class="ptitle">▶ 회원현황 <span class="muted" style="font-size:13px">개별 상세</span></h2>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin-bottom:10px">
+      <button class="b1" onclick="toast('문자수신내역 조회 (기존 기능)')">문자수신내역</button>
+      <button class="b2" onclick="curScreen='overdue';showScreen('overdue');renderNav()">미납콜 이동</button>
+      <button class="b-amber" onclick="toast('통합이력 조회 (기존 기능)')">통합이력 조회</button>
+      <button class="b-ghost" onclick="toast('OB(아웃바운드) 조회')">OB 조회</button>
+      <button class="b-ghost" onclick="toast('IB(인바운드) 조회')">IB 조회</button>
+      <button class="b-red" onclick="toast('미납 안내 SMS 발송')">미납SMS</button>
+      <button class="b-pri" onclick="showScreen('members')">목록으로</button>
+    </div>
+    <div id="detailBody"></div>
+  </div>
+
+  <!-- ===== Screen: 17-6.1 리포트(미납자현황) ===== -->
+  <div class="page reqscreen" id="screen-rptUnpaid" style="display:none">
+    <h2 class="ptitle">17-6.1 리포트 (미납자현황)</h2>
+    <p class="pdesc">위약금 <b>미납</b> 고객 현황 (위약금 미입금 · 협의 단계). 최초/할인/최종 위약금 포함.</p>
+    <div style="margin-bottom:10px"><button class="b-amber" onclick="downloadRpt('unpaid')">⬇ 미납자현황 다운로드 (CSV)</button></div>
+    <table class="list" id="rptUnpaidTable"></table>
+  </div>
+
+  <!-- ===== Screen: 17-6.3 리포트(입금현황) ===== -->
+  <div class="page reqscreen" id="screen-rptDeposit" style="display:none">
+    <h2 class="ptitle">17-6.3 리포트 (입금현황)</h2>
+    <p class="pdesc"><b>선납금 · 할부금 · 위약금</b> 입금 내역을 통합 조회합니다. 상단 필터(종류·조회기간·계약상태)로 조회 후 엑셀 다운로드할 수 있습니다.</p>
+    <div class="filter">
+      <span>종류</span>
+      <select id="depType"><option value="전체">- 전체 -</option><option value="선납금">선납금</option><option value="할부금">할부금</option><option value="위약금">위약금</option></select>
+      <span>조회기간</span>
+      <input type="date" id="depFrom" value="2026-01-01"> ~ <input type="date" id="depTo" value="2026-12-31">
+      <span>계약상태</span>
+      <select id="depStatus"><option value="전체">- 전체 -</option><option value="계약중">계약중</option><option value="계약종료">계약종료</option><option value="미납">미납</option></select>
+      <button class="b-pri" onclick="renderRptDeposit()">🔍 조회</button>
+      <button class="b-amber" onclick="downloadDeposit()">⬇ 입금현황 엑셀</button>
+    </div>
+    <div class="muted" style="margin-bottom:6px">[Total: <span id="depTotal">0</span>건] · 입금액 합계 <b><span id="depSum">0</span></b> VND · 단위: VND</div>
+    <table class="list" id="rptDepositTable"></table>
+  </div>
+
+  <!-- ===== Screen: 18-2 미납콜 상담 ===== -->
+  <div class="page reqscreen" id="screen-overdue" style="display:none">
+    <h2 class="ptitle">18-2 미납콜 상담</h2>
+    <p class="pdesc">위약금 미납 고객 대상 <b>미납콜 상담</b>. [상담]에서 상담상태 <code>반품 &gt; 위약금 협의·수정</code>으로 협의·기록합니다. 권한: <b>미납담당자 / 관리자</b>.</p>
+    <div class="hint">미납담당자로 로그인 후 [상담] → 위약금 협의·수정(최초/할인/최종) 입력 → 이력 기록됩니다.</div>
+    <table class="list" id="overdueTable"></table>
+  </div>
+
+  <!-- ===== Screen: 1-34 패키지 구성 관리 ===== -->
+  <div class="page reqscreen" id="screen-pkg" style="display:none">
+    <h2 class="ptitle">1-34 패키지 구성 관리 <span class="b s-canc">개선 요청</span></h2>
+    <p class="pdesc">패키지에 <b>단말기명</b>과 <b>기본 컨텐츠(SW)</b>를 등록하면, 2-1 접수창의 <b>상품명</b> 선택에 그대로 노출됩니다.</p>
+    <div class="hint">🇻🇳 베트남 단말기: <b>Galaxy Tab A11</b> · 기본 SW <b>6종</b>(워드·토크·기초영어·처음영어·기초한국어·실전한국어) · 패키지 유형: <b>영어(4종) / 한국어(2종) / 영어+한국어(6종)</b></div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start">
+      <div style="flex:1;min-width:340px">
+        <div class="sec" style="margin-top:0">신규 등록</div>
+        <div class="frm"><table>
+          <tr><th>패키지명</th><td><input type="text" id="pkName" placeholder="예: 영어 패키지" style="width:100%"></td></tr>
+          <tr><th>🔒 내부코드</th><td><input type="text" id="pkCode" placeholder="예: VN-EN04" style="width:160px">
+            <div class="muted" style="margin-top:4px">※ <b>내부 전용</b> — 2-1 접수창(상담원)에는 노출되지 않고, 관리자 엑셀 다운로드에만 컬럼으로 출력됩니다.</div></td></tr>
+          <tr><th>단말기</th><td>
+            <label class="radioL"><input type="radio" name="pkDev" value="Galaxy Tab A11" checked> Galaxy Tab A11</label>
+            <span class="muted">(베트남 단일 단말기)</span></td></tr>
+          <tr><th>기본 컨텐츠(SW)</th><td id="pkSW">
+            <label class="ckL"><input type="checkbox" value="워드"> 워드</label>
+            <label class="ckL"><input type="checkbox" value="토크"> 토크</label>
+            <label class="ckL"><input type="checkbox" value="기초영어"> 기초영어</label>
+            <label class="ckL"><input type="checkbox" value="처음영어"> 처음영어</label>
+            <label class="ckL"><input type="checkbox" value="기초한국어"> 기초한국어</label>
+            <label class="ckL"><input type="checkbox" value="실전한국어"> 실전한국어</label>
+            <div class="muted" style="margin-top:4px">※ 영어 4종(워드·토크·기초영어·처음영어) / 한국어 2종(기초한국어·실전한국어)</div></td></tr>
+          <tr><th>패키지 유형</th><td>
+            <select id="pkType"><option value="영어 패키지 (4종)">영어 패키지 (4종)</option><option value="한국어 패키지 (2종)">한국어 패키지 (2종)</option><option value="영어+한국어 패키지 (6종)">영어+한국어 패키지 (6종)</option></select></td></tr>
+          <tr><th>상품가격(동)</th><td><input type="number" id="pkPrice" value="15470000" style="width:160px"> VND</td></tr>
+          <tr><th>렌탈창 노출</th><td><label class="radioL"><input type="radio" name="pkShow" checked> 보임</label><label class="radioL"><input type="radio" name="pkShow"> 숨김</label></td></tr>
+        </table></div>
+        <div style="margin-top:8px"><button class="b-pri" onclick="addPkg()">＋ 저장(등록)</button></div>
+      </div>
+      <div style="flex:1.2;min-width:380px">
+        <div class="sec" style="margin-top:0">등록 패키지 관리</div>
+        <table class="list" id="pkgTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Screen: 계약서(접수 정보 + 계약서 출력) ===== -->
+  <div class="page reqscreen" id="screen-contract" style="display:none">
+    <h2 class="ptitle">2-1 계약 정보 · 계약서 출력 <span class="b s-canc">신규</span></h2>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="b-pri" onclick="showScreen('list')">← 고객관리 목록</button></div>
+    <div id="contractBody"></div>
+  </div>
+
+  <!-- ===== Screen: 15-2-2 DB 재분배 관리 ===== -->
+  <div class="page reqscreen" id="screen-redist" style="display:none">
+    <h2 class="ptitle">15-2-2 DB회수 재분배 관리 <span class="b s-canc">개선 요청</span></h2>
+    <p class="pdesc">3사(국내) 레이아웃과 동일하게 적용. <b>차이점</b>: 회수조건에 <b>지역</b> 추가, 분배조건의 <b>재콜그룹 → 성과그룹</b>으로 변경.</p>
+    <div class="hint">A. 회수조건: 기존 분배된 재콜 DB 중 <b>N회 분배된 재콜DB만 회수</b>(0회 디폴트) · <b>지역</b>(베트남 행정구역) 추가 · B. 분배조건: 분배대상/제외 <b>성과그룹</b></div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start">
+      <!-- A. 회수조건 -->
+      <div style="flex:1;min-width:380px;border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff">
+        <div class="sec" style="margin-top:0">A. 회수 조건</div>
+        <div class="frm"><table>
+          <tr><th>① 분배일</th><td><input type="date"> ~ <input type="date"></td></tr>
+          <tr><th>①-1 유입일</th><td><input type="date"> ~ <input type="date"></td></tr>
+          <tr><th>② 성과그룹 <span class="b s-canc">검색·멀티</span></th><td><span id="msRcGrp"></span></td></tr>
+          <tr><th>②-1 상담원 <span class="b s-canc">검색·멀티</span></th><td><span id="msRcAgent"></span></td></tr>
+          <tr><th>⑦ 지역 <span class="b s-canc">추가·검색·멀티</span></th><td><span id="msRcRegion"></span></td></tr>
+          <tr><th>임시저장 회수</th><td><select><option>미회수</option><option>회수 포함</option></select></td></tr>
+          <tr><th>기타 조건</th><td>
+            <label class="ckL"><input type="checkbox"> 임시저장 DB 포함 회수</label>
+            <label class="ckL"><input type="checkbox"> 결제보류 DB 포함 회수</label>
+            <label class="ckL"><input type="checkbox"> 재콜DB 회수 제외</label>
+            <div style="margin-top:6px"><label class="ckL"><input type="checkbox"> 기존 분배된 재콜 DB 중 <input type="number" value="0" style="width:50px"> 회 분배된 재콜DB만 회수 <span class="muted">(0회 디폴트)</span></label></div></td></tr>
+          <tr><th>회수 DB 개수</th><td><input type="number" value="-1" style="width:80px"> <span class="muted">(-1 = 전체)</span></td></tr>
+        </table></div>
+        <div style="margin-top:10px;text-align:center">
+          <button class="b2" onclick="toast('회수DB 조회/재계산 — 조건 변경 시 필수')">⑨ 회수DB 조회/재계산</button>
+          <div class="muted" style="margin-top:6px;color:var(--red)">☆ 동일번호 유입일이 최근 5일 이내면 회수대상 제외</div>
+        </div>
+      </div>
+      <!-- B. 분배조건 -->
+      <div style="flex:1;min-width:380px;border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff">
+        <div class="sec" style="margin-top:0">B. 분배 조건</div>
+        <div class="frm"><table>
+          <tr><th>⑩ 분배대상 성과그룹 <span class="b s-canc">변경·검색·멀티</span></th><td><span id="msDsGrp"></span> <span class="muted">(기존: 재콜그룹 0~9)</span></td></tr>
+          <tr><th>⑩-1 분배대상 상담원 <span class="b s-canc">검색·멀티</span></th><td><span id="msDsAgent"></span></td></tr>
+          <tr><th>⑪ 분배제외 성과그룹 <span class="b s-canc">변경·검색·멀티</span></th><td><span id="msExGrp"></span></td></tr>
+          <tr><th>⑪-1 분배제외 상담원 <span class="b s-canc">검색·멀티</span></th><td><span id="msExAgent"></span></td></tr>
+          <tr><th>분배일 선택</th><td><input type="date"></td></tr>
+        </table></div>
+        <div style="margin-top:10px;text-align:center">
+          <button class="b1" onclick="toast('분배현황 조회')">⑬ 분배현황 조회</button>
+          <button class="b-pri" onclick="renderRedist()">⑫ 회수DB/분배지정 조회</button>
+        </div>
+      </div>
+    </div>
+    <div class="sec">총 DB 분배수: <span id="redistTotal">0</span></div>
+    <table class="list" id="redistTable"></table>
+  </div>
+
+  <!-- ===== generic modal ===== -->
+  <div class="mask" id="mask"><div class="modal" id="modal">
+    <div class="mhead"><h3 id="mTitle"></h3><button class="x" onclick="closeModal()">×</button></div>
+    <div class="mbody" id="mBody"></div>
+    <div class="mfoot" id="mFoot"></div>
+  </div></div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   번역 사전 (한국어 → Tiếng Việt)
+   ---------------------------------------------------------------------
+   톤앤매너 기준: 실운영 베트남 CMS 화면(1-2 DB 리스트 / 3-4 배송) 용어를 따름
+     분배일=ngày phân loại · 유입일=ngày nhập · 오더일=ngày đơn hàng
+     고객명=tên khách hàng · 상담상태=trạng thái tư vấn · 고객상태=trạng thái khách hàng
+     접수 제품=sản phẩm tiếp nhận · 기능=chức năng · 꼬리표=nhãn · DB정보=thông tin dữ liệu
+   ---------------------------------------------------------------------
+   VI_HTML : <b>/<span> 이 포함된 문장을 통째로 치환 (innerHTML 기준, 공백 정규화)
+   VI_TEXT : 텍스트 노드 1개 전체와 정확히 일치하는 문자열
+   VI_FRAG : 위 둘에 걸리지 않는 잔여 조각 (안전망, 최소한만 유지)
+   ===================================================================== */
+const VI_HTML={
+/* ── 1-2 DB 리스트 ─────────────────────────────────────────── */
+'고객 행의 <b>기능</b> 버튼을 클릭해 보세요. 상단 <b>로그인 권한</b>을 바꾸면 노출되는 버튼이 달라집니다(🟠 권한별 노출).':
+ 'Hãy nhấn nút <b>chức năng</b> ở dòng khách hàng. Khi thay đổi <b>quyền đăng nhập</b> ở phía trên, các nút hiển thị sẽ thay đổi theo (🟠 hiển thị theo quyền).',
+'🔒 패키지 <b>내부코드</b> 컬럼 포함 — 화면에는 표시되지 않습니다.':
+ '🔒 Bao gồm cột <b>mã nội bộ</b> của gói — không hiển thị trên màn hình.',
+
+/* ── 4-6 송장번호 업로드 ───────────────────────────────────── */
+'4-6 송장번호 업로드 <span class="muted" style="font-size:13px">📦 물건 발송</span>':
+ '4-6 Tải lên mã vận đơn <span class="muted" style="font-size:13px">📦 Gửi hàng</span>',
+'송장 미등록 건에 <b>송장번호를 입력/업로드</b>합니다. 권한: <b>물류 / 관리자</b>.':
+ '<b>Nhập/tải lên mã vận đơn</b> cho các đơn chưa đăng ký vận đơn. Quyền: <b>Kho vận / Quản trị viên</b>.',
+'송장번호가 등록되면 1-2 고객관리의 해당 건 <b>📦송장 ✅</b> + <b>상담창(OB CALL 관리)에 송장번호</b>가 표시됩니다. <b>선납금 입금(3-9) + 송장 등록</b>이 모두 완료되면 자동 <b>구매완료(3-10)</b> 처리됩니다.':
+ 'Khi mã vận đơn được đăng ký, đơn tương ứng tại 1-2 Quản lý khách hàng sẽ hiển thị <b>📦Vận đơn ✅</b> và <b>mã vận đơn trong cửa sổ tư vấn (Quản lý OB CALL)</b>. Khi hoàn tất cả <b>nộp tiền trả trước (3-9) và đăng ký vận đơn</b>, đơn sẽ tự động được xử lý thành <b>hoàn tất mua hàng (3-10)</b>.',
+'송장번호 등록 <span class="muted">(수기 · 국내 CMS 방식)</span>':
+ 'Đăng ký mã vận đơn <span class="muted">(nhập tay · theo cách của CMS Hàn Quốc)</span>',
+'파일을 올려주세요 <span class="muted">(주문키 | 송장번호 2열)</span>':
+ 'Vui lòng tải tệp lên <span class="muted">(2 cột: mã đơn hàng | mã vận đơn)</span>',
+'송장 미등록 목록 <span class="muted">(행별 송장번호 입력 후 처리)</span>':
+ 'Danh sách chưa đăng ký vận đơn <span class="muted">(nhập mã vận đơn từng dòng rồi xử lý)</span>',
+
+/* ── 3-9 선납금 입금 ───────────────────────────────────────── */
+'3-9 선납금 입금 <span class="b s-canc">신규 화면</span>':
+ '3-9 Nộp tiền trả trước <span class="b s-canc">Màn hình mới</span>',
+'선납금 입금 건을 <b>입금액과 함께</b> 확인 처리합니다. 권한: <b>재무담당자 / 관리자</b>.':
+ 'Xác nhận xử lý các đơn nộp tiền trả trước <b>kèm theo số tiền đã nộp</b>. Quyền: <b>Phụ trách tài chính / Quản trị viên</b>.',
+'입금처리되면 1-2 고객관리의 해당 건 <b>💰입금 ✅</b>로 갱신됩니다. <b>선납금 입금 + 송장 등록(4-6)</b>이 모두 완료되면 자동 <b>구매완료(3-10)</b> 처리됩니다.':
+ 'Sau khi xử lý nộp tiền, đơn tương ứng tại 1-2 Quản lý khách hàng sẽ được cập nhật thành <b>💰Nộp tiền ✅</b>. Khi hoàn tất cả <b>nộp tiền trả trước và đăng ký vận đơn (4-6)</b>, đơn sẽ tự động được xử lý thành <b>hoàn tất mua hàng (3-10)</b>.',
+'선납금 입금 등록 <span class="muted">(수기 · 국내 CMS 방식)</span>':
+ 'Đăng ký nộp tiền trả trước <span class="muted">(nhập tay · theo cách của CMS Hàn Quốc)</span>',
+'파일을 올려주세요 <span class="muted">(구분 | 고객키 | 입금액 3열)</span>':
+ 'Vui lòng tải tệp lên <span class="muted">(3 cột: phân loại | mã khách hàng | số tiền nộp)</span>',
+'입금 미확인 목록 <span class="muted">(행별 입금액 입력 후 처리)</span>':
+ 'Danh sách chưa xác nhận nộp tiền <span class="muted">(nhập số tiền nộp từng dòng rồi xử lý)</span>',
+
+/* ── 3-10 구매완료 처리 ────────────────────────────────────── */
+'3-10 구매완료 처리 <span class="b s-canc">신규 화면</span>':
+ '3-10 Xử lý hoàn tất mua hàng <span class="b s-canc">Màn hình mới</span>',
+'<b>송장 + 입금이 모두 완료된 건</b>을 <b>구매완료</b>로 확정합니다. 구매완료가 되어야 비로소 중도해지(반품)가 가능합니다.':
+ 'Xác nhận <b>các đơn đã hoàn tất cả vận đơn và nộp tiền</b> thành <b>hoàn tất mua hàng</b>. Chỉ khi đã hoàn tất mua hàng mới có thể chấm dứt giữa chừng (trả hàng).',
+'<b>선납금 입금(3-9) + 송장 등록(4-6)</b>이 모두 완료되면 <b>자동 구매완료</b> 처리됩니다. 아래 목록은 두 조건이 충족됐으나 아직 구매완료 전인 건으로, <b>임의(수동) 구매완료</b>가 필요할 때 사용합니다. 구매완료가 되어야 1-2 고객관리에서 중도해지(상담창) 진행이 가능합니다.':
+ 'Khi hoàn tất cả <b>nộp tiền trả trước (3-9) và đăng ký vận đơn (4-6)</b>, đơn sẽ được <b>tự động hoàn tất mua hàng</b>. Danh sách dưới đây là các đơn đã thỏa mãn cả hai điều kiện nhưng chưa hoàn tất mua hàng, dùng khi cần <b>hoàn tất mua hàng thủ công</b>. Chỉ khi đã hoàn tất mua hàng mới có thể tiến hành chấm dứt giữa chừng (cửa sổ tư vấn) tại 1-2 Quản lý khách hàng.',
+
+/* ── 4-3 수동입고처리 ──────────────────────────────────────── */
+'기기반납 건의 <b>입고를 확인</b>합니다. (4-1 입고 / 5-2-1 입고업로드 리스트 / 4-3 수동입고처리에서 동일하게 반영) 권한: <b>물류 / 관리자</b>.':
+ '<b>Xác nhận nhập kho</b> cho các đơn trả lại thiết bị. (Được phản ánh như nhau tại 4-1 Nhập kho / 5-2-1 Danh sách tải lên nhập kho / 4-3 Xử lý nhập kho thủ công) Quyền: <b>Kho vận / Quản trị viên</b>.',
+'입고대기 상태(기기반납 경로)인 건만 표시됩니다. 입고 처리하면 고객상태가 <b>반품입고</b>로 바뀌고, 이후 <b>3-6 환불</b>에서 환불 처리합니다.':
+ 'Chỉ hiển thị các đơn ở trạng thái chờ nhập kho (lộ trình trả lại thiết bị). Sau khi xử lý nhập kho, trạng thái khách hàng sẽ đổi thành <b>đã nhập kho hàng trả</b>, sau đó thực hiện hoàn tiền tại <b>3-6 Hoàn tiền</b>.',
+
+/* ── 3-6 환불 ──────────────────────────────────────────────── */
+'취소·기기반납·위약금 경로의 <b>환불을 최종 처리</b>합니다. 환불요청 → 환불승인(최종) 2단계. 권한: 환불요청=상담원/관리자, 환불승인=관리자/매니저.':
+ '<b>Xử lý hoàn tiền lần cuối</b> cho các lộ trình hủy · trả lại thiết bị · phí phạt. Gồm 2 bước: yêu cầu hoàn tiền → phê duyệt hoàn tiền (cuối cùng). Quyền: yêu cầu hoàn tiền = Tư vấn viên/Quản trị viên, phê duyệt hoàn tiền = Quản trị viên/Quản lý.',
+'환불 파이프라인(취소접수 · 반품입고 · 위약금입금 · 환불요청)에 있는 건이 표시됩니다. 환불승인 시 종결 상태(취소 / 중도해지(기기반납) / 중도해지(위약금))로 마감되고, 위약금 경로는 ★컨텐츠 자동 사용중단됩니다.':
+ 'Hiển thị các đơn đang nằm trong quy trình hoàn tiền (tiếp nhận hủy · đã nhập kho hàng trả · đã nộp phí phạt · yêu cầu hoàn tiền). Khi phê duyệt hoàn tiền, đơn sẽ được đóng ở trạng thái kết thúc (hủy / chấm dứt giữa chừng (trả thiết bị) / chấm dứt giữa chừng (phí phạt)), và với lộ trình phí phạt thì ★nội dung sẽ tự động bị ngừng sử dụng.',
+
+/* ── 3-11 가상계좌 업로드 ──────────────────────────────────── */
+'3-11 가상계좌 / 금액 양식 업로드 <span class="b s-canc">신규 화면</span>':
+ '3-11 Tải lên biểu mẫu tài khoản ảo / số tiền <span class="b s-canc">Màn hình mới</span>',
+'할부금 · 위약금을 <b>엑셀 양식으로 업로드</b>하거나, 아래에서 <b>개별 등록</b>할 수 있습니다. (현재 없는 화면 — 신규 개발 / 추후 자동반영 계획)':
+ 'Có thể <b>tải lên bằng biểu mẫu Excel</b> tiền trả góp · phí phạt, hoặc <b>đăng ký riêng lẻ</b> ở bên dưới. (Màn hình hiện chưa có — phát triển mới / dự kiến tự động phản ánh sau này)',
+'개별 등록 <span class="muted">(위약금/할부금 · 가상계좌 · 금액)</span>':
+ 'Đăng ký riêng lẻ <span class="muted">(phí phạt/tiền trả góp · tài khoản ảo · số tiền)</span>',
+'파일을 올려주세요 <span class="muted">(구분 | 가상계좌 | 금액 | 입금일)</span>':
+ 'Vui lòng tải tệp lên <span class="muted">(phân loại | tài khoản ảo | số tiền | ngày nộp tiền)</span>',
+
+/* ── 17-1 회원현황 ─────────────────────────────────────────── */
+'전체 회원의 <b>납부·미납 현황</b> 조회. <b>고객명</b>을 클릭하면 상세(회원정보 · 납부현황 · 히스토리)로 이동합니다.':
+ 'Tra cứu <b>tình trạng thanh toán và nợ quá hạn</b> của toàn bộ hội viên. Nhấn vào <b>tên khách hàng</b> để chuyển sang trang chi tiết (thông tin hội viên · tình trạng thanh toán · lịch sử).',
+'🇻🇳 베트남은 <b>카드 자동결제가 아닌 고객 입금(계좌이체 · 가상계좌) 방식</b>이라 <s>카드사 · 카드번호 · 유효기간</s> 항목이 없습니다. 대신 <b>입금방식 · 입금은행 · 가상계좌</b>로 관리합니다.':
+ '🇻🇳 Tại Việt Nam áp dụng <b>hình thức khách hàng tự nộp tiền (chuyển khoản · tài khoản ảo) chứ không phải tự động thanh toán bằng thẻ</b>, nên không có các mục <s>công ty thẻ · số thẻ · hạn sử dụng</s>. Thay vào đó quản lý bằng <b>hình thức nộp tiền · ngân hàng nộp tiền · tài khoản ảo</b>.',
+'▶ 회원현황 <span class="muted" style="font-size:13px">개별 상세</span>':
+ '▶ Tình trạng hội viên <span class="muted" style="font-size:13px">Chi tiết từng người</span>',
+
+/* ── 17-6 리포트 ───────────────────────────────────────────── */
+'위약금 <b>미납</b> 고객 현황 (위약금 미입금 · 협의 단계). 최초/할인/최종 위약금 포함.':
+ 'Tình trạng khách hàng <b>chưa nộp</b> phí phạt (giai đoạn chưa nộp · đang thỏa thuận phí phạt). Bao gồm phí phạt ban đầu/giảm giá/cuối cùng.',
+'<b>선납금 · 할부금 · 위약금</b> 입금 내역을 통합 조회합니다. 상단 필터(종류·조회기간·계약상태)로 조회 후 엑셀 다운로드할 수 있습니다.':
+ 'Tra cứu tổng hợp lịch sử nộp <b>tiền trả trước · tiền trả góp · phí phạt</b>. Có thể tra cứu bằng bộ lọc phía trên (loại · thời gian tra cứu · trạng thái hợp đồng) rồi tải Excel.',
+
+/* ── 18-2 미납콜 상담 ──────────────────────────────────────── */
+'위약금 미납 고객 대상 <b>미납콜 상담</b>. [상담]에서 상담상태 <code>반품 &gt; 위약금 협의·수정</code>으로 협의·기록합니다. 권한: <b>미납담당자 / 관리자</b>.':
+ '<b>Tư vấn gọi thu nợ</b> đối với khách hàng chưa nộp phí phạt. Tại [Tư vấn], chọn trạng thái tư vấn <code>Trả hàng &gt; Thỏa thuận · chỉnh sửa phí phạt</code> để thỏa thuận và ghi nhận. Quyền: <b>Phụ trách nợ quá hạn / Quản trị viên</b>.',
+
+/* ── 1-34 패키지 구성 관리 ─────────────────────────────────── */
+'1-34 패키지 구성 관리 <span class="b s-canc">개선 요청</span>':
+ '1-34 Quản lý cấu hình gói <span class="b s-canc">Yêu cầu cải tiến</span>',
+'패키지에 <b>단말기명</b>과 <b>기본 컨텐츠(SW)</b>를 등록하면, 2-1 접수창의 <b>상품명</b> 선택에 그대로 노출됩니다.':
+ 'Khi đăng ký <b>tên thiết bị</b> và <b>nội dung cơ bản (SW)</b> cho gói, chúng sẽ hiển thị nguyên vẹn ở mục chọn <b>tên sản phẩm</b> của cửa sổ tiếp nhận 2-1.',
+'🇻🇳 베트남 단말기: <b>Galaxy Tab A11</b> · 기본 SW <b>6종</b>(워드·토크·기초영어·처음영어·기초한국어·실전한국어) · 패키지 유형: <b>영어(4종) / 한국어(2종) / 영어+한국어(6종)</b>':
+ '🇻🇳 Thiết bị tại Việt Nam: <b>Galaxy Tab A11</b> · SW cơ bản <b>6 loại</b> (Word·Talk·Tiếng Anh cơ bản·Tiếng Anh nhập môn·Tiếng Hàn cơ bản·Tiếng Hàn thực hành) · Loại gói: <b>Tiếng Anh (4 loại) / Tiếng Hàn (2 loại) / Tiếng Anh + Tiếng Hàn (6 loại)</b>',
+'※ <b>내부 전용</b> — 2-1 접수창(상담원)에는 노출되지 않고, 관리자 엑셀 다운로드에만 컬럼으로 출력됩니다.':
+ '※ <b>Chỉ dùng nội bộ</b> — không hiển thị ở cửa sổ tiếp nhận 2-1 (tư vấn viên), chỉ xuất ra dưới dạng cột trong Excel tải xuống của quản trị viên.',
+
+/* ── 2-1 계약서 ────────────────────────────────────────────── */
+'2-1 계약 정보 · 계약서 출력 <span class="b s-canc">신규</span>':
+ '2-1 Thông tin hợp đồng · In hợp đồng <span class="b s-canc">Mới</span>',
+'🇻🇳 <b>접수 단계 입력 항목</b>(계약자명·성별·생년월일·신분증번호·발행일·발급처·주소·결제방식)을 기반으로 계약서가 자동 생성됩니다. [계약서 출력]은 <b>1-3 사용자관리 유저타입 = 관리자</b>인 경우만 노출됩니다.':
+ '🇻🇳 Hợp đồng được tạo tự động dựa trên <b>các mục nhập ở bước tiếp nhận</b> (tên người ký hợp đồng · giới tính · ngày sinh · số CCCD · ngày cấp · nơi cấp · địa chỉ · phương thức thanh toán). [In hợp đồng] chỉ hiển thị khi <b>loại người dùng tại 1-3 Quản lý người dùng = Quản trị viên</b>.',
+'접수 · 계약 정보 입력 <span class="muted">(2-1 접수창 신규 항목)</span>':
+ 'Nhập thông tin tiếp nhận · hợp đồng <span class="muted">(mục mới của cửa sổ tiếp nhận 2-1)</span>',
+'할부 결제금액 <span class="muted">(할부원금·월납부금 자동계산 / 수정불가)</span>':
+ 'Số tiền thanh toán trả góp <span class="muted">(gốc trả góp · tiền trả hàng tháng được tính tự động / không sửa được)</span>',
+
+/* ── 15-2-2 DB 재분배 ──────────────────────────────────────── */
+'15-2-2 DB회수 재분배 관리 <span class="b s-canc">개선 요청</span>':
+ '15-2-2 Quản lý thu hồi và tái phân bổ DB <span class="b s-canc">Yêu cầu cải tiến</span>',
+'3사(국내) 레이아웃과 동일하게 적용. <b>차이점</b>: 회수조건에 <b>지역</b> 추가, 분배조건의 <b>재콜그룹 → 성과그룹</b>으로 변경.':
+ 'Áp dụng giống bố cục của 3 công ty (Hàn Quốc). <b>Điểm khác biệt</b>: thêm <b>khu vực</b> vào điều kiện thu hồi, đổi <b>nhóm gọi lại → nhóm thành tích</b> trong điều kiện phân bổ.',
+'A. 회수조건: 기존 분배된 재콜 DB 중 <b>N회 분배된 재콜DB만 회수</b>(0회 디폴트) · <b>지역</b>(베트남 행정구역) 추가 · B. 분배조건: 분배대상/제외 <b>성과그룹</b>':
+ 'A. Điều kiện thu hồi: trong số DB gọi lại đã phân bổ, <b>chỉ thu hồi DB gọi lại đã được phân bổ N lần</b> (mặc định 0 lần) · thêm <b>khu vực</b> (đơn vị hành chính Việt Nam) · B. Điều kiện phân bổ: <b>nhóm thành tích</b> thuộc diện phân bổ/loại trừ',
+
+/* ── 상담창 · 접수창 · 반품접수 (동적) ─────────────────────── */
+'🇰🇷 발신번호는 <b>한국 번호</b>(기존 뇌새김 SMS 게이트웨이)를 사용합니다. 시리얼번호로 조회된 <b>기기 PW</b>가 아래 입력한 번호로 발송됩니다.':
+ '🇰🇷 Số gửi đi sử dụng <b>số điện thoại Hàn Quốc</b> (cổng SMS Noesaegim hiện có). <b>Mật khẩu thiết bị</b> tra được theo số sê-ri sẽ được gửi tới số điện thoại nhập bên dưới.',
+'🇻🇳 <b>접수 단계</b> — 고객상태 <b>상담대기</b> 건만 접수 가능. [저장하기] 시 상담상태 <b>구매_현금(COD)</b> · 고객상태 <b>배송대기</b>로 전환되고, 그때부터 <b>[계약서]</b> 버튼이 노출됩니다.':
+ '🇻🇳 <b>Bước tiếp nhận</b> — chỉ tiếp nhận được các đơn có trạng thái khách hàng là <b>đang chờ tư vấn</b>. Khi nhấn [Lưu], trạng thái tư vấn chuyển thành <b>mua_tiền mặt (COD)</b> và trạng thái khách hàng chuyển thành <b>đang chờ giao hàng</b>; từ lúc đó nút <b>[Hợp đồng]</b> sẽ hiển thị.',
+'접수 정보 <span class="muted">(★ = 이번 개발요청 신규 항목)</span>':
+ 'Thông tin tiếp nhận <span class="muted">(★ = mục mới trong yêu cầu phát triển lần này)</span>',
+'★ 신분증 정보 <span class="muted">(선택 — 접수 시 미입력 가능, 계약 이후 [계약서] 화면에서 추가·수정 가능)</span>':
+ '★ Thông tin CCCD <span class="muted">(tùy chọn — có thể để trống khi tiếp nhận, bổ sung · chỉnh sửa tại màn hình [Hợp đồng] sau khi ký hợp đồng)</span>',
+'※ 신분증 번호 · 발행일 · 발급처는 <b>계약서 출력 전까지</b>만 채우면 됩니다. 접수 저장은 미입력 상태로도 가능합니다.':
+ '※ Số CCCD · ngày cấp · nơi cấp chỉ cần điền <b>trước khi in hợp đồng</b>. Vẫn có thể lưu tiếp nhận khi để trống các mục này.',
+'상품명 <span class="muted">(1-34 패키지 구성 관리 등록값 — 🔒내부코드는 상담원에게 노출되지 않음)</span>':
+ 'Tên sản phẩm <span class="muted">(giá trị đã đăng ký tại 1-34 Quản lý cấu hình gói — 🔒mã nội bộ không hiển thị với tư vấn viên)</span>',
+'★ 결제방식 <span class="muted">(선택에 따라 아래 금액 입력 행이 전환됨)</span>':
+ '★ Phương thức thanh toán <span class="muted">(dòng nhập số tiền bên dưới thay đổi theo lựa chọn)</span>',
+'★ 주소 <span class="muted">(4단 드롭다운 — 일부 단어 입력으로 검색)</span>':
+ '★ Địa chỉ <span class="muted">(danh sách 4 cấp — tìm kiếm bằng cách nhập một phần từ khóa)</span>',
+'위약금 및 비용 정산 <span class="muted">(조정(할인) 입력 시 최종 자동 계산)</span>':
+ 'Quyết toán phí phạt và chi phí <span class="muted">(nhập điều chỉnh (giảm) sẽ tự động tính số cuối)</span>',
+'위약금 산정 <span class="muted">(할인 입력 시 최종 자동 계산)</span>':
+ 'Tính phí phạt <span class="muted">(nhập số tiền giảm sẽ tự động tính số cuối)</span>',
+'상담 상태 <span class="muted">(대분류 → 소분류 선택)</span>':
+ 'Trạng thái tư vấn <span class="muted">(chọn nhóm lớn → nhóm nhỏ)</span>',
+'상담내용 <span class="muted">(저장 시 이력에 기록)</span>':
+ 'Nội dung tư vấn <span class="muted">(được ghi vào lịch sử khi lưu)</span>',
+
+/* ── 17-1 개별 상세 ────────────────────────────────────────── */
+'계약 · 입금 정보 <span class="muted">(베트남: 카드사·카드번호·유효기간 없음 → 입금 기준)</span>':
+ 'Thông tin hợp đồng · nộp tiền <span class="muted">(Việt Nam: không có công ty thẻ · số thẻ · hạn sử dụng → căn cứ theo việc nộp tiền)</span>',
+'입금 히스토리 <span class="muted">(베트남: 결제 → 입금)</span>':
+ 'Lịch sử nộp tiền <span class="muted">(Việt Nam: thanh toán → nộp tiền)</span>'
+};
+
+const VI_TEXT={
+/* ── 공통 셸 · 권한 ────────────────────────────────────────── */
+'← 화면설명서(문서)로 돌아가기':'← Quay lại tài liệu mô tả màn hình',
+'베트남 CMS 프로토타입 · wm-vn.wcomms.kr/cms_wm':'Nguyên mẫu CMS Việt Nam · wm-vn.wcomms.kr/cms_wm',
+'👤 로그인 권한:':'👤 Quyền đăng nhập:',
+'상담원':'Tư vấn viên','관리자':'Quản trị viên','매니저':'Quản lý',
+'미납담당자':'Phụ trách nợ quá hạn','재무담당자':'Phụ trách tài chính','물류':'Kho vận','시스템':'Hệ thống',
+'권한으로 로그인 중':'Đang đăng nhập với quyền',
+'배송대기/배송중 건 [상담] → 취소접수 가능. 반품입고/위약금입금 후 [환불요청] 처리.':
+ 'Với đơn đang chờ giao hàng/đang giao hàng, có thể [Tư vấn] → tiếp nhận hủy. Sau khi nhập kho hàng trả/nộp phí phạt thì xử lý [Yêu cầu hoàn tiền].',
+'모든 버튼 노출. [반품취소] 접수, [환불승인]까지 가능.':
+ 'Hiển thị toàn bộ nút. Có thể tiếp nhận [Hủy trả hàng] và [Phê duyệt hoàn tiền].',
+'[중도해지 승인], [환불승인] 권한. (반품접수 후 승인 게이트)':
+ 'Có quyền [Duyệt chấm dứt hợp đồng], [Phê duyệt hoàn tiền]. (Cổng phê duyệt sau khi tiếp nhận trả hàng)',
+'위약금 미입금 건의 [위약금 협의·수정]만 처리.':
+ 'Chỉ xử lý [Thỏa thuận · chỉnh sửa phí phạt] cho các đơn chưa nộp phí phạt.',
+'위약금 협의 완료 건의 [위약금 입금]만 처리.':
+ 'Chỉ xử lý [Nộp phí phạt] cho các đơn đã thỏa thuận xong phí phạt.',
+'입고대기 건의 [반품입고] 처리.':'Xử lý [Nhập kho hàng trả] cho các đơn đang chờ nhập kho.',
+
+/* ── 메뉴 ──────────────────────────────────────────────────── */
+'1 관리자':'1 Quản trị viên','2 OUT-BOUND':'2 Out-Bound','3 결제관리':'3 Quản lý thanh toán',
+'4 출고/입고관리':'4 Quản lý xuất/nhập kho','15 DB관리':'15 Quản lý DB',
+'17 수금관리':'17 Quản lý thu tiền','18 미납관리':'18 Quản lý nợ quá hạn',
+'1-2 고객관리':'1-2 Quản lý khách hàng','1-3 사용자관리':'1-3 Quản lý người dùng',
+'1-34 패키지 구성 관리':'1-34 Quản lý cấu hình gói','2-1 고객상담':'2-1 Tư vấn khách hàng',
+'3-1 결제':'3-1 Thanh toán','3-2 결제 변경':'3-2 Thay đổi thanh toán',
+'3-3 결제 내역 확인':'3-3 Kiểm tra lịch sử thanh toán','3-4 배송':'3-4 Giao hàng',
+'3-5 배송 내역 확인':'3-5 Kiểm tra lịch sử giao hàng','3-6 환불':'3-6 Hoàn tiền',
+'3-7 환불 내역 확인':'3-7 Kiểm tra lịch sử hoàn tiền','3-8 결제고객리스트':'3-8 Danh sách khách hàng thanh toán',
+'3-9 선납금 입금':'3-9 Nộp tiền trả trước','3-10 구매완료':'3-10 Hoàn tất mua hàng',
+'3-11 가상계좌 업로드':'3-11 Tải lên tài khoản ảo','4-1 입고':'4-1 Nhập kho',
+'4-2-1 입고업로드 리스트':'4-2-1 Danh sách tải lên nhập kho',
+'4-3 수동입고처리리스트':'4-3 Danh sách xử lý nhập kho thủ công',
+'4-4 입고처리내역리스트':'4-4 Danh sách lịch sử xử lý nhập kho','4-5 누락리스트':'4-5 Danh sách thiếu sót',
+'4-6 송장번호업로드':'4-6 Tải lên mã vận đơn',
+'4-6-1 미배송사은품 송장번호업로드':'4-6-1 Tải lên mã vận đơn quà tặng chưa giao',
+'15-2-2 DB 재분배 관리':'15-2-2 Quản lý tái phân bổ DB','17-1 회원현황':'17-1 Tình trạng hội viên',
+'17-6.1 리포트(미납자현황)':'17-6.1 Báo cáo (tình trạng khách nợ quá hạn)',
+'17-6.3 리포트(입금현황)':'17-6.3 Báo cáo (tình trạng nộp tiền)',
+'18-2 미납콜 상담':'18-2 Tư vấn gọi thu nợ',
+'(신규)':'(Mới)','(개선)':'(Cải tiến)',
+'고객 상담은 1-2 고객관리 리스트의 [상담] 버튼으로 진행됩니다.':
+ 'Việc tư vấn khách hàng được thực hiện bằng nút [Tư vấn] trong danh sách 1-2 Quản lý khách hàng.',
+
+/* ── 1-2 DB 리스트 ─────────────────────────────────────────── */
+'DB 리스트':'Danh sách DB','⬇ DB 리스트 엑셀 (관리자)':'⬇ Excel danh sách DB (quản trị viên)',
+'꼬리표':'nhãn','DBIDX':'DBIDX','DB포인트':'Điểm DB','OB명':'OB người',
+'분배일':'ngày phân loại','유입일':'ngày nhập','고객명':'tên khách hàng',
+'고객전화번호':'số điện thoại khách hàng','DB정보':'thông tin dữ liệu',
+'최종통화시간':'thời gian cuộc gọi cuối cùng','통화예약시간':'thời gian hẹn gọi điện',
+'오더일':'ngày đơn hàng','접수 제품':'sản phẩm tiếp nhận','상담상태':'trạng thái tư vấn',
+'오토콜':'auto call','고객상태':'trạng thái khách hàng',
+'관리콜1차':'quản lý cuộc gọi lần 1','관리콜2차':'quản lý cuộc gọi lần 2','기능':'chức năng',
+'🟦 배송/판매':'🟦 Giao hàng/Bán hàng','🟪 반품 진행':'🟪 Đang xử lý trả hàng',
+'🟥 취소/환불':'🟥 Hủy/Hoàn tiền','⬛ 종결':'⬛ Kết thúc',
+'※ 샘플 데이터 — 실제 동작 시연용':'※ Dữ liệu mẫu — dùng để minh họa thao tác thực tế',
+'접수 전 · [상담]에서 접수':'Trước khi tiếp nhận · tiếp nhận tại [Tư vấn]',
+'송장':'Vận đơn','입금':'Nộp tiền',
+
+/* ── 상태값 · 데이터값 ─────────────────────────────────────── */
+'상담대기':'Đang chờ tư vấn','배송대기':'Đang chờ giao hàng','배송중':'Đang giao hàng',
+'구매완료':'Hoàn tất mua hàng','취소접수':'Tiếp nhận hủy','환불요청':'Yêu cầu hoàn tiền',
+'취소':'Hủy','중도해지':'Chấm dứt giữa chừng','입고대기':'Chờ nhập kho','반품입고':'Đã nhập kho hàng trả',
+'위약금미입금':'Chưa nộp phí phạt','위약금협의':'Thỏa thuận phí phạt','위약금 협의':'Thỏa thuận phí phạt',
+'위약금입금':'Đã nộp phí phạt','중도해지(기기반납)':'Chấm dứt giữa chừng (trả thiết bị)',
+'중도해지(위약금)':'Chấm dứt giữa chừng (phí phạt)',
+'기기반납':'Trả lại thiết bị','위약금':'Phí phạt','할부':'Trả góp','구매':'Mua đứt',
+'할부금':'Tiền trả góp','선납금':'Tiền trả trước',
+'통화(1)':'Cuộc gọi (1)','구매_현금(COD)':'Mua_tiền mặt (COD)','할부_현금(COD)':'Trả góp_tiền mặt (COD)',
+'상담/구매확정':'Tư vấn/Xác nhận mua','없음':'Không có','렌탈':'Thuê','말일':'ngày cuối tháng','10일':'ngày 10',
+'계약중':'Đang hợp đồng','계약종료':'Kết thúc hợp đồng','미납':'Nợ quá hạn',
+'가상계좌':'Tài khoản ảo','계좌이체':'Chuyển khoản','보임':'Hiển thị','숨김':'Ẩn',
+'남':'Nam','여':'Nữ','등록':'Đăng ký','미등록':'Chưa đăng ký','삭제':'Xóa',
+'매칭':'Đã khớp','미매칭':'Chưa khớp','입금완료':'Đã nộp tiền','미입금':'Chưa nộp tiền',
+'영어 패키지':'Gói tiếng Anh','한국어 패키지':'Gói tiếng Hàn','영어+한국어 패키지':'Gói tiếng Anh + tiếng Hàn',
+'워드':'Word','토크':'Talk','기초영어':'Tiếng Anh cơ bản','처음영어':'Tiếng Anh nhập môn',
+'기초한국어':'Tiếng Hàn cơ bản','실전한국어':'Tiếng Hàn thực hành',
+'영어 패키지 (4종)':'Gói tiếng Anh (4 loại)','한국어 패키지 (2종)':'Gói tiếng Hàn (2 loại)',
+'영어+한국어 패키지 (6종)':'Gói tiếng Anh + tiếng Hàn (6 loại)',
+'BrainKey TAB (외국어 패키지)':'BrainKey TAB (gói ngoại ngữ)',
+'W84-AD5000 (외국어 풀패키지)':'W84-AD5000 (gói ngoại ngữ đầy đủ)',
+'재콜':'Gọi lại','부재재콜':'Gọi lại khi vắng mặt',
+'R그룹':'Nhóm R','S그룹':'Nhóm S','A그룹':'Nhóm A','B그룹':'Nhóm B','C그룹':'Nhóm C','H그룹':'Nhóm H',
+
+/* ── 기능 버튼 · 공통 ──────────────────────────────────────── */
+'상담':'Tư vấn','계약서':'Hợp đồng','고객 관리':'Quản lý KH',
+'중도해지 승인':'Duyệt chấm dứt HĐ','반품취소':'Hủy trả hàng',
+'닫기':'Đóng','저장하기':'Lưu','목록으로':'Về danh sách','발송':'Gửi',
+'번호':'Số','제품':'Sản phẩm','결제':'Thanh toán','현재 상태':'Trạng thái hiện tại',
+'주문키':'mã đơn hàng','고객키':'mã khách hàng','송장번호':'mã vận đơn',
+'입금액(VND)':'số tiền nộp (VND)','경로':'Lộ trình','현재 고객상태':'Trạng thái khách hàng hiện tại',
+'처리':'Xử lý','구분':'Phân loại','전화번호':'số điện thoại','상태':'Trạng thái',
+'금액(VND)':'Số tiền (VND)','입금일':'ngày nộp tiền','내용':'Nội dung',
+'처리할 대상이 없습니다':'Không có đối tượng cần xử lý',
+'송장 미등록 건이 없습니다':'Không có đơn nào chưa đăng ký vận đơn',
+'입금 미확인 건이 없습니다':'Không có đơn nào chưa xác nhận nộp tiền',
+'대상이 없습니다':'Không có đối tượng','환불 대상이 없습니다':'Không có đối tượng hoàn tiền',
+'미납자가 없습니다':'Không có khách nợ quá hạn',
+'조회된 입금 내역이 없습니다':'Không có lịch sử nộp tiền nào được tra cứu',
+'미납콜 대상이 없습니다':'Không có đối tượng gọi thu nợ',
+'개별/일괄 입금 내역 없음':'Không có lịch sử nộp tiền riêng lẻ/hàng loạt',
+'개별 등록 내역 없음':'Không có lịch sử đăng ký riêng lẻ',
+'송장번호 입력':'Nhập mã vận đơn','입금액':'Số tiền nộp','SELECT FILES':'CHỌN TỆP',
+'양식 다운로드':'Tải biểu mẫu','WV...OHWS 또는 번호':'WV...OHWS hoặc số',
+
+/* ── 4-6 / 3-9 / 3-10 / 4-3 / 3-6 ──────────────────────────── */
+'4-3 수동입고처리':'4-3 Xử lý nhập kho thủ công',
+'주문키(고객키) :':'Mã đơn hàng (mã khách hàng) :','송장번호 :':'Mã vận đơn :',
+'📦 선택 건 송장 등록':'📦 Đăng ký vận đơn cho mục đã chọn',
+'구분 :':'Phân loại :','고객키 :':'Mã khách hàng :','입금액 :':'Số tiền nộp :',
+'💰 선택 건 입금처리':'💰 Xử lý nộp tiền cho mục đã chọn',
+'✓ 선택 건 구매완료 처리':'✓ Xử lý hoàn tất mua hàng cho mục đã chọn',
+'📥 선택 건 입고 처리':'📥 Xử lý nhập kho cho mục đã chọn',
+'⬇ 위약금 산정내역 다운로드 (CSV)':'⬇ Tải bảng tính phí phạt (CSV)',
+'최초 산정 위약금 · 할인 금액 · 최종 위약금 컬럼 포함':
+ 'Bao gồm các cột phí phạt tính ban đầu · số tiền giảm · phí phạt cuối cùng',
+'환불승인 (최종)':'Phê duyệt hoàn tiền (cuối cùng)',
+'가상계좌 :':'Tài khoản ảo :','금액 :':'Số tiền :','입금일 :':'Ngày nộp tiền :','숫자만':'Chỉ nhập số',
+'엑셀 일괄 업로드':'Tải lên hàng loạt bằng Excel','업로드 미리보기':'Xem trước dữ liệu tải lên',
+'✓ 반영하기':'✓ Áp dụng',
+
+/* ── 17-1 회원현황 ─────────────────────────────────────────── */
+'▶ 회원현황':'▶ Tình trạng hội viên','분류':'Phân loại','- 전체 -':'- Tất cả -',
+'회원명':'Tên hội viên','구매제품':'Sản phẩm đã mua','입금방식':'Hình thức nộp tiền',
+'선납유무':'Có trả trước','선납':'Trả trước','일반':'Thông thường',
+'🔍 검색':'🔍 Tìm kiếm','검색 초기화':'Đặt lại tìm kiếm',
+'⬇ 수금현황 엑셀 (베트남)':'⬇ Excel tình trạng thu tiền (Việt Nam)',
+'⬇ 주마감 RAW 엑셀 (베트남)':'⬇ Excel RAW chốt tuần (Việt Nam)',
+'※ 엑셀 다운로드 시 CMS 속도 저하 → 가급적 비업무시간에 다운로드':
+ '※ Tải Excel làm chậm CMS → nên tải ngoài giờ làm việc',
+'] · 단위: VND':'] · đơn vị: VND','건] · 입금액 합계':'đơn] · tổng tiền nộp',
+'VND · 단위: VND':'VND · đơn vị: VND',
+'순번':'STT','상담원ID':'ID tư vấn viên','결제시작일':'ngày bắt đầu thanh toán',
+'약정일':'ngày đến hạn','월납부금':'tiền trả hàng tháng','미납횟수':'số lần nợ quá hạn',
+'누적미납금':'tổng tiền nợ quá hạn','경과차수':'kỳ đã trôi qua',
+'문자수신내역':'Lịch sử nhận SMS','미납콜 이동':'Chuyển sang gọi thu nợ',
+'통합이력 조회':'Tra cứu lịch sử tổng hợp','OB 조회':'Tra cứu OB','IB 조회':'Tra cứu IB',
+'미납SMS':'SMS nợ quá hạn',
+'회원 상세 정보':'Thông tin chi tiết hội viên','회원정보 복사':'Sao chép thông tin hội viên',
+'가상계좌발급':'Cấp tài khoản ảo','입금내역':'Lịch sử nộp tiền',
+'해지방어변경요청':'Yêu cầu thay đổi giữ chân khách hủy','정보변경요청':'Yêu cầu thay đổi thông tin',
+'성별/생년월일':'Giới tính/Ngày sinh','이메일':'Email','신분증번호(CCCD)':'Số CCCD',
+'추심위임':'Ủy thác thu nợ','연체등록':'Đăng ký nợ quá hạn','입금은행':'Ngân hàng nộp tiền',
+'가상계좌번호':'Số tài khoản ảo','입금자명':'Tên người nộp tiền','회원주소':'Địa chỉ hội viên',
+'기본 계약정보 변경':'Thay đổi thông tin hợp đồng cơ bản',
+'주문일(계약일)':'Ngày đặt hàng (ngày ký HĐ)','계약만료일':'Ngày hết hạn hợp đồng',
+'최근입금일':'Ngày nộp tiền gần nhất','약정개월':'Số tháng cam kết','결제기간':'Thời gian thanh toán',
+'월납총액':'Tổng tiền trả hàng tháng','제품총금액':'Tổng giá sản phẩm',
+'정산 현황':'Tình trạng quyết toán','계약담당자':'Người phụ trách hợp đồng',
+'경과회차수':'Số kỳ đã trôi qua','감면/조정금액':'Số tiền miễn giảm/điều chỉnh',
+'받아야할 금액':'Số tiền phải thu','(경과회차×월납금)':'(số kỳ đã trôi qua × tiền trả hàng tháng)',
+'누적납부금액':'Tổng tiền đã nộp','미경과분':'Phần chưa đến kỳ','미납원금':'Gốc chưa thanh toán',
+'연체가산금':'Tiền phạt chậm trả','총미납':'Tổng nợ quá hạn','마지막회차 면제여부':'Miễn kỳ cuối',
+'환급패키지/프로모션':'Gói hoàn tiền/Khuyến mãi','N / 500원패키지':'N / Gói 500 won',
+'입금자 정보':'Thông tin người nộp tiền','입금자 생년월일':'Ngày sinh người nộp tiền',
+'입금자 성별':'Giới tính người nộp tiền','입금자 전화번호':'SĐT người nộp tiền',
+'입금자 이메일':'Email người nộp tiền','회원구분':'Phân loại hội viên',
+'납부현황':'Tình trạng thanh toán','(회차별 입금 상태)':'(trạng thái nộp tiền theo từng kỳ)',
+'출금예약':'Đặt lịch rút tiền','결제성공':'Thanh toán thành công','독촉':'Nhắc nợ','예정':'Dự kiến',
+'감면/조정금액 합계':'Tổng số tiền miễn giảm/điều chỉnh','연체가산금 합계':'Tổng tiền phạt chậm trả',
+'미납금 합계':'Tổng tiền nợ quá hạn','고객 히스토리':'Lịch sử khách hàng',
+'시스템처리':'Xử lý hệ thống','미납콜':'Gọi thu nợ','입금확인':'Xác nhận nộp tiền',
+'내용 입력':'Nhập nội dung','✎ 작성':'✎ Soạn','초기화':'Đặt lại',
+'작성시간':'Thời gian soạn','작성자':'Người soạn',
+'가상계좌 발급':'Cấp tài khoản ảo','계좌이체 등록':'Đăng ký chuyển khoản',
+'가상계좌 등록':'Đăng ký tài khoản ảo','미납발생':'Phát sinh nợ quá hạn',
+'누적 미납원금':'tổng gốc nợ quá hạn','누적':'lũy kế','입금 확인 완료':'đã xác nhận nộp tiền',
+'등록일시':'Ngày giờ đăng ký','입금은행/가상계좌':'Ngân hàng/Tài khoản ảo',
+'요청금액':'Số tiền yêu cầu','입금금액':'Số tiền đã nộp','결과':'Kết quả','개월':'tháng',
+
+/* ── 리포트 ────────────────────────────────────────────────── */
+'17-6.1 리포트 (미납자현황)':'17-6.1 Báo cáo (tình trạng khách nợ quá hạn)',
+'⬇ 미납자현황 다운로드 (CSV)':'⬇ Tải tình trạng khách nợ quá hạn (CSV)',
+'17-6.3 리포트 (입금현황)':'17-6.3 Báo cáo (tình trạng nộp tiền)',
+'종류':'Loại','조회기간':'Thời gian tra cứu','계약상태':'Trạng thái hợp đồng',
+'🔍 조회':'🔍 Tra cứu','⬇ 입금현황 엑셀':'⬇ Excel tình trạng nộp tiền',
+'최초 산정 위약금':'Phí phạt tính ban đầu','할인 금액':'Số tiền giảm','최종 위약금':'Phí phạt cuối cùng',
+'미납 안내 SMS 발송':'Gửi SMS thông báo nợ quá hạn',
+'미납담당자로 로그인 후 [상담] → 위약금 협의·수정(최초/할인/최종) 입력 → 이력 기록됩니다.':
+ 'Sau khi đăng nhập với quyền Phụ trách nợ quá hạn, chọn [Tư vấn] → nhập Thỏa thuận · chỉnh sửa phí phạt (ban đầu/giảm giá/cuối cùng) → sẽ được ghi vào lịch sử.',
+
+/* ── 1-34 패키지 구성 관리 ─────────────────────────────────── */
+'신규 등록':'Đăng ký mới','패키지명':'Tên gói','🔒 내부코드':'🔒 Mã nội bộ',
+'단말기':'Thiết bị','기본 컨텐츠(SW)':'Nội dung cơ bản (SW)','패키지 유형':'Loại gói',
+'상품가격(동)':'Giá sản phẩm (VND)','상품가격(VND)':'Giá sản phẩm (VND)',
+'렌탈창 노출':'Hiển thị ở màn hình thuê','예: 영어 패키지':'VD: Gói tiếng Anh','예: VN-EN04':'VD: VN-EN04',
+'(베트남 단일 단말기)':'(thiết bị duy nhất tại Việt Nam)',
+'※ 영어 4종(워드·토크·기초영어·처음영어) / 한국어 2종(기초한국어·실전한국어)':
+ '※ 4 nội dung tiếng Anh (Word·Talk·Tiếng Anh cơ bản·Tiếng Anh nhập môn) / 2 nội dung tiếng Hàn (Tiếng Hàn cơ bản·Tiếng Hàn thực hành)',
+'＋ 저장(등록)':'＋ Lưu (đăng ký)','등록 패키지 관리':'Quản lý gói đã đăng ký',
+'컨텐츠(SW)':'Nội dung (SW)','유형':'Loại','노출':'Hiển thị',
+
+/* ── 상담창 ────────────────────────────────────────────────── */
+'전화':'Điện thoại','접수제품':'Sản phẩm tiếp nhận',
+'(4-6 송장번호 업로드 연동)':'(liên kết với 4-6 Tải lên mã vận đơn)',
+'🔑 기기 PW 발송':'🔑 Gửi mật khẩu thiết bị',
+'🟠 관리자 권한에서만 노출 (7-1 전화상담툴 동일 기능)':
+ '🟠 Chỉ hiển thị với quyền quản trị viên (cùng chức năng với 7-1 Công cụ tư vấn qua điện thoại)',
+'시리얼번호':'Số sê-ri','(단말기 뒷면 S/N)':'(S/N ở mặt sau thiết bị)',
+'휴대폰번호':'Số điện thoại di động','(기본값 = 고객 연락처, 수정 가능)':'(mặc định = số liên hệ của khách hàng, có thể sửa)',
+'예: A11VN26030001':'VD: A11VN26030001','조회 실패 시 발송되지 않습니다.':'Nếu tra cứu thất bại thì sẽ không gửi.',
+'기기 PW 발송 완료':'Đã gửi mật khẩu thiết bị',
+'PW ****(SMS 본문에만 표기)':'PW ****(chỉ hiển thị trong nội dung SMS)',
+'조회 결과 없음. 시리얼번호를 확인하세요.':'Không có kết quả tra cứu. Vui lòng kiểm tra số sê-ri.',
+'기기 PW 발송':'Gửi mật khẩu thiết bị','발송 (발신: 한국 번호)':'đã gửi (số gửi: số Hàn Quốc)',
+'고객 상담':'Tư vấn khách hàng','고객리뷰':'Đánh giá khách hàng','(샘플)':'(mẫu)',
+'상담 상태':'Trạng thái tư vấn','(대분류 → 소분류 선택)':'(chọn nhóm lớn → nhóm nhỏ)',
+'위약금 산정':'Tính phí phạt','(할인 입력 시 최종 자동 계산)':'(nhập số tiền giảm sẽ tự động tính số cuối)',
+'상담내용':'Nội dung tư vấn','(저장 시 이력에 기록)':'(được ghi vào lịch sử khi lưu)',
+'상담 이력':'Lịch sử tư vấn','이력 없음':'Không có lịch sử','상담 내용 입력':'Nhập nội dung tư vấn',
+'(내용 없음)':'(không có nội dung)',
+'최초 산정 위약금(VND)':'Phí phạt tính ban đầu (VND)',
+'(반품접수 시 산정값 — 수정 불가)':'(giá trị tính khi tiếp nhận trả hàng — không sửa được)',
+'할인 금액(VND)':'Số tiền giảm (VND)','최종 위약금(VND)':'Phí phạt cuối cùng (VND)',
+'일반':'Thông thường','반품':'Trả hàng','교환':'Đổi hàng','부재':'Vắng mặt',
+'ACC & 사은품':'ACC & quà tặng','학습케어(관리콜)':'Chăm sóc học tập (cuộc gọi quản lý)',
+'COD (구매_현금) — 접수 진행':'COD (mua_tiền mặt) — Tiến hành tiếp nhận',
+'상담 진행':'Đang tư vấn','상담 완료':'Hoàn tất tư vấn','통화예약':'Hẹn gọi lại',
+'취소접수 - 배송전취소':'Tiếp nhận hủy - Hủy trước khi giao hàng',
+'취소접수 - 배송후 수취거절':'Tiếp nhận hủy - Từ chối nhận sau khi giao hàng',
+'중도해지 (반품접수)':'Chấm dứt giữa chừng (tiếp nhận trả hàng)',
+'반품방식 변경 (→위약금)':'Đổi hình thức trả hàng (→Phí phạt)',
+'반품방식 변경 (→기기반납)':'Đổi hình thức trả hàng (→Trả lại thiết bị)',
+'위약금 협의·수정':'Thỏa thuận · chỉnh sửa phí phạt','위약금 입금':'Nộp phí phạt',
+'반품 상담':'Tư vấn trả hàng','교환 상담':'Tư vấn đổi hàng','사은품/ACC 상담':'Tư vấn quà tặng/ACC',
+
+/* ── 2-1 COD 접수창 ────────────────────────────────────────── */
+'통화예약일':'Ngày hẹn gọi lại','접수일(오더일)':'Ngày tiếp nhận (ngày đơn hàng)','(자동)':'(tự động)',
+'아이디':'Tên tài khoản','직접입력':'Nhập trực tiếp',
+'★ 계약자명':'★ Tên người ký hợp đồng','성별':'Giới tính','-선택-':'-Chọn-','★ 생년월일':'★ Ngày sinh',
+'신분증 번호':'Số CCCD','CCCD 12자리 (미입력 가능)':'CCCD 12 chữ số (có thể để trống)',
+'발행일':'Ngày cấp','-미입력-':'-Không nhập-','입력':'Nhập','신분증 발급처':'Nơi cấp CCCD',
+'예: Cục Cảnh sát QLHC về TTXH (미입력 가능)':'VD: Cục Cảnh sát QLHC về TTXH (có thể để trống)',
+'예: Cục Cảnh sát QLHC về TTXH':'VD: Cục Cảnh sát QLHC về TTXH',
+'패키지':'Gói','컨텐츠(SW)':'Nội dung (SW)',
+'※ 패키지명·가격만 노출. 내부코드는 관리자 엑셀에서만 확인됩니다.':
+ '※ Chỉ hiển thị tên gói và giá. Mã nội bộ chỉ có thể xem trong Excel của quản trị viên.',
+'결제방식':'Phương thức thanh toán','구매(일시불)':'Mua đứt (một lần)',
+'할인금액(동)':'Số tiền giảm giá (VND)','결제금액(동)':'Số tiền thanh toán (VND)',
+'상품가격 − 할인금액':'Giá sản phẩm − số tiền giảm giá',
+'선납금(동)':'Tiền trả trước (VND)','선납금할인(동)':'Giảm giá tiền trả trước (VND)',
+'할부 개월':'Số tháng trả góp','할부 원금':'Gốc trả góp',
+'상품가격 − 선납금 − 선납금할인 (수정불가)':'Giá sản phẩm − tiền trả trước − giảm giá tiền trả trước (không sửa được)',
+'월 납부금':'Tiền trả hàng tháng','할부원금 / 할부개월 (수정불가)':'Gốc trả góp / số tháng trả góp (không sửa được)',
+'주소 SELECT':'Chọn địa chỉ',"← 'ho chi' 처럼 일부만 입력해도 검색됨":"← Chỉ cần nhập một phần như 'ho chi' cũng tìm được",
+'상세주소':'Địa chỉ chi tiết','번지 · 건물명':'Số nhà · tên tòa nhà',
+'배송일':'Ngày giao hàng','배송메모':'Ghi chú giao hàng',
+'COD 접수':'Tiếp nhận COD','상품가격':'giá sản phẩm','결제금액':'số tiền thanh toán',
+
+/* ── 반품접수(중도해지) ────────────────────────────────────── */
+'📋 반품접수 (중도해지) — 한 화면':'📋 Tiếp nhận trả hàng (chấm dứt giữa chừng) — Một màn hình',
+'고객 · 계약 정보':'Thông tin khách hàng · hợp đồng',
+'계약번호(주문키)':'Số hợp đồng (mã đơn hàng)','계약일':'Ngày ký hợp đồng',
+'생년월일':'Ngày sinh','연락처':'Số liên hệ','주소':'Địa chỉ',
+'신분증 발행일':'Ngày cấp CCCD','(외국어/ngoại ngữ)':'(ngoại ngữ)',
+'반품 방식 선택':'Chọn hình thức trả hàng',
+'🔵 저장 후에도 고객 요청 시 [반품방식 변경]으로 전환 가능합니다.':
+ '🔵 Sau khi lưu, vẫn có thể chuyển đổi bằng [Đổi hình thức trả hàng] khi khách hàng yêu cầu.',
+'💳 위약금 결제':'💳 Thanh toán phí phạt',
+'기기 보유 · 위약금 납부 → 미입금 → 협의 → 입금 → 환불':
+ 'Giữ thiết bị · nộp phí phạt → chưa nộp → thỏa thuận → đã nộp → hoàn tiền',
+'📦 기기 반납':'📦 Trả lại thiết bị',
+'기기 회수 → 입고대기 → 반품입고 → 환불':
+ 'Thu hồi thiết bị → chờ nhập kho → đã nhập kho hàng trả → hoàn tiền',
+'위약금 산정 기준일':'Ngày căn cứ tính phí phạt','기준일':'Ngày căn cứ','오늘로 설정':'Đặt là hôm nay',
+'이 날짜 기준으로 위약금·환불 계산':'Tính phí phạt và hoàn tiền dựa trên ngày này',
+'계약 정보 및 납부 현황':'Thông tin hợp đồng và tình trạng thanh toán',
+'월 납부액':'Tiền trả hàng tháng','잔여 회차':'Số kỳ còn lại','잔여 총액':'Tổng tiền còn lại','23회':'23 kỳ',
+'수거(반품) 방식':'Hình thức thu hồi (trả hàng)',
+'택배 회수 요청':'Yêu cầu chuyển phát thu hồi','고객 선불 발송':'Khách hàng tự gửi trả trước cước',
+'선택 요약':'Tóm tắt lựa chọn','구분:':'Phân loại:','반품방식:':'Hình thức trả hàng:',
+'수거방식:':'Hình thức thu hồi:','유효기간:':'Thời hạn hiệu lực:',
+'위약금 계산하기':'Tính phí phạt','위약금 다시 계산':'Tính lại phí phạt',
+'[위약금 계산하기]를 누르면 아래에 위약금 정산내역 · 결제/환불 수단이 표시됩니다. (전체가 한 화면)':
+ 'Khi nhấn [Tính phí phạt], bảng quyết toán phí phạt và phương thức thanh toán/hoàn tiền sẽ hiển thị bên dưới. (Toàn bộ trên một màn hình)',
+'반품 방식:':'Hình thức trả hàng:',
+'위약금 산식: 기본위약금 0 (조정 가능)':'Công thức phí phạt: phí phạt cơ bản 0 (có thể điều chỉnh)',
+'산정금액(VND)':'Số tiền tính (VND)','조정(할인)':'Điều chỉnh (giảm)','최종금액(VND)':'Số tiền cuối (VND)',
+'비고':'Ghi chú','잔여 환급금':'Tiền hoàn lại còn lại','납부분 중 환급 대상':'Phần đã nộp thuộc diện hoàn lại',
+'미납 원금':'Gốc chưa thanh toán','미납 잔여 원금':'Gốc còn lại chưa thanh toán',
+'연체 가산금':'Tiền phạt chậm trả','미납금 연체':'Chậm trả khoản chưa thanh toán',
+'기본 위약금':'Phí phạt cơ bản','계약 조건상 위약금':'Phí phạt theo điều kiện hợp đồng',
+'운송비':'Phí vận chuyển','반품 배송비(기기반납 시 1회)':'Cước gửi trả hàng (1 lần khi trả thiết bị)',
+'위약금 최종 청구액':'Số tiền phí phạt yêu cầu cuối cùng',
+'결제 및 환불 수단':'Phương thức thanh toán và hoàn tiền',
+'청구(카드)':'Thu (thẻ)','청구(계좌)':'Thu (tài khoản)','환불(계좌)':'Hoàn tiền (tài khoản)',
+'가상계좌/입금자명':'Tài khoản ảo / tên người nộp tiền',
+'가상계좌 업로드 양식과 연계':'Liên kết với biểu mẫu tải lên tài khoản ảo',
+'안내 확인':'Xác nhận hướng dẫn','반품 택배비 안내':'Hướng dẫn cước chuyển phát trả hàng',
+'사은품 개봉 시 비용 청구 안내':'Hướng dẫn thu phí khi đã mở quà tặng',
+'파손/훼손 수리비용 청구 안내':'Hướng dẫn thu phí sửa chữa khi hư hỏng/hao mòn',
+'맨 아래 [저장하기]를 누르면 고객상태가 [중도해지]로 접수됩니다. 이후 매니저의 [중도해지 승인]을 거쳐 다음 단계로 진행됩니다.':
+ 'Khi nhấn [Lưu] ở dưới cùng, trạng thái khách hàng sẽ được tiếp nhận thành [Chấm dứt giữa chừng]. Sau đó quản lý [Duyệt chấm dứt hợp đồng] để chuyển sang bước tiếp theo.',
+'다음 단계:':'Bước tiếp theo:',
+'입고대기 (4-1/5-2-1/4-3 입고)':'Chờ nhập kho (nhập kho 4-1/5-2-1/4-3)',
+'위약금 미입금 (상담창 협의·입금)':'Chưa nộp phí phạt (thỏa thuận · nộp tiền tại cửa sổ tư vấn)',
+'반품접수':'Tiếp nhận trả hàng','반품방식':'hình thức trả hàng','최초':'ban đầu','할인':'giảm giá','최종':'cuối cùng',
+'고객이 “그냥 사용하겠다”고 한 경우 사용합니다.':'Dùng khi khách hàng nói “tôi cứ dùng tiếp”.',
+'사유 (이력)':'Lý do (lịch sử)','예: 고객 변심, 계속 사용 의사 확인':'VD: khách hàng đổi ý, đã xác nhận ý định tiếp tục sử dụng',
+'반품 철회 → 구매완료 복귀':'Rút lại trả hàng → quay về hoàn tất mua hàng',
+'계약정보 수정':'Chỉnh sửa thông tin hợp đồng','미입력':'Chưa nhập',
+
+/* ── 2-1 계약서 ────────────────────────────────────────────── */
+'← 고객관리 목록':'← Danh sách quản lý khách hàng',
+'신분증 정보 미입력':'Chưa nhập thông tin CCCD','미입력 항목:':'Mục chưa nhập:',
+'접수 시에는 미입력해도 되지만 계약서 출력 전에는 반드시 입력해야 합니다. 아래에서 입력한 뒤 [계약 정보 저장]을 누르세요.':
+ 'Khi tiếp nhận có thể để trống, nhưng bắt buộc phải nhập trước khi in hợp đồng. Vui lòng nhập bên dưới rồi nhấn [Lưu thông tin hợp đồng].',
+'계약자명':'Tên người ký hợp đồng','계약 정보 저장':'Lưu thông tin hợp đồng',
+'(드롭다운 단어검색 가능)':'(có thể tìm kiếm từ khóa trong danh sách)',
+'선납금 할인(동)':'Giảm giá tiền trả trước (VND)','할부원금':'Gốc trả góp',
+'상품가격 – 선납금 – 선납금할인':'Giá sản phẩm – tiền trả trước – giảm giá tiền trả trước',
+'할부원금 / 할부개월':'Gốc trả góp / số tháng trả góp',
+'계약서 미리보기':'Xem trước hợp đồng','할부 계약서':'Hợp đồng trả góp',
+'구매(일시불) 계약서':'Hợp đồng mua đứt (một lần)','🖨 계약서 출력 (PDF)':'🖨 In hợp đồng (PDF)',
+'파일명:':'Tên tệp:',
+
+/* ── 15-2-2 DB 재분배 ──────────────────────────────────────── */
+'A. 회수 조건':'A. Điều kiện thu hồi','B. 분배 조건':'B. Điều kiện phân bổ',
+'① 분배일':'① Ngày phân bổ','①-1 유입일':'①-1 Ngày nhập','② 성과그룹':'② Nhóm thành tích',
+'②-1 상담원':'②-1 Tư vấn viên','⑦ 지역':'⑦ Khu vực',
+'검색·멀티':'Tìm kiếm · nhiều lựa chọn','추가·검색·멀티':'Bổ sung · tìm kiếm · nhiều lựa chọn',
+'변경·검색·멀티':'Thay đổi · tìm kiếm · nhiều lựa chọn',
+'임시저장 회수':'Thu hồi bản lưu tạm','미회수':'Không thu hồi','회수 포함':'Bao gồm thu hồi',
+'기타 조건':'Điều kiện khác','임시저장 DB 포함 회수':'Thu hồi cả DB lưu tạm',
+'결제보류 DB 포함 회수':'Thu hồi cả DB tạm hoãn thanh toán','재콜DB 회수 제외':'Loại trừ thu hồi DB gọi lại',
+'기존 분배된 재콜 DB 중':'Chỉ thu hồi DB gọi lại đã được phân bổ',
+'회 분배된 재콜DB만 회수':'lần','(0회 디폴트)':'(mặc định 0 lần)',
+'회수 DB 개수':'Số lượng DB thu hồi','(-1 = 전체)':'(-1 = toàn bộ)',
+'⑨ 회수DB 조회/재계산':'⑨ Tra cứu/tính lại DB thu hồi',
+'☆ 동일번호 유입일이 최근 5일 이내면 회수대상 제외':
+ '☆ Loại trừ khỏi diện thu hồi nếu số điện thoại trùng có ngày nhập trong vòng 5 ngày gần đây',
+'⑩ 분배대상 성과그룹':'⑩ Nhóm thành tích thuộc diện phân bổ',
+'⑩-1 분배대상 상담원':'⑩-1 Tư vấn viên thuộc diện phân bổ',
+'⑪ 분배제외 성과그룹':'⑪ Nhóm thành tích loại trừ phân bổ',
+'⑪-1 분배제외 상담원':'⑪-1 Tư vấn viên loại trừ phân bổ',
+'(기존: 재콜그룹 0~9)':'(hiện tại: nhóm gọi lại 0~9)','분배일 선택':'Chọn ngày phân bổ',
+'⑬ 분배현황 조회':'⑬ Tra cứu tình trạng phân bổ','⑫ 회수DB/분배지정 조회':'⑫ Tra cứu DB thu hồi / chỉ định phân bổ',
+'총 DB 분배수:':'Tổng số DB phân bổ:','이름':'họ tên','전화1':'điện thoại 1','전화2':'điện thoại 2',
+'전화3':'điện thoại 3','코드':'mã','성과그룹':'nhóm thành tích','지역':'khu vực',
+'분배상담원':'tư vấn viên được phân bổ',
+'- 선택 -':'- Chọn -','일부 단어 검색':'Tìm theo một phần từ khóa',
+
+/* ── 토스트(고정 문구) ─────────────────────────────────────── */
+'고객 관리 화면(기존 기능)':'Màn hình quản lý khách hàng (chức năng hiện có)',
+'검색 조건 초기화':'Đã đặt lại điều kiện tìm kiếm',
+'문자수신내역 조회 (기존 기능)':'Tra cứu lịch sử nhận SMS (chức năng hiện có)',
+'통합이력 조회 (기존 기능)':'Tra cứu lịch sử tổng hợp (chức năng hiện có)',
+'OB(아웃바운드) 조회':'Tra cứu OB (Outbound)','IB(인바운드) 조회':'Tra cứu IB (Inbound)',
+'가상계좌 발급 — 입금 전용 계좌 생성':'Cấp tài khoản ảo — tạo tài khoản chuyên dùng để nhận tiền',
+'입금내역 조회':'Tra cứu lịch sử nộp tiền','해지방어 변경요청':'Yêu cầu thay đổi giữ chân khách hủy',
+'출금예약 — 가상계좌 입금 예약 안내':'Đặt lịch rút tiền — hướng dẫn đặt lịch nộp tiền vào tài khoản ảo',
+'히스토리 작성':'Soạn lịch sử','선택된 건이 없습니다':'Chưa chọn mục nào',
+'송장번호를 입력한 행만 등록됩니다':'Chỉ những dòng đã nhập mã vận đơn mới được đăng ký',
+'고객키(주문키)와 송장번호를 입력하세요':'Vui lòng nhập mã khách hàng (mã đơn hàng) và mã vận đơn',
+'해당 고객키/주문키를 찾을 수 없습니다':'Không tìm thấy mã khách hàng/mã đơn hàng tương ứng',
+'이미 판매 종료/반품 진행 건입니다':'Đơn này đã kết thúc bán hàng hoặc đang xử lý trả hàng',
+'송장번호 업로드 양식 다운로드 (주문키·송장번호)':'Đã tải biểu mẫu tải lên mã vận đơn (mã đơn hàng · mã vận đơn)',
+'고객키와 입금액을 입력하세요':'Vui lòng nhập mã khách hàng và số tiền nộp',
+'선납금 입금 업로드 양식 다운로드 (구분·고객키·입금액)':'Đã tải biểu mẫu nộp tiền trả trước (phân loại · mã khách hàng · số tiền nộp)',
+'위약금 데이터가 없습니다':'Không có dữ liệu phí phạt',
+'위약금 산정내역 CSV 다운로드 — 최초/할인/최종 컬럼 포함':'Đã tải CSV bảng tính phí phạt — bao gồm cột ban đầu/giảm giá/cuối cùng',
+'가상계좌와 금액을 입력하세요':'Vui lòng nhập tài khoản ảo và số tiền',
+'파일 파싱 완료 — 2건 미리보기':'Phân tích tệp hoàn tất — xem trước 2 dòng',
+'양식(.xlsx) 다운로드 — 컬럼: 구분(위약금/할부금)·가상계좌·금액·입금일':
+ 'Đã tải biểu mẫu (.xlsx) — cột: phân loại (phí phạt/tiền trả góp) · tài khoản ảo · số tiền · ngày nộp tiền',
+'업로드 반영 완료 — 위약금 입금/구매완료 상태에 매칭':
+ 'Đã áp dụng dữ liệu tải lên — khớp với trạng thái nộp phí phạt/hoàn tất mua hàng',
+'대상 데이터가 없습니다':'Không có dữ liệu đối tượng',
+'패키지명을 입력하세요':'Vui lòng nhập tên gói','내부코드를 입력하세요':'Vui lòng nhập mã nội bộ',
+'기본 컨텐츠(SW)를 1개 이상 선택하세요':'Vui lòng chọn ít nhất 1 nội dung cơ bản (SW)',
+'계약자명을 입력하세요':'Vui lòng nhập tên người ký hợp đồng',
+'상품명(패키지)을 선택하세요':'Vui lòng chọn tên sản phẩm (gói)',
+'주소(vùng)를 선택하세요':'Vui lòng chọn địa chỉ (vùng)',
+'상품가격을 입력하세요':'Vui lòng nhập giá sản phẩm','할부 개월을 선택하세요':'Vui lòng chọn số tháng trả góp',
+'시리얼번호를 입력하세요':'Vui lòng nhập số sê-ri','휴대폰번호를 입력하세요':'Vui lòng nhập số điện thoại di động',
+'시리얼번호 조회 결과가 없습니다':'Không có kết quả tra cứu số sê-ri',
+'계약 정보 저장 — ⚠ 신분증 항목이 아직 비어 있습니다':'Đã lưu thông tin hợp đồng — ⚠ Mục CCCD vẫn còn trống',
+'계약 정보 저장 완료 — 계약서에 반영되었습니다':'Đã lưu thông tin hợp đồng — đã phản ánh vào hợp đồng',
+'분배현황 조회':'Tra cứu tình trạng phân bổ',
+'회수DB 조회/재계산 — 조건 변경 시 필수':'Tra cứu/tính lại DB thu hồi — bắt buộc khi thay đổi điều kiện',
+
+/* ── 엑셀 헤더 ─────────────────────────────────────────────── */
+'패키지 내부코드':'Mã nội bộ của gói','미납여부':'Nợ quá hạn','입금':'Nộp tiền',
+'vendor':'vendor','효성NO':'Hyosung NO','경과회차':'Kỳ đã trôi qua','면제회차수':'Số kỳ được miễn',
+'할부기간':'Thời hạn trả góp','최초결제일':'Ngày thanh toán đầu tiên','약정만료일':'Ngày hết hạn cam kết',
+'월납총금액':'Tổng tiền trả hàng tháng','경과금액(경과회차*월납금)':'Số tiền đã đến kỳ (số kỳ × tiền hàng tháng)',
+'최초연체발생일':'Ngày phát sinh nợ quá hạn đầu tiên','잔여금':'Số tiền còn lại',
+'미납총액(연체가산금 포함)':'Tổng nợ quá hạn (gồm tiền phạt chậm trả)','제품명':'Tên sản phẩm',
+'대표사은품':'Quà tặng tiêu biểu','결제등록일':'Ngày đăng ký thanh toán',
+'결제등록일(계약일)':'Ngày đăng ký thanh toán (ngày ký HĐ)','감면조정금액':'Số tiền miễn giảm điều chỉnh',
+'감면조정금':'Số tiền miễn giảm điều chỉnh','2회차내용증명':'Thông báo bảo đảm kỳ 2',
+'연체등록내용증명':'Thông báo bảo đảm đăng ký nợ quá hạn','추심등록':'Đăng ký thu nợ',
+'연체정보등록':'Đăng ký thông tin nợ quá hạn','개인회생':'Phục hồi cá nhân',
+'최근회수일':'Ngày thu hồi gần nhất','시효도과':'Hết thời hiệu','시효임박':'Sắp hết thời hiệu',
+'사고채권':'Nợ xấu','금지명령':'Lệnh cấm','브랜드명':'Tên thương hiệu','브랜드':'Thương hiệu',
+'고객번호':'Số khách hàng','사용대차 소유권이전':'Chuyển quyền sở hữu cho mượn'
+};
+
+/* 잔여 안전망 — 위 사전에 걸리지 않은 동적 조합 문자열용 (최소한만 유지) */
+const VI_FRAG=[
+  ['상담창 (OB CALL 관리) · No.','Cửa sổ tư vấn (Quản lý OB CALL) · No.'],
+  ['반품취소 (반품 철회) · No.','Hủy trả hàng (rút lại yêu cầu trả hàng) · No.'],
+  [/(\d+)회차/g,'Kỳ $1'],[/(\d+)개월/g,'$1 tháng'],[/(\d+)건/g,'$1 đơn'],
+  [/(\d+)행/g,'$1 dòng'],[/(\d+)종/g,'$1 loại']
+].sort((a,b)=>((typeof b[0]==='string'?b[0].length:0)-(typeof a[0]==='string'?a[0].length:0)));
+</script>
+<script>
+/* =====================================================================
+   i18n — 한국어 / Tiếng Việt
+   ---------------------------------------------------------------------
+   · 화면에 보이는 문자열만 번역한다. 상태값·select value 등 "로직 키"는
+     항상 한국어 원문을 유지하고, 표시 시점에만 베트남어로 치환한다.
+   · 3단계 매칭
+       ① VI_HTML : <b>·<span> 이 섞인 문장 전체(innerHTML) 단위 치환
+       ② VI_TEXT : 텍스트 노드 1개 전체와 정확히 일치하는 문자열
+       ③ VI_FRAG : ①②에 걸리지 않는 동적 조합 문자열(토스트 등)의 조각
+   · MutationObserver 로 새로 그려지는 DOM 도 자동 번역한다.
+   ===================================================================== */
+let LANG='ko';
+const L=(ko,vi)=>LANG==='vi'?vi:ko;
+const ordCycle=i=>LANG==='vi'?('Kỳ '+i):(i+'회차');
+
+/* 엑셀/CSV 등 DOM 밖으로 나가는 문자열 번역 (사전에 있을 때만 치환) */
+const X=s=>(LANG==='vi'&&typeof s==='string'&&VI_TEXT[norm(s)]!=null)?VI_TEXT[norm(s)]:s;
+
+const KO_NODE=new WeakMap();   // 텍스트노드/엘리먼트 원문
+const KO_ATTR=new WeakMap();   // {attr:원문}
+const TRANS_ATTR=['placeholder','title'];
+/* innerHTML 통째로 치환할 대상(내부에 JS 바인딩 핸들러가 없는 순수 텍스트 컨테이너만) */
+const HTML_SEL='.ptitle,.pdesc,.hint,.sec,.calc,.kbox,.up-msg,.muted,.opt h4,.opt p';
+const norm=s=>s.replace(/\s+/g,' ').trim();
+
+function trStr(s){
+  const m=s.match(/^(\s*)([\s\S]*?)(\s*)$/);
+  const pre=m[1], post=m[3], core=norm(m[2]);
+  if(!core) return s;
+  if(VI_TEXT[core]!=null) return pre+VI_TEXT[core]+post;
+  let out=core, hit=false;
+  for(const [a,b] of VI_FRAG){
+    if(a instanceof RegExp){ const n=out.replace(a,b); if(n!==out){out=n;hit=true;} }
+    else if(out.indexOf(a)>=0){ out=out.split(a).join(b); hit=true; }
+  }
+  return hit? pre+out+post : s;
+}
+function trNode(t){
+  if(!t.parentElement||t.parentElement.closest('[data-notrans]'))return;
+  const src=KO_NODE.has(t)?KO_NODE.get(t):t.nodeValue;
+  const out=trStr(src);
+  if(out!==t.nodeValue){ if(!KO_NODE.has(t))KO_NODE.set(t,t.nodeValue); t.nodeValue=out; }
+}
+function trAttrs(el){
+  if(el.closest('[data-notrans]'))return;
+  TRANS_ATTR.forEach(a=>{
+    if(!el.hasAttribute(a))return;
+    const bag=KO_ATTR.get(el)||{};
+    const src=bag[a]!=null?bag[a]:el.getAttribute(a);
+    const out=trStr(src);
+    if(out!==el.getAttribute(a)){ bag[a]=src; KO_ATTR.set(el,bag); el.setAttribute(a,out); }
+  });
+}
+function translateTree(root){
+  if(LANG!=='vi'||!root)return;
+  if(root.nodeType===3){ trNode(root); return; }
+  if(root.nodeType!==1)return;
+  /* ① 문장 단위 */
+  const blocks=[]; if(root.matches&&root.matches(HTML_SEL))blocks.push(root);
+  root.querySelectorAll&&root.querySelectorAll(HTML_SEL).forEach(e=>blocks.push(e));
+  blocks.forEach(el=>{
+    if(!el.isConnected||el.closest('[data-notrans]'))return;
+    const key=norm(el.innerHTML);
+    if(VI_HTML[key]!=null){
+      if(!KO_NODE.has(el))KO_NODE.set(el,el.innerHTML);
+      el.innerHTML=VI_HTML[key];
+    }
+  });
+  /* ② 텍스트 노드 */
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null);
+  const list=[]; let n; while(n=w.nextNode())list.push(n);
+  list.forEach(trNode);
+  /* ③ 속성 */
+  trAttrs(root);
+  root.querySelectorAll&&root.querySelectorAll('['+TRANS_ATTR.join('],[')+']').forEach(trAttrs);
+}
+function restoreTree(root){
+  root.querySelectorAll('*').forEach(el=>{
+    if(KO_NODE.has(el)&&el.nodeType===1){ el.innerHTML=KO_NODE.get(el); KO_NODE.delete(el); }
+  });
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null);
+  const list=[]; let n; while(n=w.nextNode())list.push(n);
+  list.forEach(t=>{ if(KO_NODE.has(t)){ t.nodeValue=KO_NODE.get(t); KO_NODE.delete(t); } });
+  root.querySelectorAll('*').forEach(el=>{
+    const bag=KO_ATTR.get(el); if(!bag)return;
+    Object.keys(bag).forEach(a=>el.setAttribute(a,bag[a]));
+    KO_ATTR.delete(el);
+  });
+}
+let OBS=null;
+function startObs(){
+  if(!OBS)OBS=new MutationObserver(()=>{
+    if(LANG!=='vi')return;
+    OBS.disconnect();
+    translateTree(document.body);
+    OBS.takeRecords();
+    startObs();
+  });
+  OBS.observe(document.body,{childList:true,subtree:true,characterData:true,
+    attributes:true,attributeFilter:TRANS_ATTR});
+}
+function setLang(v){
+  if(v===LANG)return;
+  LANG=v;
+  if(OBS)OBS.disconnect();
+  document.documentElement.setAttribute('lang',v==='vi'?'vi':'ko');
+  document.documentElement.setAttribute('data-lang',v);
+  document.title = v==='vi'
+    ? 'Nguyên mẫu WM-CMS Việt Nam — Tương tác hủy · chấm dứt giữa chừng (trả hàng)'
+    : '베트남 WM-CMS 프로토타입 — 취소 · 중도해지(반품) 인터랙션';
+  restoreTree(document.body);
+  /* 어순이 다른 조합 문자열은 재렌더로 다시 만든다 */
+  renderNav(); showScreen(curScreen); renderList(); updateHint();
+  if(v==='vi')translateTree(document.body);
+  startObs();
+}
+
+/* ================= data ================= */
+let role='관리자';
+let rows=[
+  /* 🇻🇳 접수 전(상담대기) — [상담] 버튼으로 2-1 접수창 진입 가능한 유일한 상태 */
+  {no:101,name:'Đỗ Thị Kim Ngân (20)',phone:'0912345678',product:'-',pay:'-',cons:'통화(1)',shipped:false,paid:false,completed:false,locked:false,cust:'',path:null,intake:false,
+    stars:0,dbidx:20361,dbpoint:'1.0',ob:'Phạm Thu Hà',distDate:'2026-07-27',inDate:'2026-07-26',callType:'IN',dbInfo:'렌탈',lastCall:'2026-07-27 14:20',resvCall:'2026-07-28 10:00',orderDate:'-',autocall:'없음',care1:'-',care2:'-'},
+  {no:100,name:'Võ Thị Thuỳ Trang (30)',phone:'0971699968',product:'BrainKey TAB',pay:'할부',cons:'통화(1)',shipped:false,paid:false,completed:false,locked:false,cust:'',path:null,
+    stars:3,dbidx:20358,dbpoint:'1.0',ob:'Phạm Thu Hà',distDate:'2026-07-25',inDate:'2026-07-24',callType:'IN',dbInfo:'없음',lastCall:'2026-07-26 11:05',resvCall:'2026-07-28 15:00',orderDate:'-',autocall:'없음',care1:'-',care2:'-'},
+  {no:99 ,name:'Nguyễn Hương Quỳnh Trâm (10)',phone:'0979356817',product:'BrainKey TAB',pay:'구매',cons:'구매_현금(COD)',shipped:true,paid:false,completed:false,locked:false,cust:'',path:null,
+    stars:5,dbidx:20340,dbpoint:'1.0',ob:'Lê Minh Tuấn',distDate:'2026-07-20',inDate:'2026-07-19',callType:'IN',dbInfo:'없음',lastCall:'2026-07-22 16:40',resvCall:'-',orderDate:'2026-07-22',autocall:'없음',care1:'-',care2:'-'},
+  {no:98 ,name:'Nguyễn Nguyên Phương (20)',phone:'0364125978',product:'W84-AD5000',pay:'할부',cons:'상담/구매확정',shipped:true,paid:true,completed:false,locked:false,cust:'',path:null,
+    stars:5,dbidx:20322,dbpoint:'1.0',ob:'Lê Minh Tuấn',distDate:'2026-07-15',inDate:'2026-07-14',callType:'IN',dbInfo:'렌탈',lastCall:'2026-07-18 10:12',resvCall:'-',orderDate:'2026-07-18',autocall:'없음',care1:'2026-07-25',care2:'-'},
+  {no:97 ,name:'Lê Thúy Anh (50)',phone:'0353493272',product:'BrainKey TAB',pay:'구매',cons:'상담/구매확정',shipped:true,paid:true,completed:true,locked:false,cust:'',path:null,
+    stars:5,dbidx:20301,dbpoint:'1.0',ob:'Trần Thị Ngọc',distDate:'2026-07-10',inDate:'2026-07-09',callType:'IN',dbInfo:'없음',lastCall:'2026-07-12 13:30',resvCall:'-',orderDate:'2026-07-12',autocall:'없음',care1:'2026-07-20',care2:'2026-07-27'},
+  {no:96 ,name:'Cao Thị Hương (50)',phone:'0839010143',product:'W84-AD5000',pay:'할부',cons:'상담/구매확정',shipped:true,paid:true,completed:true,locked:true,cust:'위약금미입금',path:'위약금',penaltyBase:104900,penaltyDiscount:0,penaltyFinal:104900,
+    stars:4,dbidx:20288,dbpoint:'1.0',ob:'Trần Thị Ngọc',distDate:'2026-07-05',inDate:'2026-07-04',callType:'IN',dbInfo:'렌탈',lastCall:'2026-07-08 09:50',resvCall:'-',orderDate:'2026-07-08',autocall:'없음',care1:'2026-07-18',care2:'-'},
+  {no:95 ,name:'Trần Thị Đáng (40)',phone:'0377339705',product:'BrainKey TAB',pay:'할부',cons:'상담/구매확정',shipped:true,paid:true,completed:true,locked:true,cust:'입고대기',path:'기기반납',
+    stars:4,dbidx:20270,dbpoint:'1.0',ob:'Trần Thị Ngọc',distDate:'2026-07-01',inDate:'2026-06-30',callType:'IN',dbInfo:'없음',lastCall:'2026-07-03 15:15',resvCall:'-',orderDate:'2026-07-03',autocall:'없음',care1:'2026-07-15',care2:'-'},
+];
+/* 고객상태는 배송대기 → 배송중 → 구매완료만 사용.
+   입금(paid)은 고객상태가 아니라 💰 플래그로만 표시.
+   구매완료(3-10)는 송장+입금 둘 다 완료된 건을 처리 */
+function sellLabel(r){
+  if(r.intake===false) return '상담대기'; // 접수 전 — 2-1 접수창 저장 시 배송대기로 전환
+  if(r.completed) return '구매완료';
+  if(r.shipped) return '배송중';   // 송장 업로드(물건 발송) 시 배송중
+  return '배송대기';               // 송장 전
+}
+function displayState(r){return r.locked? r.cust : sellLabel(r);}
+
+/* status → badge class */
+function badge(s){
+  const m={'상담대기':'cons','배송대기':'s-ship','배송중':'s-ship','구매완료':'s-done',
+    '취소접수':'s-canc','환불요청':'s-canc','취소':'s-end',
+    '중도해지':'s-work','입고대기':'s-work','반품입고':'s-work',
+    '위약금미입금':'s-work','위약금협의':'s-work','위약금입금':'s-work',
+    '중도해지(기기반납)':'s-end','중도해지(위약금)':'s-end'};
+  return '<span class="b '+(m[s]||'cons')+'">'+s+'</span>';
+}
+const won=n=>n.toLocaleString('ko-KR');
+
+/* ================= role ================= */
+function setRole(v){role=v;renderList();updateHint();}
+function updateHint(){
+  const tips={
+    '상담원':'배송대기/배송중 건 [상담] → 취소접수 가능. 반품입고/위약금입금 후 [환불요청] 처리.',
+    '관리자':'모든 버튼 노출. [반품취소] 접수, [환불승인]까지 가능.',
+    '매니저':'[중도해지 승인], [환불승인] 권한. (반품접수 후 승인 게이트)',
+    '미납담당자':'위약금 미입금 건의 [위약금 협의·수정]만 처리.',
+    '재무담당자':'위약금 협의 완료 건의 [위약금 입금]만 처리.',
+    '물류':'입고대기 건의 [반품입고] 처리.'
+  };
+  /* 한국어: "[권한] 권한으로 로그인 중" / 베트남어: "Đang đăng nhập với quyền [권한]" — 어순이 반대라 분기 */
+  const head = LANG==='vi'
+    ? '<span>권한으로 로그인 중</span> <b>'+role+'</b>'
+    : '<b>'+role+'</b> <span>권한으로 로그인 중</span>';
+  document.getElementById('listHint').innerHTML=head+' — <span>'+tips[role]+'</span>';
+}
+
+/* ================= action map (state machine) ================= */
+function actionsFor(r){
+  const can=(...x)=>x.includes(role), A=[];
+  /* ===== 판매 단계 — 취소접수/중도해지는 상담창에서 선택 ===== */
+  if(!r.locked){
+    A.push([L('상담','Tư vấn'),'b1',()=>openConsult(r)]);
+    /* 🇻🇳 계약서는 접수 완료(배송대기) 이후에만 — 상담대기(접수 전) 건은 계약서가 존재하지 않음 */
+    if(can('관리자') && r.intake!==false) A.push([L('계약서','Hợp đồng'),'b-amber',()=>openContract(r)]);
+    A.push([L('고객 관리','Quản lý KH'),'b-ghost',()=>toast(L('고객 관리 화면(기존 기능)','Màn hình quản lý khách hàng (chức năng hiện có)'))]);
+    return A;
+  }
+  /* ===== 취소 / 중도해지 진행 단계 =====
+     · 반품방식변경·위약금협의/입금 → 상담창에서
+     · 반품입고 → 4-1/5-2-1/4-3 입고 메뉴에서
+     · 환불요청·환불승인 → 3-6 환불 메뉴에서
+     기능 컬럼에는 [상담]·[중도해지 승인]·[반품취소(철회)]·[고객관리]만 둔다 */
+  const s=r.cust;
+  A.push([L('상담','Tư vấn'),'b1',()=>openConsult(r)]);
+  if(s==='중도해지'&&can('매니저','관리자')) A.push([L('중도해지 승인','Duyệt chấm dứt HĐ'),'b-red',()=>approveTerm(r)]);
+  /* 🟠 [반품취소] = 반품(중도해지) 철회 → 구매완료 복귀 (중도해지~환불요청 구간, 권한별) */
+  if(r.path!=='취소' && ['중도해지','입고대기','반품입고','위약금미입금','위약금협의','위약금입금','환불요청'].includes(s) && can('관리자','매니저'))
+    A.push([L('반품취소','Hủy trả hàng'),'b-red',()=>cancelReturn(r)]);
+  A.push([L('고객 관리','Quản lý KH'),'b-ghost',()=>toast(L('고객 관리 화면(기존 기능)','Màn hình quản lý khách hàng (chức năng hiện có)'))]);
+  return A;
+}
+
+/* 1-2 고객관리 DB 리스트 엑셀 — 관리자/매니저만. 🔒내부코드 컬럼 포함 */
+function downloadDbExcel(){
+  const header=['번호','주문키','고객명','전화번호','접수제품','패키지 내부코드','결제방식','상담상태','고객상태'].map(X);
+  const data=rows.map(r=>[r.no,orderKeyOf(r),r.name,r.phone,X(r.product),pkgCodeOf(r.product),X(r.pay),X(r.cons),X(displayState(r))]);
+  buildAndDownloadXlsx(L('DB리스트_베트남_','DanhSachDB_VietNam_')+stamp()+'.xlsx',L('DB리스트','DanhSachDB'),header,data);
+  toast(L('DB 리스트 엑셀 다운로드 — '+rows.length+'건 (🔒내부코드 컬럼 포함)',
+          'Đã tải Excel danh sách DB — '+rows.length+' dòng (bao gồm cột 🔒mã nội bộ)'));
+}
+
+/* ================= render list ================= */
+function renderList(){
+  const w=document.getElementById('dbExcelWrap');
+  if(w) w.style.display=['관리자','매니저','재무담당자'].includes(role)?'block':'none';
+  const tb=document.getElementById('rows');tb.innerHTML='';
+  rows.forEach(r=>{
+    const A=actionsFor(r);
+    let scell=badge(displayState(r));
+    if(r.intake===false) scell+=`<div class="muted">접수 전 · [상담]에서 접수</div>`;
+    else if(!r.locked) scell+=`<div class="muted">📦<span>송장</span> ${r.shipped?'✅':'⬜'} · 💰<span>입금</span> ${r.paid?'✅':'⬜'}</div>`;
+    else if(r.path) scell+='<div class="muted">'+r.path+'</div>';
+    const tr=document.createElement('tr');
+    const tag = r.stars>0 ? '<span style="color:var(--red);letter-spacing:1px">'+'★'.repeat(r.stars)+'</span>' : '<span class="muted">-</span>';
+    tr.innerHTML=`
+      <td>${tag}</td>
+      <td>${r.no}</td>
+      <td>${r.dbidx||'-'}</td>
+      <td>${r.dbpoint||'-'}</td>
+      <td>${r.ob||'-'}</td>
+      <td>${r.distDate||'-'}</td>
+      <td>${r.inDate||'-'}</td>
+      <td class="name">${r.name}</td>
+      <td>${r.phone}</td>
+      <td>${r.callType||'-'}</td>
+      <td>${r.dbInfo||'-'}</td>
+      <td>${r.lastCall||'-'}</td>
+      <td>${r.resvCall||'-'}</td>
+      <td>${r.orderDate||'-'}</td>
+      <td>${r.product}</td>
+      <td><span class="b cons">${r.cons}</span></td>
+      <td>${r.autocall||'없음'}</td>
+      <td>${scell}</td>
+      <td>${r.care1||'-'}</td>
+      <td>${r.care2||'-'}</td>
+      <td><div class="acts"></div></td>`;
+    const box=tr.querySelector('.acts');
+    A.forEach(([label,cls,fn])=>{const b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=fn;box.appendChild(b);});
+    tb.appendChild(tr);
+  });
+}
+
+/* ================= transitions ================= */
+function transit(r,to,path,msg){
+  r.locked=true; r.cust=to; if(path)r.path=path;
+  renderList();
+  toast(msg||L('고객상태 → <b>'+to+'</b> 전환','Trạng thái khách hàng chuyển sang <b>'+to+'</b>'));
+}
+function approveTerm(r){
+  const to = r.path==='기기반납' ? '입고대기' : '위약금미입금';
+  r.cust=to; renderList();
+  toast(L('매니저 <b>중도해지 승인</b> 완료 → 고객상태 <b>'+to+'</b>',
+          'Quản lý đã <b>duyệt chấm dứt hợp đồng</b> → trạng thái khách hàng <b>'+to+'</b>'));
+}
+function approveRefund(r){
+  const fin = r.path==='취소' ? '취소' : (r.path==='기기반납'?'중도해지(기기반납)':'중도해지(위약금)');
+  r.cust=fin; renderList();
+  if(fin==='중도해지(위약금)') toast(L('환불승인 완료 → <b>중도해지(위약금)</b> · ★컨텐츠 자동 사용중단 실행',
+    'Đã phê duyệt hoàn tiền → <b>chấm dứt giữa chừng (phí phạt)</b> · tự động ngừng sử dụng ★nội dung'));
+  else toast(L('환불승인 완료 → 종결 상태 <b>'+fin+'</b>',
+    'Đã phê duyệt hoàn tiền → trạng thái kết thúc <b>'+fin+'</b>'));
+}
+
+/* ================= modal helpers ================= */
+function openModal(title,body,foot,wide){
+  document.getElementById('mTitle').innerHTML=title;
+  document.getElementById('mBody').innerHTML=body;
+  document.getElementById('mFoot').innerHTML='';
+  (foot||[]).forEach(b=>document.getElementById('mFoot').appendChild(b));
+  document.getElementById('modal').className='modal'+(wide?'':' sm');
+  document.getElementById('mask').classList.add('show');
+}
+function closeModal(){document.getElementById('mask').classList.remove('show');}
+function btn(label,cls,fn){const b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=fn;return b;}
+
+/* ===== 상담창 — 상담상태 2단 선택 + 이력 (국내 CMS 방식) ===== */
+function openConsult(r){
+  const can=(...x)=>x.includes(role);
+  const st=sellLabel(r);
+  const isIntake = !r.locked && r.intake===false;   /* 🇻🇳 상담대기 = 접수 전 */
+  /* 현재 상태·권한에 따른 [반품] 소분류(상담상태) 액션 */
+  const sub=[];
+  if(isIntake) sub.push({val:'cod',label:'COD (구매_현금) — 접수 진행',intake:true});
+  if(!r.locked && !isIntake && st!=='구매완료'){
+    sub.push({val:'c1',label:'취소접수 - 배송전취소',msg:L('취소접수(배송전) → 다음: 환불요청','Tiếp nhận hủy (trước khi giao hàng) → tiếp theo: yêu cầu hoàn tiền'),apply:()=>{r.locked=true;r.cust='취소접수';r.path='취소';}});
+    sub.push({val:'c2',label:'취소접수 - 배송후 수취거절',msg:L('취소접수(수취거절) → 다음: 환불요청','Tiếp nhận hủy (từ chối nhận hàng) → tiếp theo: yêu cầu hoàn tiền'),apply:()=>{r.locked=true;r.cust='취소접수';r.path='취소';}});
+  }
+  if(!r.locked && !isIntake && st==='구매완료' && can('상담원','관리자','매니저')){
+    sub.push({val:'term',label:'중도해지 (반품접수)',launch:true});
+  }
+  if(r.locked){
+    if(['중도해지','입고대기','위약금미입금'].includes(r.cust) && can('상담원','관리자','매니저')){
+      const to=r.path==='기기반납'?'위약금':'기기반납';
+      sub.push({val:'sw',label:'반품방식 변경 (→'+to+')',
+        msg:L('🔵 반품방식 '+to+'(으)로 변경 — 매니저 재승인 필요',
+              '🔵 Đã đổi hình thức trả hàng sang <b>'+to+'</b> — cần quản lý phê duyệt lại'),
+        apply:()=>{r.path=to;r.cust='중도해지';}});
+    }
+    if(r.cust==='위약금미입금' && can('미납담당자','관리자'))
+      sub.push({val:'ng',label:'위약금 협의·수정',
+        msg:L('위약금 협의 완료 → 상담상태 <b>위약금 협의</b> (고객상태는 <b>위약금미입금</b> 유지) · 다음: 재무담당자 입금',
+              'Hoàn tất thỏa thuận phí phạt → trạng thái tư vấn <b>위약금 협의</b> (trạng thái khách hàng vẫn là <b>위약금미입금</b>) · tiếp theo: phụ trách tài chính xác nhận nộp tiền'),
+        amt:true,apply:()=>{r.cons='위약금 협의';}});
+    if(r.cust==='위약금미입금' && r.cons==='위약금 협의' && can('재무담당자','관리자'))
+      sub.push({val:'py',label:'위약금 입금',
+        msg:L('위약금 입금 확인 → 고객상태 <b>위약금입금</b> · 다음: 환불요청',
+              'Đã xác nhận nộp phí phạt → trạng thái khách hàng <b>위약금입금</b> · tiếp theo: yêu cầu hoàn tiền'),
+        amt:true,apply:()=>{r.cust='위약금입금';}});
+  }
+  /* 🇻🇳 접수 전(상담대기) — [결제] 대분류에서 COD 선택 시에만 접수 진행. 반품/교환 분류는 접수 후부터 */
+  const subMap = isIntake ? {
+    '결제':[['cod','COD (구매_현금) — 접수 진행']],
+    '일반':[['gen','상담 진행'],['done','상담 완료']],
+    '부재':[['abs','부재'],['resv','통화예약']]
+  } : {
+    '일반':[['gen','상담 진행'],['done','상담 완료']],
+    '반품': sub.length? sub.map(a=>[a.val,a.label]) : [['ret','반품 상담']],
+    '교환':[['exc','교환 상담']],
+    'ACC & 사은품':[['acc','사은품/ACC 상담']],
+    '학습케어(관리콜)':[['care','학습케어(관리콜)']]
+  };
+  const defBig = isIntake ? '결제' : (sub.length ? '반품' : '일반');
+  window.__sub={list:sub,map:subMap,r};
+  r.history=r.history||[];
+  const histHtml = r.history.length
+    ? r.history.map(h=>`<div class="h"><span class="meta">${h.meta}</span><br>${h.text}</div>`).join('')
+    : '<div class="muted">이력 없음</div>';
+  const body=`<div class="frm">
+    <table>
+      <tr><th>고객명</th><td>${r.name}</td><th>전화</th><td>${r.phone}</td></tr>
+      <tr><th>접수제품</th><td>${r.product}</td><th>고객상태</th><td>${badge(displayState(r))}${r.path&&r.locked?' · '+r.path:''}</td></tr>
+      <tr><th>송장번호</th><td colspan="3">${r.invoice?('<b>'+r.invoice+'</b> <span class="muted">(4-6 송장번호 업로드 연동)</span>'):'<span class="muted">미등록</span>'}</td></tr>
+    </table>
+    ${can('관리자')?`<div style="margin:10px 0 2px">
+      <button class="b-amber" onclick="togglePwBox()">🔑 기기 PW 발송</button>
+      <span class="muted">🟠 관리자 권한에서만 노출 (7-1 전화상담툴 동일 기능)</span></div>
+    <div id="pwBox" style="display:none">${pwBoxHTML(r)}</div>`:''}
+    <div class="sec">고객 상담</div>
+    <table><tr><th>고객리뷰</th><td><span class="stars">★★★☆☆</span> <span class="muted">(샘플)</span></td></tr></table>
+    <div style="font-weight:700;margin:12px 0 6px">상담 상태 <span class="muted">(대분류 → 소분류 선택)</span></div>
+    <div class="statesel">
+      <select id="cBig" size="6" onchange="consSub()">${Object.keys(subMap).map(b=>`<option value="${b}" ${b===defBig?'selected':''}>${b}</option>`).join('')}</select>
+      <select id="cSub" size="6"></select>
+    </div>
+    <div id="cAmt" style="display:none;margin-top:8px">
+      <div style="font-weight:700;margin:4px 0 4px">위약금 산정 <span class="muted">(할인 입력 시 최종 자동 계산)</span></div>
+      <table>
+        <tr><th>최초 산정 위약금(VND)</th><td><input type="number" id="pBase" value="${r.penaltyBase||104900}" readonly style="background:#f3f4f7"> <span class="muted">(반품접수 시 산정값 — 수정 불가)</span></td></tr>
+        <tr><th>할인 금액(VND)</th><td><input type="number" id="pDisc" value="${r.penaltyDiscount||0}" oninput="calcPenalty()"></td></tr>
+        <tr><th>최종 위약금(VND)</th><td><input type="number" id="pFinal" readonly style="background:#f3f4f7;font-weight:700"></td></tr>
+      </table>
+    </div>
+    <div id="cReturn" style="display:none;margin-top:10px"></div>
+    <div class="sec">상담 이력</div>
+    <div class="hist" id="cHist">${histHtml}</div>
+    <div style="font-weight:700;margin:12px 0 4px">상담내용 <span class="muted">(저장 시 이력에 기록)</span></div>
+    <textarea id="cMemo" style="width:100%;height:60px;border:1px solid var(--line);border-radius:6px;padding:8px" placeholder="상담 내용 입력"></textarea>
+  </div>`;
+  openModal(L('상담창 (OB CALL 관리) · No.','Cửa sổ tư vấn (Quản lý OB CALL) · No.')+r.no, body,
+    [btn(L('닫기','Đóng'),'b-ghost',closeModal), btn(L('저장하기','Lưu'),'b-pri',saveConsult)], true);
+  consSub();
+}
+function consSub(){
+  const big=document.getElementById('cBig').value;
+  const opts=window.__sub.map[big]||[];
+  const sel=document.getElementById('cSub');
+  sel.innerHTML=opts.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join('');
+  if(opts.length) sel.selectedIndex=0;   // 리스트박스 기본 선택
+  sel.onchange=toggleAmt; toggleAmt();
+}
+function toggleAmt(){
+  const a=window.__sub.list.find(x=>x.val===document.getElementById('cSub').value);
+  const isAmt=a&&a.amt, isReturn=a&&a.launch, isIntake=a&&a.intake;
+  document.getElementById('cAmt').style.display=isAmt?'block':'none';
+  if(isAmt) calcPenalty();
+  const cr=document.getElementById('cReturn');
+  if(isIntake){ renderIntakeInline(); return; }
+  if(isReturn){
+    /* 중도해지 선택 시 상담창 아래에 반품접수 폼 인라인 표시 */
+    if(!(wiz.inline && wiz.r===window.__sub.r)) wiz={r:window.__sub.r,method:'위약금',ship:'택배 회수 요청',disc:{},calc:false,inline:true};
+    renderReturnInline();
+  } else { cr.style.display='none'; cr.innerHTML=''; }
+}
+function calcPenalty(){
+  const base=+document.getElementById('pBase').value||0;
+  const disc=+document.getElementById('pDisc').value||0;
+  document.getElementById('pFinal').value=base-disc;
+}
+
+/* ================= 🔑 기기 PW 발송 (뇌새김 7-1 전화상담툴 동일 기능 · 관리자 전용) =================
+   시리얼번호로 단말기 조회 → 해당 기기 PW를 입력한 휴대폰번호로 SMS 발송.
+   발신은 한국 번호(기존 뇌새김 발송 게이트웨이) 사용. */
+const DEVICE=[
+  {serial:'A11VN26030001', pw:'482913', model:'Galaxy Tab A11', owner:'Đỗ Thị Kim Ngân'},
+  {serial:'A11VN26030002', pw:'703518', model:'Galaxy Tab A11', owner:'Võ Thị Thuỳ Trang'},
+  {serial:'A11VN26030003', pw:'119427', model:'Galaxy Tab A11', owner:'Nguyễn Hương Quỳnh Trâm'},
+];
+function pwBoxHTML(r){
+  return `<div class="hint" style="margin:6px 0">🇰🇷 발신번호는 <b>한국 번호</b>(기존 뇌새김 SMS 게이트웨이)를 사용합니다. 시리얼번호로 조회된 <b>기기 PW</b>가 아래 입력한 번호로 발송됩니다.</div>
+  <div class="frm"><table>
+    <tr><th>시리얼번호</th><td><input type="text" id="pwSerial" placeholder="예: A11VN26030001" style="width:200px">
+        <span class="muted">(단말기 뒷면 S/N)</span></td></tr>
+    <tr><th>휴대폰번호</th><td><input type="text" id="pwPhone" value="${r.phone||''}" style="width:170px">
+        <span class="muted">(기본값 = 고객 연락처, 수정 가능)</span></td></tr>
+  </table></div>
+  <div style="margin-top:6px"><button class="b-pri" onclick="sendDevicePw()">발송</button>
+    <span class="muted" style="margin-left:8px">조회 실패 시 발송되지 않습니다.</span></div>
+  <div id="pwResult" style="margin-top:8px"></div>`;
+}
+function togglePwBox(){
+  const b=document.getElementById('pwBox');
+  b.style.display = b.style.display==='none' ? 'block' : 'none';
+}
+function sendDevicePw(){
+  const r=window.__sub.r;
+  const serial=document.getElementById('pwSerial').value.trim();
+  const phone=document.getElementById('pwPhone').value.trim();
+  const out=document.getElementById('pwResult');
+  if(!serial){toast('시리얼번호를 입력하세요');return;}
+  if(!phone){toast('휴대폰번호를 입력하세요');return;}
+  const d=DEVICE.find(x=>x.serial.toUpperCase()===serial.toUpperCase());
+  if(!d){
+    out.innerHTML=`<div class="hint" style="background:#fdeaea;border-color:#f3c5c5;color:#a33">❌ <b>${serial}</b> — <span>조회 결과 없음. 시리얼번호를 확인하세요.</span></div>`;
+    toast('시리얼번호 조회 결과가 없습니다'); return;
+  }
+  const now=new Date().toISOString().slice(0,16).replace('T',' ');
+  out.innerHTML=`<div class="hint" style="background:#eef7f1;border-color:#bfe0cd;color:#1c7a52">
+    ✅ <span>기기 PW 발송 완료</span> → <b>${phone}</b> <span class="muted">(${now})</span><br>
+    <span class="muted"><span>단말기</span> ${d.model} · S/N ${d.serial} · <span>PW ****(SMS 본문에만 표기)</span></span></div>`;
+  r.history=r.history||[];
+  r.history.push({meta:`[${now} · <span>${role}</span> · <span>기기 PW 발송</span>]`,
+    text:`S/N ${d.serial} → ${phone} <span>발송 (발신: 한국 번호)</span>`});
+  document.getElementById('cHist').innerHTML=r.history.map(h=>`<div class="h"><span class="meta">${h.meta}</span><br>${h.text}</div>`).join('');
+  toast(L('기기 PW 발송 완료 → <b>'+phone+'</b>','Đã gửi mật khẩu thiết bị → <b>'+phone+'</b>'));
+}
+
+/* ================= 2-1 상담 > COD 접수창 (상담대기 건만) ================= */
+const VN_PROVINCE=['Thành phố Hà Nội','Thành phố Hồ Chí Minh','Thành phố Hải Phòng','Thành phố Đà Nẵng','Thành phố Huế','Thành phố Cần Thơ','Tuyên Quang','Cao Bằng','Lai Châu','Lào Cai','Thái Nguyên','Điện Biên','Lạng Sơn','Sơn La','Phú Thọ','Bắc Ninh','Quảng Ninh','Hưng Yên','Ninh Bình','Thanh Hóa','Nghệ An','Quảng Trị','Khánh Hòa','Lâm Đồng','Đắk Lắk','Đồng Nai','Tây Ninh','Vĩnh Long','Đồng Tháp','Cà Mau','An Giang'];
+const VN_DIST=['Quận 1','Quận 3','Quận 5','Quận 7','Quận 10','Quận Bình Thạnh','Quận Tân Bình','Huyện Bình Chánh','Huyện Củ Chi','Thành phố Thủ Đức'];
+const VN_WARD=['Phường 1','Phường 4','Phường 8','Phường 11','Phường 13','Phường 15','Phường Tân Hưng','Phường Bến Nghé'];
+const VN_XA=['Xã Bình Hưng','Xã Phong Phú','Xã Tân Kiên','Xã Vĩnh Lộc A','-'];
+/* 신분증 발급처 (Nơi cấp / Cấp bởi) */
+const VN_ISSUER=['Cục Cảnh sát QLHC về TTXH','CTCCSQLHCVTTXH','Công an Thành phố Hồ Chí Minh','Công an Thành phố Hà Nội','Công an tỉnh Quảng Trị','Công an tỉnh Nghệ An'];
+const dlist=(id,arr)=>`<datalist id="${id}">${arr.map(v=>`<option value="${v}">`).join('')}</datalist>`;
+const numOpts=(a,b,sel)=>{let s='';for(let i=a;i<=b;i++)s+=`<option ${i==sel?'selected':''}>${i}</option>`;return s;};
+const SW6=['워드','토크','기초영어','처음영어','기초한국어','실전한국어'];
+
+function renderIntakeInline(){
+  const r=window.__sub.r, cr=document.getElementById('cReturn');
+  const pk=PKG.filter(p=>p.show);
+  cr.style.display='block';
+  cr.innerHTML=`
+  <div class="hint">🇻🇳 <b>접수 단계</b> — 고객상태 <b>상담대기</b> 건만 접수 가능. [저장하기] 시 상담상태 <b>구매_현금(COD)</b> · 고객상태 <b>배송대기</b>로 전환되고, 그때부터 <b>[계약서]</b> 버튼이 노출됩니다.</div>
+  <div class="sec">접수 정보 <span class="muted">(★ = 이번 개발요청 신규 항목)</span></div>
+  <div class="frm"><table>
+    <tr><th>통화예약일</th><td><input type="date" id="ikResv"></td>
+        <th>접수일(오더일)</th><td>${new Date().toISOString().slice(0,10)} <span class="muted">(자동)</span></td></tr>
+    <tr><th>이메일</th><td colspan="3"><input type="text" id="ikMail" style="width:200px" placeholder="아이디">@<select><option>gmail.com</option><option>naver.com</option><option>직접입력</option></select></td></tr>
+    <tr><th>★ 계약자명</th><td><input type="text" id="ikName" value="${r.name.replace(/\s*\(\d+\)$/,'')}"></td>
+        <th>성별</th><td><select id="ikSex"><option value="">-선택-</option><option value="남">남</option><option value="여" selected>여</option></select></td></tr>
+    <tr><th>★ 생년월일</th><td colspan="3">${L(
+        `<select id="ikDobY">${numOpts(1960,2010,2000)}</select> 년
+         <select id="ikDobM">${numOpts(1,12,3)}</select> 월
+         <select id="ikDobD">${numOpts(1,31,25)}</select> 일`,
+        `Ngày <select id="ikDobD">${numOpts(1,31,25)}</select>
+         tháng <select id="ikDobM">${numOpts(1,12,3)}</select>
+         năm <select id="ikDobY">${numOpts(1960,2010,2000)}</select>`)}</td></tr>
+  </table></div>
+
+  <div class="sec">★ 신분증 정보 <span class="muted">(선택 — 접수 시 미입력 가능, 계약 이후 [계약서] 화면에서 추가·수정 가능)</span></div>
+  <div class="frm"><table>
+    <tr><th>신분증 번호</th><td><input type="text" id="ikId" placeholder="CCCD 12자리 (미입력 가능)"></td>
+        <th>발행일</th><td>
+        <select id="ikIssUse"><option value="">-미입력-</option><option value="Y">입력</option></select>
+        <select id="ikIssY">${numOpts(2015,2026,2025)}</select>
+        <select id="ikIssM">${numOpts(1,12,3)}</select>
+        <select id="ikIssD">${numOpts(1,31,12)}</select></td></tr>
+    <tr><th>신분증 발급처</th><td colspan="3"><input type="text" id="ikIssuer" list="dlIssuer" placeholder="예: Cục Cảnh sát QLHC về TTXH (미입력 가능)" style="width:60%">
+        ${dlist('dlIssuer',VN_ISSUER)}
+        <div class="muted" style="margin-top:4px">※ 신분증 번호 · 발행일 · 발급처는 <b>계약서 출력 전까지</b>만 채우면 됩니다. 접수 저장은 미입력 상태로도 가능합니다.</div></td></tr>
+  </table></div>
+
+  <div class="sec">상품명 <span class="muted">(1-34 패키지 구성 관리 등록값 — 🔒내부코드는 상담원에게 노출되지 않음)</span></div>
+  <div class="frm"><table>
+    <tr><th>패키지</th><td colspan="3">
+      ${pk.map((p,i)=>`<label style="margin-right:14px"><input type="radio" name="ikPkg" value="${i}" onchange="pickIntakePkg(${i})"> ${p.name} <span class="muted">[${won(p.price)}₫]</span></label>`).join('')}
+      <div class="muted" style="margin-top:4px">※ 패키지명·가격만 노출. 내부코드는 관리자 엑셀에서만 확인됩니다.</div></td></tr>
+    <tr><th>단말기</th><td><label><input type="radio" name="ikDev" checked> Galaxy Tab A11</label></td>
+        <th>컨텐츠(SW)</th><td>${SW6.map(s=>`<label style="margin-right:10px"><input type="checkbox" class="ikSw" value="${s}"> ${s}</label>`).join('')}</td></tr>
+  </table></div>
+
+  <div class="sec">★ 결제방식 <span class="muted">(선택에 따라 아래 금액 입력 행이 전환됨)</span></div>
+  <div class="frm"><table>
+    <tr><th>결제방식</th><td colspan="3">
+      <label style="margin-right:18px"><input type="radio" name="ikPay" value="할부" checked onchange="calcIntake()"> 할부</label>
+      <label><input type="radio" name="ikPay" value="구매" onchange="calcIntake()"> 구매(일시불)</label></td></tr>
+  </table></div>
+
+  <div class="frm" id="ikBuy" style="display:none"><table>
+    <tr><th>상품가격(동)</th><td><input type="number" id="ikPriceB" value="0" oninput="calcIntake()"></td>
+        <th>할인금액(동)</th><td><input type="number" id="ikDisc" value="0" oninput="calcIntake()"></td></tr>
+    <tr><th>결제금액(동)<br><span class="muted">상품가격 − 할인금액</span></th><td colspan="3"><input type="text" id="ikPayAmt" readonly style="background:#f3f4f7;font-weight:700"></td></tr>
+  </table></div>
+
+  <div class="frm" id="ikInst"><table>
+    <tr><th>상품가격(동)</th><td><input type="number" id="ikPriceI" value="0" oninput="calcIntake()"></td>
+        <th>선납금(동)</th><td><input type="number" id="ikPre" value="0" oninput="calcIntake()"></td></tr>
+    <tr><th>선납금할인(동)</th><td><input type="number" id="ikPreDisc" value="0" oninput="calcIntake()"></td>
+        <th>할부 개월</th><td><select id="ikMonths" onchange="calcIntake()"><option value="">-선택-</option>${[2,3,4,5,6,7,8,9,10,12,15,18,24].map(m=>`<option ${m==6?'selected':''}>${m}</option>`).join('')}</select> 개월</td></tr>
+    <tr><th>할부 원금<br><span class="muted">상품가격 − 선납금 − 선납금할인 (수정불가)</span></th><td><input type="text" id="ikPrin" readonly style="background:#f3f4f7;font-weight:700"></td>
+        <th>월 납부금<br><span class="muted">할부원금 / 할부개월 (수정불가)</span></th><td><input type="text" id="ikMonthly" readonly style="background:#f3f4f7;font-weight:700;color:var(--purple2)"></td></tr>
+  </table></div>
+
+  <div class="sec">★ 주소 <span class="muted">(4단 드롭다운 — 일부 단어 입력으로 검색)</span></div>
+  <div class="frm"><table>
+    <tr><th>주소 SELECT</th><td colspan="3">
+      <input type="text" id="ikProv" list="dlProv" placeholder="-- vùng --" style="width:190px">
+      <input type="text" id="ikDist" list="dlDist" placeholder="ĐẶC KHU" style="width:150px">
+      <input type="text" id="ikWard" list="dlWard" placeholder="PHƯỜNG" style="width:140px">
+      <input type="text" id="ikXa"   list="dlXa"   placeholder="XÃ" style="width:130px">
+      <span class="muted">← 'ho chi' 처럼 일부만 입력해도 검색됨</span>
+      ${dlist('dlProv',VN_PROVINCE)}${dlist('dlDist',VN_DIST)}${dlist('dlWard',VN_WARD)}${dlist('dlXa',VN_XA)}</td></tr>
+    <tr><th>상세주소</th><td colspan="3"><input type="text" id="ikAddr" style="width:70%" placeholder="번지 · 건물명"></td></tr>
+    <tr><th>배송일</th><td><input type="date" id="ikShipDate" value="${new Date().toISOString().slice(0,10)}"></td>
+        <th>배송메모</th><td><input type="text" id="ikMemo" style="width:90%"></td></tr>
+  </table></div>`;
+  calcIntake();
+}
+function pickIntakePkg(i){
+  const p=PKG.filter(x=>x.show)[i]; if(!p) return;
+  document.querySelectorAll('.ikSw').forEach(c=>c.checked=p.sw.includes(c.value));
+  const t=document.querySelector('input[name=ikPay]:checked').value;
+  document.getElementById(t==='할부'?'ikPriceI':'ikPriceB').value=p.price;
+  calcIntake();
+}
+function calcIntake(){
+  const isI=document.querySelector('input[name=ikPay]:checked').value==='할부';
+  document.getElementById('ikInst').style.display=isI?'block':'none';
+  document.getElementById('ikBuy').style.display=isI?'none':'block';
+  if(isI){
+    const price=+document.getElementById('ikPriceI').value||0;
+    const pre=+document.getElementById('ikPre').value||0;
+    const pd=+document.getElementById('ikPreDisc').value||0;
+    const m=+document.getElementById('ikMonths').value||0;
+    const prin=Math.max(0,price-pre-pd);
+    document.getElementById('ikPrin').value=won(prin)+' ₫';
+    document.getElementById('ikMonthly').value=m?(won(Math.round(prin/m))+L(' ₫ / 월',' ₫ / tháng')):L('할부 개월 선택 필요','Cần chọn số tháng trả góp');
+  }else{
+    const price=+document.getElementById('ikPriceB').value||0;
+    const disc=+document.getElementById('ikDisc').value||0;
+    document.getElementById('ikPayAmt').value=won(Math.max(0,price-disc))+' ₫';
+  }
+}
+/* 접수 저장 — 상담상태 구매_현금(COD) · 고객상태 배송대기 전환 */
+function saveIntake(r,memo,stamp){
+  const g=id=>document.getElementById(id);
+  const name=g('ikName').value.trim();
+  const pkIdx=document.querySelector('input[name=ikPkg]:checked');
+  const isI=document.querySelector('input[name=ikPay]:checked').value==='할부';
+  if(!name){toast('계약자명을 입력하세요');return false;}
+  /* 신분증 번호·발행일·발급처는 선택값 — 접수 시 미입력 허용 (계약서 출력 전까지 입력) */
+  if(!pkIdx){toast('상품명(패키지)을 선택하세요');return false;}
+  if(!g('ikProv').value.trim()){toast('주소(vùng)를 선택하세요');return false;}
+  const p=PKG.filter(x=>x.show)[+pkIdx.value];
+  const price=+(isI?g('ikPriceI').value:g('ikPriceB').value)||0;
+  if(!price){toast('상품가격을 입력하세요');return false;}
+  const months=isI?(+g('ikMonths').value||0):0;
+  if(isI&&!months){toast('할부 개월을 선택하세요');return false;}
+  const pre=isI?(+g('ikPre').value||0):0, pd=isI?(+g('ikPreDisc').value||0):(+g('ikDisc').value||0);
+  const prin=Math.max(0,price-pre-pd), monthly=isI?Math.round(prin/months):0;
+  const dob=`${g('ikDobY').value}-${String(g('ikDobM').value).padStart(2,'0')}-${String(g('ikDobD').value).padStart(2,'0')}`;
+  const iss=g('ikIssUse').value==='Y'
+    ? `${g('ikIssY').value}-${String(g('ikIssM').value).padStart(2,'0')}-${String(g('ikIssD').value).padStart(2,'0')}` : '';
+  const addr=[g('ikAddr').value.trim(),g('ikXa').value.trim(),g('ikWard').value.trim(),g('ikDist').value.trim(),g('ikProv').value.trim()].filter(Boolean).join(', ');
+  /* 접수값 → 계약서 자동 매핑 (2-1 [계약서] 버튼에서 그대로 사용) */
+  r._ct={ orderKey:'WV'+(17802773991303+r.no)+'OHWS', name, gender:g('ikSex').value,
+    idNo:g('ikId').value.trim(), issueDate:iss, issuer:g('ikIssuer').value.trim(), dob, addr, phone:r.phone,
+    pkgName:p.name, device:'Galaxy Tab A11', payType:isI?'할부':'구매',
+    price, prepaid:pre, prepaidDisc:pd, months:months||1,
+    contractDate:new Date().toISOString().slice(0,10) };
+  /* 결제방식(할부/구매)이 상담상태·리스트 결제 컬럼에 그대로 구분되어 남음 */
+  r.intake=true; r.product=p.name; r.pay=isI?'할부':'구매'; r.cons=(isI?'할부':'구매')+'_현금(COD)';
+  r.history=r.history||[];
+  r.history.push({meta:`[${stamp} · <span>${role}</span> · <span>결제</span> > <span>COD 접수</span>]`,
+    text:`<span>${memo||'COD 접수'}</span> · <span>${p.name}</span> / <span>${isI?'할부':'구매'}</span> · <span>상품가격</span> ${won(price)}`+
+      (isI?` · <span>선납금</span> ${won(pre)} · <span>할부</span> ${months} <span>개월</span> · <span>월 납부금</span> ${won(monthly)}`
+         :` · <span>결제금액</span> ${won(price-pd)}`)});
+  renderList(); closeModal();
+  const lack=[!r._ct.idNo&&'번호',!iss&&'발행일',!r._ct.issuer&&'발급처'].filter(Boolean);
+  const lackHtml=lack.map(x=>`<span>${x}</span>`).join(' · ');
+  toast(L('접수 저장 완료 → 상담상태 <b>'+r.cons+'</b> · 고객상태 <b>배송대기</b> · 이제 [계약서] 버튼 노출'
+            +(lack.length?`<br>⚠ 신분증 ${lackHtml} 미입력 — [계약서] 화면에서 추가 입력 필요`:''),
+          'Đã lưu tiếp nhận → trạng thái tư vấn <b>'+r.cons+'</b> · trạng thái khách hàng <b>배송대기</b> · nút [Hợp đồng] đã hiển thị'
+            +(lack.length?`<br>⚠ Chưa nhập ${lackHtml} của CCCD — cần bổ sung tại màn hình [Hợp đồng]`:'')));
+  return true;
+}
+function saveConsult(){
+  const r=window.__sub.r;
+  const big=document.getElementById('cBig').value;
+  const subSel=document.getElementById('cSub');
+  /* 이력에는 항상 한국어 원문 라벨을 기록 → 언어 전환 시 화면단에서 번역 */
+  const subOpt=(window.__sub.map[big]||[]).find(o=>o[0]===subSel.value);
+  const subt=subOpt?subOpt[1]:(subSel.selectedOptions[0]?subSel.selectedOptions[0].text:'');
+  const memo=document.getElementById('cMemo').value.trim();
+  const act=window.__sub.list.find(x=>x.val===subSel.value);
+  const now=new Date(); const stamp=now.toISOString().slice(0,16).replace('T',' ');
+  /* 위약금 협의·수정/입금: 최초 산정·할인·최종 3컬럼 기록 (다운로드용) */
+  let penTxt='';
+  if(act && act.amt){
+    const base=+document.getElementById('pBase').value||0;
+    const disc=+document.getElementById('pDisc').value||0;
+    r.penaltyBase=base; r.penaltyDiscount=disc; r.penaltyFinal=base-disc;
+    penTxt=` · <span>최초 산정 위약금</span> ${won(base)} | <span>할인</span> ${won(disc)} | <span>최종 위약금</span> ${won(base-disc)}`;
+  }
+  r.history=r.history||[];
+  /* 🇻🇳 COD 접수: 인라인 접수폼 값으로 저장 → 배송대기 전환 */
+  if(act && act.intake){ saveIntake(r,memo,stamp); return; }
+  /* 중도해지(반품접수): 인라인 폼 값으로 저장 */
+  if(act && act.launch){
+    const tt=wizTotals();
+    r.penaltyBase=tt.base; r.penaltyDiscount=tt.disc; r.penaltyFinal=tt.fin;
+    r.locked=true; r.cust='중도해지'; r.path=(wiz.method==='기기반납'?'기기반납':'위약금');
+    r.history.push({meta:`[${stamp} · <span>${role}</span> · <span>반품</span> > <span>중도해지</span>(<span>${r.path}</span>)]`,
+      text:`<span>${memo||'반품접수'}</span> · <span>반품방식</span> <span>${r.path}</span> · <span>최초</span> ${won(tt.base)} | <span>할인</span> ${won(tt.disc)} | <span>최종</span> ${won(tt.fin)}`});
+    renderList(); closeModal();
+    toast(L('반품접수 저장 완료 → 고객상태 <b>중도해지</b> ('+r.path+') · 다음: 매니저 승인',
+            'Đã lưu tiếp nhận trả hàng → trạng thái khách hàng <b>중도해지</b> (<span>'+r.path+'</span>) · tiếp theo: quản lý phê duyệt'));
+    return;
+  }
+  r.history.push({meta:`[${stamp} · <span>${role}</span> · <span>${big}</span> > <span>${subt}</span>]`,
+    text: `<span>${memo||'(내용 없음)'}</span>`+penTxt});
+  let msg=L('상담 이력 저장 완료','Đã lưu lịch sử tư vấn');
+  if(act){ act.apply(); msg=act.msg; }
+  renderList(); toast(msg);
+  openConsult(r);   // 갱신된 이력 + 다음 단계 상담상태로 재렌더
+}
+
+/* ===== [반품취소] = 진행 중 반품(중도해지) 철회 → 구매완료 복귀 ===== */
+function cancelReturn(r){
+  const cur=`<b>${r.cust}</b>${r.path?' (<span>'+r.path+'</span>)':''}`;
+  openModal(L('반품취소 (반품 철회) · No.','Hủy trả hàng (rút lại yêu cầu trả hàng) · No.')+r.no,
+    `<div class="frm">
+       <p>${L(`진행 중인 ${cur} 반품을 <b>철회</b>하고 <b>구매완료</b>로 되돌립니다.`,
+              `Rút lại yêu cầu trả hàng đang ở trạng thái ${cur} và đưa về <b>구매완료</b>.`)}</p>
+       <p class="muted">고객이 “그냥 사용하겠다”고 한 경우 사용합니다.</p>
+       <div style="font-weight:700;margin:10px 0 4px">사유 (이력)</div>
+       <textarea id="crMemo" style="width:100%;height:56px;border:1px solid var(--line);border-radius:6px;padding:8px" placeholder="예: 고객 변심, 계속 사용 의사 확인"></textarea>
+     </div>`,
+    [btn(L('닫기','Đóng'),'b-ghost',closeModal), btn(L('반품취소 확정','Xác nhận hủy trả hàng'),'b-red',()=>{
+        const memo=document.getElementById('crMemo').value.trim();
+        const now=new Date();
+        r.history=r.history||[];
+        r.history.push({meta:`[${now.toISOString().slice(0,16).replace('T',' ')} · <span>${role}</span> · <span>반품취소</span>]`,
+          text:`<span>${memo||'반품 철회 → 구매완료 복귀'}</span>`});
+        r.locked=false; r.completed=true; r.cust=''; r.path=null;
+        renderList(); closeModal();
+        toast(L('반품취소 완료 → 고객상태 <b>구매완료</b>로 복귀',
+                'Đã hủy trả hàng → trạng thái khách hàng quay về <b>구매완료</b>'));
+    })], false);
+}
+
+/* ===== 반품접수(중도해지) — 상담창 안에서 인라인으로 표시 (베트남: 위약금결제/기기반납만) ===== */
+let wiz={};
+function setWizMethod(m){wiz.method=m;renderReturnInline();}
+function doWizCalc(){wiz.calc=true;renderReturnInline();}
+/* 위약금 항목 — 반품방식에 따라 운송비 부과 (기기반납만) */
+function wizItems(){
+  return [
+    {k:'잔여 환급금', amt:99900, note:'납부분 중 환급 대상'},
+    {k:'미납 원금',   amt:0,     note:'미납 잔여 원금'},
+    {k:'연체 가산금', amt:0,     note:'미납금 연체'},
+    {k:'기본 위약금', amt:0,     note:'계약 조건상 위약금'},
+    {k:'운송비',     amt: wiz.method==='기기반납'?5000:0, note:'반품 배송비(기기반납 시 1회)'},
+  ];
+}
+function wizTotals(){
+  const items=wizItems(); let base=0,disc=0;
+  items.forEach((it,i)=>{base+=it.amt; disc+=(+(wiz.disc[i]||0));});
+  return {items,base,disc,fin:base-disc};
+}
+function calcWiz(){
+  const items=wizItems();
+  items.forEach((it,i)=>{const el=document.getElementById('d'+i); if(el) wiz.disc[i]=+el.value||0;});
+  let base=0,disc=0;
+  items.forEach((it,i)=>{const f=document.getElementById('f'+i); const d=+(wiz.disc[i]||0); base+=it.amt; disc+=d; if(f)f.textContent=won(it.amt-d);});
+  const tot=document.getElementById('wizTot'); if(tot)tot.textContent=won(base-disc);
+}
+function returnInnerHTML(){
+  const r=wiz.r; const t=wizTotals();
+  const next = wiz.method==='기기반납'?'입고대기 (4-1/5-2-1/4-3 입고)':'위약금 미입금 (상담창 협의·입금)';
+  const okey='WV'+(17802773991303+r.no)+'OHWS';
+  let h=`<div style="border:1px solid #e6b9b9;border-radius:10px;background:#fffafa;padding:14px 16px">
+    <div class="sec" style="margin-top:0;color:var(--red);border-color:var(--red)">📋 반품접수 (중도해지) — 한 화면</div>
+    <div class="sec">고객 · 계약 정보</div>
+    <table>
+      <tr><th style="width:140px">계약번호(주문키)</th><td>${okey}</td><th style="width:110px">계약일</th><td>2026-06-01</td></tr>
+      <tr><th>고객명</th><td>${r.name}</td><th>생년월일</th><td>1990-05-12</td></tr>
+      <tr><th>연락처</th><td>${r.phone}</td><th>신분증 번호</th><td>0${r.no}123456789</td></tr>
+      <tr><th>주소</th><td colspan="3">123 Đường Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh</td></tr>
+      <tr><th>패키지명</th><td>${r.product} <span class="muted">(외국어/ngoại ngữ)</span></td><th>단말기</th><td>Galaxy Tab A11</td></tr>
+      <tr><th>결제방식</th><td>${r.pay}</td><th>신분증 발행일</th><td>2020-03-10</td></tr>
+    </table>
+    <div class="sec">반품 방식 선택</div>
+    <p class="muted" style="margin:2px 0 6px">🔵 저장 후에도 고객 요청 시 [반품방식 변경]으로 전환 가능합니다.</p>
+    <div class="pick">
+      <div class="opt ${wiz.method==='위약금'?'sel':''}" onclick="setWizMethod('위약금')">
+        <h4>💳 위약금 결제</h4><p>기기 보유 · 위약금 납부 → 미입금 → 협의 → 입금 → 환불</p></div>
+      <div class="opt ${wiz.method==='기기반납'?'sel':''}" onclick="setWizMethod('기기반납')">
+        <h4>📦 기기 반납</h4><p>기기 회수 → 입고대기 → 반품입고 → 환불</p></div>
+    </div>
+    <div class="sec">위약금 산정 기준일</div>
+    <table><tr><th style="width:150px">기준일</th><td><input type="date" value="2026-06-29"> <button class="b-ghost" type="button">오늘로 설정</button> <span class="muted">이 날짜 기준으로 위약금·환불 계산</span></td></tr></table>
+    <div class="sec">계약 정보 및 납부 현황</div>
+    <table class="list"><thead><tr><th>월 납부액</th><th>잔여 회차</th><th>잔여 총액</th><th>계약일</th></tr></thead>
+    <tbody><tr><td>99,900</td><td>23회</td><td>2,297,700</td><td>2026-06-29</td></tr></tbody></table>
+    ${wiz.method==='기기반납'?`<div class="sec">수거(반품) 방식</div>
+    <div class="radio"><label><input type="radio" name="ship" ${wiz.ship==='택배 회수 요청'?'checked':''} onclick="wiz.ship='택배 회수 요청'"> 택배 회수 요청</label><label><input type="radio" name="ship" ${wiz.ship==='고객 선불 발송'?'checked':''} onclick="wiz.ship='고객 선불 발송'"> 고객 선불 발송</label></div>`:''}
+    <div class="kbox green" style="margin-top:14px"><b>선택 요약</b> · <span>구분:</span> <span>중도해지</span> · <span>반품방식:</span> <span>${wiz.method==='기기반납'?'📦 기기 반납':'💳 위약금 결제'}</span>${wiz.method==='기기반납'?' · <span>수거방식:</span> <span>'+wiz.ship+'</span>':''} · <span>유효기간:</span> D+30</div>
+    <div style="text-align:center;margin:16px 0 8px"><button class="b-pri" type="button" onclick="doWizCalc()">${wiz.calc?'위약금 다시 계산':'위약금 계산하기'}</button></div>`;
+  if(!wiz.calc){
+    h+=`<div class="hint">[위약금 계산하기]를 누르면 아래에 위약금 정산내역 · 결제/환불 수단이 표시됩니다. (전체가 한 화면)</div>`;
+  } else {
+    h+=`<hr style="border:none;border-top:1px solid var(--line);margin:14px 0">
+    <div class="calc"><span>반품 방식:</span> <span>${wiz.method==='기기반납'?'📦 기기 반납':'💳 위약금 결제'}</span> · <span>위약금 산식: 기본위약금 0 (조정 가능)</span></div>
+    <div class="sec">위약금 및 비용 정산 <span class="muted">(조정(할인) 입력 시 최종 자동 계산)</span></div>
+    <table class="list"><thead><tr><th>구분</th><th>산정금액(VND)</th><th>조정(할인)</th><th>최종금액(VND)</th><th>비고</th></tr></thead>
+    <tbody>
+      ${t.items.map((it,i)=>`<tr><td>${it.k}</td><td>${won(it.amt)}</td>
+        <td><input type="number" id="d${i}" value="${wiz.disc[i]||0}" style="width:90px" oninput="calcWiz()"></td>
+        <td id="f${i}">${won(it.amt-(+(wiz.disc[i]||0)))}</td><td class="muted">${it.note}</td></tr>`).join('')}
+      <tr class="totrow"><td colspan="3">위약금 최종 청구액</td><td id="wizTot">${won(t.fin)}</td><td></td></tr>
+    </tbody></table>
+    <div class="sec">결제 및 환불 수단</div>
+    <div class="radio" style="margin-bottom:8px">
+      <label><input type="radio" name="pm" checked> 청구(카드)</label>
+      <label><input type="radio" name="pm"> 청구(계좌)</label>
+      <label><input type="radio" name="pm"> 환불(계좌)</label></div>
+    <table><tr><th style="width:150px">가상계좌/입금자명</th><td><input type="text" placeholder="가상계좌 업로드 양식과 연계"></td></tr></table>
+    <div class="sec">안내 확인</div>
+    <label style="display:block"><input type="checkbox"> 반품 택배비 안내</label>
+    <label style="display:block"><input type="checkbox"> 사은품 개봉 시 비용 청구 안내</label>
+    <label style="display:block"><input type="checkbox"> 파손/훼손 수리비용 청구 안내</label>
+    <div class="hint" style="margin-top:12px"><span>맨 아래 [저장하기]를 누르면 고객상태가 [중도해지]로 접수됩니다. 이후 매니저의 [중도해지 승인]을 거쳐 다음 단계로 진행됩니다.</span> <span>다음 단계:</span> <b>${next}</b></div>`;
+  }
+  h+=`</div>`;
+  return h;
+}
+function renderReturnInline(){
+  const el=document.getElementById('cReturn'); if(!el) return;
+  el.style.display='block';
+  el.innerHTML=returnInnerHTML();
+  if(wiz.calc) calcWiz();
+}
+
+/* ================= 4-6 / 3-9 / 3-10 처리 화면 ================= */
+function procTable(list,cls,extraCol){
+  const span=extraCol?7:6;
+  let h=`<thead><tr><th style="width:38px"><input type="checkbox" onclick="document.querySelectorAll('.${cls}').forEach(x=>x.checked=this.checked)"></th>
+    <th>번호</th><th>고객명</th><th>제품</th><th>결제</th>${extraCol?'<th>'+extraCol+'</th>':''}<th>현재 상태</th></tr></thead><tbody>`;
+  if(!list.length) h+=`<tr><td colspan="${span}" class="muted">처리할 대상이 없습니다</td></tr>`;
+  list.forEach(r=>{h+=`<tr><td><input type="checkbox" class="${cls}" data-no="${r.no}"></td>
+    <td>${r.no}</td><td class="name">${r.name}</td><td>${r.product}</td><td>${r.pay}</td>
+    ${extraCol?'<td><input type="text" placeholder="송장번호 입력" style="width:130px"></td>':''}
+    <td>${badge(sellLabel(r))}<div class="muted">📦${r.shipped?'✅':'⬜'} 💰${r.paid?'✅':'⬜'}</div></td></tr>`;});
+  return h+'</tbody>';
+}
+/* 고객키(주문키) — 프로토타입 전역 파생 규칙 */
+function orderKeyOf(r){return 'WV'+(17802773991303+r.no)+'OHWS';}
+/* 선납금 입금 + 송장 등록 둘 다 완료 시 자동 구매완료(3-10) */
+function autoComplete(r){ if(r.paid && r.shipped && !r.locked && !r.completed){ r.completed=true; return true; } return false; }
+
+/* ===== 4-6 송장번호 업로드 (고객키/주문키 · 송장번호) ===== */
+function renderShip(){
+  const list=rows.filter(r=>!r.locked&&!r.shipped);
+  let h=`<thead><tr><th style="width:38px"><input type="checkbox" onclick="document.querySelectorAll('.shipchk').forEach(x=>x.checked=this.checked)"></th>
+    <th>번호</th><th>고객명</th><th>주문키</th><th>제품</th><th>송장번호</th><th>현재 상태</th></tr></thead><tbody>`;
+  if(!list.length) h+=`<tr><td colspan="7" class="muted">송장 미등록 건이 없습니다</td></tr>`;
+  list.forEach(r=>{h+=`<tr><td><input type="checkbox" class="shipchk" data-no="${r.no}"></td>
+    <td>${r.no}</td><td class="name">${r.name}</td><td class="muted">${orderKeyOf(r)}</td><td>${r.product}</td>
+    <td><input type="text" class="shipinv" data-no="${r.no}" placeholder="송장번호 입력" style="width:150px"></td>
+    <td>${badge(sellLabel(r))}<div class="muted">📦${r.shipped?'✅':'⬜'} 💰${r.paid?'✅':'⬜'}</div></td></tr>`;});
+  document.getElementById('shipTable').innerHTML=h+'</tbody>';
+}
+function doShip(){
+  const sel=[...document.querySelectorAll('.shipchk:checked')];
+  if(!sel.length){toast('선택된 건이 없습니다');return;}
+  let n=0,auto=0,noInv=0;
+  sel.forEach(c=>{
+    const r=rows.find(x=>x.no==c.dataset.no);
+    const inv=(document.querySelector('.shipinv[data-no="'+r.no+'"]').value||'').trim();
+    if(!inv){noInv++;return;}
+    r.shipped=true; r.invoice=inv; n++;
+    if(autoComplete(r))auto++;
+  });
+  renderList();renderShip();
+  if(!n){toast('송장번호를 입력한 행만 등록됩니다');return;}
+  toast(L('<b>'+n+'건</b> 송장 등록 완료 (📦송장✅)'+(auto?' · 송장+입금 완료 <b>'+auto+'건</b> 자동 구매완료':'')+(noInv?' · 송장번호 미입력 '+noInv+'건 제외':'')+' — 4-6',
+          'Đã đăng ký mã vận đơn cho <b>'+n+' đơn</b> (📦Vận đơn✅)'+(auto?' · <b>'+auto+' đơn</b> đủ vận đơn + nộp tiền nên tự động hoàn tất mua hàng':'')+(noInv?' · loại trừ '+noInv+' đơn chưa nhập mã vận đơn':'')+' — 4-6'));
+}
+function addShipManual(){
+  const key=document.getElementById('shipKey').value.trim();
+  const inv=document.getElementById('shipInv').value.trim();
+  if(!key||!inv){toast('고객키(주문키)와 송장번호를 입력하세요');return;}
+  const r=rows.find(x=>orderKeyOf(x)===key||String(x.no)===key);
+  if(!r){toast('해당 고객키/주문키를 찾을 수 없습니다');return;}
+  if(r.locked){toast('이미 판매 종료/반품 진행 건입니다');return;}
+  r.shipped=true; r.invoice=inv;
+  const done=autoComplete(r);
+  let msg=L(r.name+' 송장 등록 → 상담창에 표시'+(done?' · 자동 구매완료':''),
+            'Đã đăng ký mã vận đơn cho '+r.name+' → hiển thị ở cửa sổ tư vấn'+(done?' · tự động hoàn tất mua hàng':''));
+  document.getElementById('shipKey').value='';document.getElementById('shipInv').value='';
+  renderList();renderShip();
+  toast('📦 '+msg);
+}
+function downloadShipTemplate(){
+  buildAndDownloadXlsx(L('송장번호_업로드양식.xlsx','BieuMau_MaVanDon.xlsx'),L('송장업로드','MaVanDon'),
+    ['주문키','송장번호'].map(X),[[orderKeyOf(rows[0]),''],[orderKeyOf(rows[1]),'']]);
+  toast('송장번호 업로드 양식 다운로드 (주문키·송장번호)');
+}
+function shipFileUpload(){
+  pickXlsx(aoa=>{
+    let cnt=0,miss=0;
+    aoa.slice(1).forEach(row=>{
+      const key=String(row[0]||'').trim(), inv=String(row[1]||'').trim();
+      if(!key||!inv)return;
+      const r=rows.find(x=>orderKeyOf(x)===key||String(x.no)===key);
+      if(!r||r.locked){miss++;return;}
+      r.shipped=true; r.invoice=inv; autoComplete(r); cnt++;
+    });
+    renderList();renderShip();
+    toast(L('엑셀 <b>'+cnt+'건</b> 송장 등록 완료'+(miss?' · 미매칭 '+miss+'건':'')+' (주문키·송장번호)',
+            'Đã đăng ký mã vận đơn từ Excel cho <b>'+cnt+' đơn</b>'+(miss?' · '+miss+' đơn không khớp':'')+' (mã đơn hàng · mã vận đơn)'));
+  });
+}
+
+/* ===== 3-9 선납금 입금 (구분 · 고객키 · 입금액) ===== */
+function renderPay(){
+  const list=rows.filter(r=>!r.locked&&!r.paid);
+  let h=`<thead><tr><th style="width:38px"><input type="checkbox" onclick="document.querySelectorAll('.paychk').forEach(x=>x.checked=this.checked)"></th>
+    <th>번호</th><th>고객명</th><th>고객키</th><th>제품</th><th>결제</th><th>입금액(VND)</th><th>현재 상태</th></tr></thead><tbody>`;
+  if(!list.length) h+=`<tr><td colspan="8" class="muted">입금 미확인 건이 없습니다</td></tr>`;
+  list.forEach(r=>{h+=`<tr><td><input type="checkbox" class="paychk" data-no="${r.no}"></td>
+    <td>${r.no}</td><td class="name">${r.name}</td><td class="muted">${orderKeyOf(r)}</td><td>${r.product}</td><td>${r.pay}</td>
+    <td><input type="number" class="payamt" data-no="${r.no}" placeholder="입금액" style="width:120px"></td>
+    <td>${badge(sellLabel(r))}<div class="muted">📦${r.shipped?'✅':'⬜'} 💰${r.paid?'✅':'⬜'}</div></td></tr>`;});
+  document.getElementById('payTable').innerHTML=h+'</tbody>';
+}
+function doPay(){
+  const sel=[...document.querySelectorAll('.paychk:checked')];
+  if(!sel.length){toast('선택된 건이 없습니다');return;}
+  let n=0,auto=0;
+  sel.forEach(c=>{
+    const r=rows.find(x=>x.no==c.dataset.no);
+    const amt=+document.querySelector('.payamt[data-no="'+r.no+'"]').value||0;
+    r.paid=true; r.paidAmt=amt; n++;
+    if(autoComplete(r))auto++;
+  });
+  renderList();renderPay();
+  toast(L('<b>'+n+'건</b> 입금처리 완료 (💰입금✅)'+(auto?' · 송장+입금 완료 <b>'+auto+'건</b> 자동 구매완료':'')+' — 3-9',
+          'Đã xử lý nộp tiền cho <b>'+n+' đơn</b> (💰Nộp tiền✅)'+(auto?' · <b>'+auto+' đơn</b> đủ vận đơn + nộp tiền nên tự động hoàn tất mua hàng':'')+' — 3-9'));
+}
+let payManualRows=[];
+function renderPayManual(){
+  let h=`<thead><tr><th>구분</th><th>고객키</th><th>입금액(VND)</th><th>매칭</th><th style="width:70px">삭제</th></tr></thead><tbody>`;
+  if(!payManualRows.length) h+=`<tr><td colspan="5" class="muted">개별/일괄 입금 내역 없음</td></tr>`;
+  payManualRows.forEach((v,i)=>{h+=`<tr><td><span class="b s-done">${v.type}</span></td><td class="muted">${v.key}</td><td>${won(v.amt)}</td>
+    <td>${v.matched?'<span class="b s-ship">매칭</span>':'<span class="b s-canc">미매칭</span>'}</td>
+    <td><button class="b-ghost" onclick="delPayManual(${i})">삭제</button></td></tr>`;});
+  document.getElementById('payManualTable').innerHTML=h+'</tbody>';
+}
+function delPayManual(i){payManualRows.splice(i,1);renderPayManual();}
+function payMatch(type,key,amt){
+  const r=rows.find(x=>orderKeyOf(x)===key||String(x.no)===key);
+  let matched=false, auto=false;
+  if(r&&!r.locked){ r.paid=true; r.paidAmt=amt; matched=true; auto=autoComplete(r); }
+  payManualRows.unshift({type,key,amt,matched});
+  return {r,matched,auto};
+}
+function addPayManual(){
+  const type=document.getElementById('payType').value;
+  const key=document.getElementById('payKey').value.trim();
+  const amt=+document.getElementById('payAmt').value||0;
+  if(!key||!amt){toast('고객키와 입금액을 입력하세요');return;}
+  const {r,matched,auto}=payMatch(type,key,amt);
+  document.getElementById('payKey').value='';document.getElementById('payAmt').value='';
+  renderPayManual();renderPay();renderList();
+  toast(L('<b>'+type+'</b> 입금처리 — '+won(amt)+' VND'+(matched?' · '+r.name+' 매칭'+(auto?' → 자동 구매완료':''):' · 미매칭'),
+          'Xử lý nộp tiền <b>'+type+'</b> — '+won(amt)+' VND'+(matched?' · khớp với '+r.name+(auto?' → tự động hoàn tất mua hàng':''):' · không khớp')));
+}
+function downloadPayTemplate(){
+  buildAndDownloadXlsx(L('선납금_입금양식.xlsx','BieuMau_TienTraTruoc.xlsx'),L('선납금입금','TienTraTruoc'),
+    ['구분','고객키','입금액'].map(X),[[X('선납금'),orderKeyOf(rows[0]),1600000],[X('선납금'),orderKeyOf(rows[1]),990000]]);
+  toast('선납금 입금 업로드 양식 다운로드 (구분·고객키·입금액)');
+}
+function payFileUpload(){
+  pickXlsx(aoa=>{
+    let cnt=0;
+    aoa.slice(1).forEach(row=>{
+      const type=String(row[0]||'선납금').trim(), key=String(row[1]||'').trim(), amt=+row[2]||0;
+      if(!key)return;
+      payMatch(type,key,amt); cnt++;
+    });
+    renderPayManual();renderPay();renderList();
+    toast(L('엑셀 <b>'+cnt+'행</b> 입금처리 완료 (구분·고객키·입금액)',
+            'Đã xử lý nộp tiền <b>'+cnt+' dòng</b> từ Excel (phân loại · mã khách hàng · số tiền nộp)'));
+  });
+}
+
+/* ===== 3-10 구매완료 (수동 리스트 — 자동완료 백업) ===== */
+function renderComplete(){document.getElementById('completeTable').innerHTML=procTable(rows.filter(r=>!r.locked&&r.shipped&&r.paid&&!r.completed),'cpchk');}
+function applySel(cls,fn){
+  const sel=[...document.querySelectorAll('.'+cls+':checked')];
+  if(!sel.length){toast('선택된 건이 없습니다');return 0;}
+  sel.forEach(c=>fn(rows.find(r=>r.no==c.dataset.no)));
+  renderList();return sel.length;
+}
+function doComplete(){const n=applySel('cpchk',r=>r.completed=true);if(n){renderComplete();
+  toast(L('<b>'+n+'건</b> 구매완료 처리 → 이제 [반품취소] 가능 — 3-10',
+          'Đã xử lý hoàn tất mua hàng cho <b>'+n+' đơn</b> → nay có thể [Hủy trả hàng] — 3-10'));}}
+
+/* ===== 공통: xlsx 파일 선택 파서 / 빌더 ===== */
+function pickXlsx(cb){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.xlsx,.xls,.csv';
+  inp.onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    const rd=new FileReader();
+    rd.onload=ev=>{
+      const wb=XLSX.read(ev.target.result,{type:'array'});
+      const aoa=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
+      cb(aoa);
+    };
+    rd.readAsArrayBuffer(f);
+  };
+  inp.click();
+}
+function buildAndDownloadXlsx(filename,sheetName,header,dataRows){
+  const ws=XLSX.utils.aoa_to_sheet([header,...dataRows]);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,sheetName);
+  XLSX.writeFile(wb,filename);
+}
+
+/* ===== 4-3 수동입고처리 (입고대기 → 반품입고) ===== */
+function lockTable(list,cls,id){
+  let h=`<thead><tr><th style="width:38px"><input type="checkbox" onclick="document.querySelectorAll('.${cls}').forEach(x=>x.checked=this.checked)"></th>
+    <th>번호</th><th>고객명</th><th>제품</th><th>경로</th><th>현재 고객상태</th></tr></thead><tbody>`;
+  if(!list.length) h+=`<tr><td colspan="6" class="muted">대상이 없습니다</td></tr>`;
+  list.forEach(r=>{h+=`<tr><td><input type="checkbox" class="${cls}" data-no="${r.no}"></td>
+    <td>${r.no}</td><td class="name">${r.name}</td><td>${r.product}</td><td>${r.path||'-'}</td><td>${badge(r.cust)}</td></tr>`;});
+  return h+'</tbody>';
+}
+function renderReceive(){document.getElementById('receiveTable').innerHTML=lockTable(rows.filter(r=>r.locked&&r.cust==='입고대기'&&r.path==='기기반납'),'rcvchk');}
+function doReceive(){const n=applySel('rcvchk',r=>r.cust='반품입고');if(n){renderReceive();
+  toast(L('<b>'+n+'건</b> 입고 처리 완료 → 고객상태 <b>반품입고</b> (다음: 3-6 환불)',
+          'Đã xử lý nhập kho <b>'+n+' đơn</b> → trạng thái khách hàng <b>반품입고</b> (tiếp theo: 3-6 Hoàn tiền)'));}}
+
+/* ===== 3-6 환불 (환불요청 → 환불승인 최종) ===== */
+function renderRefund(){
+  const list=rows.filter(r=>r.locked&&['취소접수','반품입고','위약금입금','환불요청'].includes(r.cust));
+  let h=`<thead><tr><th>번호</th><th>고객명</th><th>경로</th><th>현재 고객상태</th><th style="width:160px">처리</th></tr></thead><tbody>`;
+  if(!list.length) h+=`<tr><td colspan="5" class="muted">환불 대상이 없습니다</td></tr>`;
+  list.forEach(r=>{
+    const act = r.cust==='환불요청'
+      ? `<button class="b-red" onclick="doRefundApprove(${r.no})">환불승인 (최종)</button>`
+      : `<button class="b2" onclick="doRefundReq(${r.no})">환불요청</button>`;
+    h+=`<tr><td>${r.no}</td><td class="name">${r.name}</td><td>${r.path||'-'}</td><td>${badge(r.cust)}</td><td>${act}</td></tr>`;
+  });
+  document.getElementById('refundTable').innerHTML=h+'</tbody>';
+}
+function doRefundReq(no){const r=rows.find(x=>x.no==no);
+  transit(r,'환불요청',r.path,L('환불요청 등록 (3-6 환불) → 다음: 환불승인',
+    'Đã đăng ký yêu cầu hoàn tiền (3-6 Hoàn tiền) → tiếp theo: phê duyệt hoàn tiền'));renderRefund();}
+function doRefundApprove(no){const r=rows.find(x=>x.no==no);approveRefund(r);renderRefund();}
+function downloadPenaltyCSV(){
+  const list=rows.filter(r=>r.path==='위약금'||r.penaltyFinal!=null);
+  if(!list.length){toast('위약금 데이터가 없습니다');return;}
+  const head=['번호','고객명','경로','최초 산정 위약금','할인 금액','최종 위약금','고객상태'].map(X);
+  const lines=[head.join(',')];
+  list.forEach(r=>lines.push([r.no,'"'+r.name+'"',X(r.path||''),r.penaltyBase!=null?r.penaltyBase:'',r.penaltyDiscount!=null?r.penaltyDiscount:0,r.penaltyFinal!=null?r.penaltyFinal:(r.penaltyBase||''),X(displayState(r))].join(',')));
+  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=L('위약금_산정내역.csv','BangTinhPhiPhat.csv');
+  document.body.appendChild(a);a.click();a.remove();
+  toast('위약금 산정내역 CSV 다운로드 — 최초/할인/최종 컬럼 포함');
+}
+
+/* ================= 17 수금관리 / 18 미납관리 ================= */
+/* 베트남 수금 데이터 — 카드 항목 없음(고객 입금 방식). 입금방식: 가상계좌/계좌이체 */
+const COL=[
+  {no:330079,name:'Võ Thị Thuỳ Trang',phone:'0971699968',dob:'1994-03-15',gender:'여',
+   product:'BrainKey TAB (외국어 패키지)',manager:'Trần Văn Minh',cust:'계약중',
+   payStart:'2026-06-30',dueDay:'말일',monthly:990000,prepaid:0,months:29,paidCount:1,unpaidCnt:0,
+   email:'trang.vo@gmail.com',idNo:'079194003151',addr:'123 Đường Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh',
+   depositMethod:'가상계좌',bankName:'Vietcombank',virtualAcct:'9704 0612 3456 7890',depositorName:'VO THI THUY TRANG',
+   contractDate:'2026-06-01',expireDate:'2028-10-31',lastPayDate:'2026-06-30',adjust:990000},
+  {no:330078,name:'Nguyễn Hương Quỳnh Trâm',phone:'0979356817',dob:'1996-07-20',gender:'여',
+   product:'BrainKey TAB (외국어 패키지)',manager:'Lê Thị Hoa',cust:'계약중',
+   payStart:'2026-06-30',dueDay:'말일',monthly:790000,prepaid:3000000,months:24,paidCount:1,unpaidCnt:0,
+   email:'tram.nguyen@gmail.com',idNo:'079196007202',addr:'45 Lê Lợi, Quận Hải Châu, Đà Nẵng',
+   depositMethod:'계좌이체',bankName:'Techcombank',virtualAcct:'-',depositorName:'NGUYEN HUONG QUYNH TRAM',
+   contractDate:'2026-06-01',expireDate:'2028-06-30',lastPayDate:'2026-06-30',adjust:0},
+  {no:330077,name:'Nguyễn Nguyên Phương',phone:'0364125978',dob:'1990-11-05',gender:'남',
+   product:'W84-AD5000 (외국어 풀패키지)',manager:'Phạm Văn Đức',cust:'계약중',
+   payStart:'2026-04-30',dueDay:'말일',monthly:1290000,prepaid:0,months:30,paidCount:1,unpaidCnt:2,
+   email:'phuong.nguyen@gmail.com',idNo:'079090011051',addr:'78 Trần Phú, Quận Ninh Kiều, Cần Thơ',
+   depositMethod:'가상계좌',bankName:'BIDV',virtualAcct:'9704 7711 2233 4455',depositorName:'NGUYEN NGUYEN PHUONG',
+   contractDate:'2026-04-01',expireDate:'2028-10-31',lastPayDate:'2026-05-30',adjust:0},
+  {no:330076,name:'Lê Thúy Anh',phone:'0353493272',dob:'1988-02-28',gender:'여',
+   product:'BrainKey TAB (외국어 패키지)',manager:'Trần Văn Minh',cust:'계약중',
+   payStart:'2026-03-31',dueDay:'10일',monthly:990000,prepaid:0,months:29,paidCount:4,unpaidCnt:0,
+   email:'anh.le@gmail.com',idNo:'079188002281',addr:'210 Nguyễn Trãi, Quận Thanh Xuân, Hà Nội',
+   depositMethod:'계좌이체',bankName:'Vietcombank',virtualAcct:'-',depositorName:'LE THUY ANH',
+   contractDate:'2026-03-01',expireDate:'2028-07-31',lastPayDate:'2026-06-10',adjust:0},
+  {no:330075,name:'Cao Thị Hương',phone:'0839010143',dob:'1992-09-12',gender:'여',
+   product:'W84-AD5000 (외국어 풀패키지)',manager:'Lê Thị Hoa',cust:'계약중',
+   payStart:'2026-02-28',dueDay:'말일',monthly:1290000,prepaid:0,months:30,paidCount:3,unpaidCnt:1,
+   email:'huong.cao@gmail.com',idNo:'079192009121',addr:'56 Hai Bà Trưng, Quận 3, TP. Hồ Chí Minh',
+   depositMethod:'가상계좌',bankName:'ACB',virtualAcct:'9704 3300 5566 7788',depositorName:'CAO THI HUONG',
+   contractDate:'2026-02-01',expireDate:'2028-08-31',lastPayDate:'2026-05-28',adjust:0},
+  {no:330074,name:'Trần Thị Đáng',phone:'0377339705',dob:'1985-12-01',gender:'여',
+   product:'BrainKey TAB (외국어 패키지)',manager:'Phạm Văn Đức',cust:'계약종료',
+   payStart:'2024-05-31',dueDay:'말일',monthly:790000,prepaid:0,months:24,paidCount:24,unpaidCnt:0,
+   email:'dang.tran@gmail.com',idNo:'079185012011',addr:'12 Phan Đình Phùng, TP. Huế',
+   depositMethod:'계좌이체',bankName:'MB Bank',virtualAcct:'-',depositorName:'TRAN THI DANG',
+   contractDate:'2024-05-01',expireDate:'2026-05-31',lastPayDate:'2026-04-30',adjust:0},
+];
+function unpaidAmt(c){return c.unpaidCnt*c.monthly;}     // 누적미납금(원금 기준)
+function elapsed(c){return Math.min(c.paidCount+c.unpaidCnt,c.months);} // 경과차수
+function addMonths(iso,n){const d=new Date(iso);d.setMonth(d.getMonth()+n);return d.toISOString().slice(0,10);}
+
+function renderMembers(){
+  let h=`<thead><tr><th>순번</th><th>회원명</th><th>전화번호</th><th>구매제품</th><th>입금방식</th>
+    <th>상담원</th><th>고객상태</th><th>결제시작일</th><th>약정일</th>
+    <th>월납부금</th><th>선납금</th><th>미납횟수</th><th>누적미납금</th><th>경과차수</th></tr></thead><tbody>`;
+  COL.forEach(c=>{
+    const dm = c.depositMethod==='가상계좌'
+      ? `<span class="b s-done">가상계좌</span>` : `<span class="b cons">계좌이체</span>`;
+    h+=`<tr>
+      <td>${c.no}</td>
+      <td class="name"><a href="#" style="color:var(--blue)" onclick="openDetail(${c.no});return false">${c.name}</a>
+        <div class="muted"><span>${c.gender}</span> · ${c.dob}</div></td>
+      <td>${c.phone}</td><td style="text-align:left">${c.product}</td>
+      <td>${dm}<div class="muted">${c.bankName}</div></td>
+      <td>${c.manager}</td>
+      <td>${c.cust==='계약중'?'<span class="b s-done">계약중</span>':'<span class="b s-end">계약종료</span>'}</td>
+      <td>${c.payStart}</td><td>${c.dueDay}</td>
+      <td>${won(c.monthly)}</td><td>${won(c.prepaid)}</td>
+      <td>${c.unpaidCnt?'<b style="color:var(--red)">'+c.unpaidCnt+'</b>':0}</td>
+      <td>${c.unpaidCnt?'<b style="color:var(--red)">'+won(unpaidAmt(c))+'</b>':0}</td>
+      <td>${elapsed(c)}</td>
+    </tr>`;
+  });
+  document.getElementById('membersTable').innerHTML=h+'</tbody>';
+  document.getElementById('colTotal').textContent=COL.length.toLocaleString('ko-KR');
+}
+
+/* ===== 17-1 수금관리 개별(상세) ===== */
+function openDetail(no){
+  window.__col=COL.find(c=>c.no==no);
+  showScreen('memberDetail');
+}
+function renderDetail(){
+  const c=window.__col; if(!c)return;
+  const months=c.months, monthly=c.monthly;
+  const productTotal=months*monthly;            // 제품총금액
+  const monthlyTotal=months*monthly;            // 월납총액
+  const recv=elapsed(c)*monthly;                // 받아야할 금액(경과회차×월납금)
+  const cumPaid=c.paidCount*monthly;            // 누적납부금액
+  const unpaidPrin=c.unpaidCnt*monthly;         // 미납원금
+  const lateInterest=0; // 연체가산금 — 베트남 현재 미적용(항목만 유지, 추후 도입 시 요율·기산일 반영)
+  const totalUnpaid=unpaidPrin+lateInterest;    // 총미납
+  const notElapsed=(months-elapsed(c))*monthly; // 미경과분
+  const dmBadge=c.depositMethod==='가상계좌'?'<span class="b s-done">가상계좌</span>':'<span class="b cons">계좌이체</span>';
+  const cIdx=c.paidCount+c.unpaidCnt;           // 현재 진행 회차(미납 포함)
+  /* 납부현황 그리드 */
+  let grid='';
+  for(let i=1;i<=months;i++){
+    const date=addMonths(c.payStart,i-1);
+    let inner='', cls='', extra='';
+    if(i<=c.paidCount){
+      inner=`<div style="font-weight:700">${won(monthly)}</div><div class="muted">(${date})</div>
+        <div style="color:var(--green);font-weight:700">결제성공</div>
+        <button class="b2" style="margin-top:4px;padding:2px 8px">취소</button>`;
+    } else if(i<=cIdx){
+      cls='background:#fff5f5;border-color:#f3c5c5';
+      inner=`<div style="font-weight:700;color:var(--red)">${won(monthly)}</div><div class="muted">(${date})</div>
+        <div style="color:var(--red);font-weight:700">미납</div>
+        <button class="b-red" style="margin-top:4px;padding:2px 8px">독촉</button>`;
+    } else {
+      inner=`<div class="muted"><span>예정</span> (${date})</div>`;
+    }
+    grid+=`<div style="border:1px solid var(--line);border-radius:8px;padding:8px;min-height:96px;${cls}">
+      <div style="font-weight:700;color:var(--purple2)">${ordCycle(i)}${i===cIdx&&c.unpaidCnt?' ⚠':''}</div>${inner}</div>`;
+  }
+  document.getElementById('detailBody').innerHTML=`
+  <!-- 회원 상세 정보 -->
+  <div class="sec">회원 상세 정보</div>
+  <div style="margin-bottom:8px">
+    <button class="b1" onclick="toast('회원정보 복사')">회원정보 복사</button>
+    <span style="float:right">
+      <button class="b-red" onclick="toast('가상계좌 발급 — 입금 전용 계좌 생성')">가상계좌발급</button>
+      <button class="b1" onclick="toast('입금내역 조회')">입금내역</button>
+      <button class="b-amber" onclick="toast('해지방어 변경요청')">해지방어변경요청</button>
+      <button class="b-ghost" onclick="toast('정보변경요청')">정보변경요청</button>
+    </span>
+  </div>
+  <div class="frm"><table>
+    <tr><th>회원명</th><td>${c.name}</td><th>성별/생년월일</th><td><span>${c.gender}</span> / ${c.dob}</td>
+        <th>전화번호</th><td>${c.phone}</td></tr>
+    <tr><th>이메일</th><td>${c.email}</td><th>신분증번호(CCCD)</th><td>${c.idNo}</td>
+        <th>추심위임</th><td>미등록</td></tr>
+    <tr><th>연체등록</th><td>${c.unpaidCnt?'<span class="b s-canc">등록</span>':'미등록'}</td>
+        <th>입금방식</th><td>${dmBadge}</td>
+        <th>입금은행</th><td>${c.bankName}</td></tr>
+    <tr><th>가상계좌번호</th><td>${c.virtualAcct}</td><th>입금자명</th><td colspan="3">${c.depositorName}</td></tr>
+    <tr><th>구매제품</th><td colspan="5">${c.product}</td></tr>
+    <tr><th>회원주소</th><td colspan="5">${c.addr} <button class="b-red" style="margin-left:6px">기본 계약정보 변경</button></td></tr>
+  </table></div>
+
+  <!-- 계약/결제 정보 (카드 항목 없음) -->
+  <div class="sec">계약 · 입금 정보 <span class="muted">(베트남: 카드사·카드번호·유효기간 없음 → 입금 기준)</span></div>
+  <div class="frm"><table>
+    <tr><th>주문일(계약일)</th><td>${c.contractDate}</td><th>계약만료일</th><td>${c.expireDate}</td>
+        <th>최근입금일</th><td>${c.lastPayDate}</td></tr>
+    <tr><th>약정개월</th><td>${months} <span>개월</span></td><th>결제기간</th><td>${c.payStart}~${c.expireDate}</td>
+        <th>약정일</th><td>${c.dueDay}</td></tr>
+    <tr><th>월납부금</th><td>${won(monthly)}</td><th>선납금</th><td>${won(c.prepaid)}</td>
+        <th>월납총액</th><td>${won(monthlyTotal)}</td></tr>
+    <tr><th>제품총금액</th><td>${won(productTotal)}</td><th>입금방식</th><td>${dmBadge} ${c.bankName}</td>
+        <th>가상계좌</th><td>${c.virtualAcct}</td></tr>
+  </table></div>
+
+  <!-- 정산 정보 -->
+  <div class="sec">정산 현황</div>
+  <div class="frm"><table>
+    <tr><th>계약담당자</th><td>${c.manager}</td><th>경과회차수</th><td>${elapsed(c)}</td>
+        <th>감면/조정금액</th><td>${won(c.adjust)}</td></tr>
+    <tr><th>받아야할 금액<br><span class="muted">(경과회차×월납금)</span></th><td>${won(recv)}</td>
+        <th>누적납부금액</th><td>${won(cumPaid)}</td><th>미경과분</th><td>${won(notElapsed)}</td></tr>
+    <tr><th>미납횟수</th><td>${c.unpaidCnt?'<b style="color:var(--red)">'+c.unpaidCnt+'</b>':0}</td>
+        <th>미납원금</th><td>${won(unpaidPrin)}</td>
+        <th>연체가산금</th><td>${won(lateInterest)}</td></tr>
+    <tr class="${c.unpaidCnt?'totrow':''}"><th>총미납</th><td>${won(totalUnpaid)}</td>
+        <th>마지막회차 면제여부</th><td>N</td>
+        <th>환급패키지/프로모션</th><td>N / 500원패키지</td></tr>
+  </table></div>
+
+  <!-- 결제자(입금자) 정보 -->
+  <div class="sec">입금자 정보</div>
+  <div class="frm"><table>
+    <tr><th>입금자명</th><td>${c.depositorName}</td><th>입금자 생년월일</th><td>${c.dob}</td>
+        <th>입금자 성별</th><td>${c.gender}</td></tr>
+    <tr><th>입금자 전화번호</th><td>${c.phone}</td><th>입금자 이메일</th><td>${c.email}</td>
+        <th>입금방식</th><td>${dmBadge}</td></tr>
+    <tr><th>입금은행</th><td>${c.bankName}</td><th>가상계좌</th><td>${c.virtualAcct}</td>
+        <th>회원구분</th><td>렌탈</td></tr>
+  </table></div>
+
+  <!-- 납부현황 그리드 -->
+  <div class="sec" style="margin-top:18px">납부현황 <span class="muted">(회차별 입금 상태)</span>
+    <button class="b1" style="float:right" onclick="toast('출금예약 — 가상계좌 입금 예약 안내')">출금예약</button></div>
+  <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:6px">${grid}</div>
+  <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+    <div style="border:1px solid var(--line);border-radius:8px;padding:8px 14px"><span style="color:var(--purple2);font-weight:700">감면/조정금액 합계</span><div>${won(c.adjust)}</div></div>
+    <div style="border:1px solid var(--line);border-radius:8px;padding:8px 14px"><span style="color:var(--red);font-weight:700">연체가산금 합계</span><div>${won(lateInterest)}</div></div>
+    <div style="border:1px solid var(--line);border-radius:8px;padding:8px 14px"><span style="color:var(--blue);font-weight:700">미납금 합계</span><div>${won(totalUnpaid)}</div></div>
+  </div>
+
+  <!-- 고객 히스토리 -->
+  <div class="sec" style="margin-top:18px">고객 히스토리</div>
+  <div class="filter">
+    <select style="width:120px"><option>시스템처리</option><option>상담</option><option>미납콜</option><option>입금확인</option></select>
+    <input type="text" placeholder="내용 입력" style="flex:1;min-width:200px">
+    <button class="b1" onclick="toast('히스토리 작성')">✎ 작성</button>
+    <button class="b-amber" onclick="toast('초기화')">초기화</button>
+  </div>
+  <table class="list">
+    <thead><tr><th style="width:160px">구분</th><th>내용</th><th style="width:160px">작성시간</th><th style="width:90px">작성자</th></tr></thead>
+    <tbody>
+      <tr><td>${c.depositMethod==='가상계좌'?'가상계좌 발급':'계좌이체 등록'}</td>
+          <td style="text-align:left"><span>${c.depositMethod} 등록</span> · ${c.bankName} · <span>입금자명</span> ${c.depositorName}</td>
+          <td>${c.contractDate} 09:30:00</td><td>관리자</td></tr>
+      ${c.unpaidCnt?`<tr><td><span class="b s-canc">미납발생</span></td>
+          <td style="text-align:left">${ordCycle(c.unpaidCnt)} <span>미납</span> — <span>누적 미납원금</span> ${won(unpaidPrin)} (<span>연체가산금</span> ${won(lateInterest)})</td>
+          <td>${c.lastPayDate} 10:15:00</td><td>시스템</td></tr>`:''}
+      <tr><td>입금확인</td><td style="text-align:left">${ordCycle(c.paidCount)} <span>입금 확인 완료</span> · <span>누적</span> ${won(cumPaid)}</td>
+          <td>${c.lastPayDate} 11:26:50</td><td>재무담당자</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 입금 히스토리 -->
+  <div class="sec" style="margin-top:18px">입금 히스토리 <span class="muted">(베트남: 결제 → 입금)</span></div>
+  <table class="list">
+    <thead><tr><th>등록일시</th><th>입금일</th><th>입금은행/가상계좌</th><th>입금방식</th><th>요청금액</th><th>입금금액</th><th>결과</th></tr></thead>
+    <tbody>
+      ${Array.from({length:c.paidCount},(_,k)=>`<tr>
+        <td>${addMonths(c.payStart,k)} 08:00</td><td>${addMonths(c.payStart,k)}</td>
+        <td>${c.bankName} ${c.virtualAcct}</td><td>${c.depositMethod}</td>
+        <td>${won(monthly)}</td><td>${won(monthly)}</td><td><span class="b s-done">입금완료</span></td></tr>`).join('')}
+      ${c.unpaidCnt?`<tr><td>${addMonths(c.payStart,c.paidCount)} 08:00</td><td>-</td>
+        <td>${c.bankName} ${c.virtualAcct}</td><td>${c.depositMethod}</td>
+        <td>${won(monthly)}</td><td>0</td><td><span class="b s-canc">미입금</span></td></tr>`:''}
+    </tbody>
+  </table>`;
+}
+function renderRptUnpaid(){
+  const list=rows.filter(r=>r.path==='위약금'&&['위약금미입금','위약금협의'].includes(r.cust));
+  let h=`<thead><tr><th>번호</th><th>고객명</th><th>최초 산정 위약금</th><th>할인 금액</th><th>최종 위약금</th><th>상태</th></tr></thead><tbody>`;
+  if(!list.length) h+=`<tr><td colspan="6" class="muted">미납자가 없습니다</td></tr>`;
+  list.forEach(r=>h+=`<tr><td>${r.no}</td><td class="name">${r.name}</td><td>${won(r.penaltyBase||0)}</td><td>${won(r.penaltyDiscount||0)}</td><td><b>${won(r.penaltyFinal!=null?r.penaltyFinal:(r.penaltyBase||0))}</b></td><td>${badge(r.cust)}</td></tr>`);
+  document.getElementById('rptUnpaidTable').innerHTML=h+'</tbody>';
+}
+/* 선납금(회원현황 선납금) + 할부금(회차별 납부) + 위약금(반품 파이프라인) 통합 입금 내역 */
+function buildDeposits(){
+  const list=[];
+  COL.forEach(c=>{
+    // 선납금: 계약 시 1건
+    if(c.prepaid>0) list.push({type:'선납금',name:c.name,phone:c.phone,product:c.product,manager:c.manager,cust:c.cust,unpaid:c.unpaidCnt>0,amount:c.prepaid,date:c.contractDate});
+    // 할부금: 납부 완료 회차별 1건
+    for(let i=0;i<c.paidCount;i++)
+      list.push({type:'할부금',name:c.name,phone:c.phone,product:c.product,manager:c.manager,cust:c.cust,unpaid:c.unpaidCnt>0,amount:c.monthly,date:addMonths(c.payStart,i)});
+  });
+  // 위약금: 입금완료 이후 단계
+  rows.forEach(r=>{
+    if(r.path==='위약금'&&['위약금입금','환불요청','중도해지(위약금)'].includes(r.cust)){
+      const cust=r.cust==='중도해지(위약금)'?'계약종료':'계약중';
+      list.push({type:'위약금',name:r.name,phone:r.phone,product:r.product,manager:'-',cust,unpaid:false,amount:(r.penaltyFinal!=null?r.penaltyFinal:(r.penaltyBase||0)),date:r.paidAmt&&r.penaltyDate?r.penaltyDate:'2026-06-29'});
+    }
+  });
+  return list;
+}
+function depFilter(){
+  const g=id=>{const e=document.getElementById(id);return e?e.value:'';};
+  const type=g('depType')||'전체', from=g('depFrom'), to=g('depTo'), status=g('depStatus')||'전체';
+  return buildDeposits().filter(d=>{
+    if(type!=='전체'&&d.type!==type) return false;
+    if(from&&d.date&&d.date<from) return false;
+    if(to&&d.date&&d.date>to) return false;
+    if(status!=='전체'){
+      if(status==='미납'){ if(!d.unpaid) return false; }
+      else if(d.cust!==status) return false;
+    }
+    return true;
+  });
+}
+function depBadge(t){const m={'선납금':'s-done','할부금':'s-ship','위약금':'s-canc'};return '<span class="b '+(m[t]||'cons')+'">'+t+'</span>';}
+function depStatusCell(d){
+  const parts=[];
+  if(d.cust==='계약중') parts.push('<span class="b s-done">계약중</span>');
+  else if(d.cust==='계약종료') parts.push('<span class="b s-end">계약종료</span>');
+  else parts.push('<span class="muted">-</span>');
+  if(d.unpaid) parts.push('<span class="b s-canc">미납</span>');
+  return parts.join(' ');
+}
+function renderRptDeposit(){
+  const list=depFilter();
+  let h=`<thead><tr><th>종류</th><th>고객명</th><th>전화번호</th><th>제품</th><th>상담원</th><th>계약상태</th><th>입금액(VND)</th><th>입금일</th></tr></thead><tbody>`;
+  if(!list.length) h+=`<tr><td colspan="8" class="muted">조회된 입금 내역이 없습니다</td></tr>`;
+  let sum=0;
+  list.forEach(d=>{ sum+=d.amount; h+=`<tr>
+    <td>${depBadge(d.type)}</td><td class="name">${d.name}</td><td>${d.phone}</td>
+    <td style="text-align:left">${d.product}</td><td>${d.manager}</td>
+    <td>${depStatusCell(d)}</td><td><b>${won(d.amount)}</b></td><td>${d.date||'-'}</td></tr>`; });
+  document.getElementById('rptDepositTable').innerHTML=h+'</tbody>';
+  const t=document.getElementById('depTotal'); if(t)t.textContent=list.length;
+  const s=document.getElementById('depSum'); if(s)s.textContent=won(sum);
+}
+function downloadDeposit(){
+  const list=depFilter();
+  if(!list.length){toast('조회된 입금 내역이 없습니다');return;}
+  const header=['종류','고객명','전화번호','제품','패키지 내부코드','상담원','계약상태','미납여부','입금액(VND)','입금일'].map(X);
+  const dr=list.map(d=>[X(d.type),d.name,d.phone,X(d.product),pkgCodeOf(d.product),d.manager,(d.cust==='-'?'':X(d.cust)),(d.unpaid?X('미납'):''),d.amount,d.date||'']);
+  buildAndDownloadXlsx(L('입금현황_베트남_','TinhTrangNopTien_VietNam_')+stamp()+'.xlsx',L('입금현황','TinhTrangNopTien'),header,dr);
+  toast(L('입금현황 엑셀 다운로드 — '+list.length+'건 (선납금·할부금·위약금)',
+          'Đã tải Excel tình trạng nộp tiền — '+list.length+' dòng (tiền trả trước · tiền trả góp · phí phạt)'));
+}
+function renderOverdue(){
+  const list=rows.filter(r=>r.path==='위약금'&&['위약금미입금','위약금협의'].includes(r.cust));
+  let h=`<thead><tr><th>번호</th><th>고객명</th><th>전화번호</th><th>최종 위약금</th><th>상태</th><th style="width:90px">상담</th></tr></thead><tbody>`;
+  if(!list.length) h+=`<tr><td colspan="6" class="muted">미납콜 대상이 없습니다</td></tr>`;
+  list.forEach(r=>h+=`<tr><td>${r.no}</td><td class="name">${r.name}</td><td>${r.phone}</td><td><b>${won(r.penaltyFinal!=null?r.penaltyFinal:(r.penaltyBase||0))}</b></td><td>${badge(r.cust)}</td><td><button class="b1" onclick="openConsult(rows.find(x=>x.no==${r.no}))">상담</button></td></tr>`);
+  document.getElementById('overdueTable').innerHTML=h+'</tbody>';
+}
+function downloadRpt(kind){
+  const isUnpaid=kind==='unpaid';
+  const list=rows.filter(r=>r.path==='위약금'&&(isUnpaid?['위약금미입금','위약금협의']:['위약금입금','환불요청','중도해지(위약금)']).includes(r.cust));
+  if(!list.length){toast('대상 데이터가 없습니다');return;}
+  const head=(isUnpaid?['번호','고객명','최초 산정 위약금','할인 금액','최종 위약금','상태']:['번호','고객명','최종 위약금','입금','상태']).map(X);
+  const lines=[head.join(',')];
+  list.forEach(r=>{
+    const fin=r.penaltyFinal!=null?r.penaltyFinal:(r.penaltyBase||0);
+    lines.push((isUnpaid?[r.no,'"'+r.name+'"',r.penaltyBase||0,r.penaltyDiscount||0,fin,X(r.cust)]:[r.no,'"'+r.name+'"',fin,X('입금완료'),X(r.cust)]).join(','));
+  });
+  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const fname=isUnpaid?L('미납자현황','TinhTrangKhachNoQuaHan'):L('입금현황','TinhTrangNopTien');
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname+'.csv';
+  document.body.appendChild(a);a.click();a.remove();
+  toast(L((isUnpaid?'미납자현황':'입금현황')+' CSV 다운로드',
+          'Đã tải CSV '+(isUnpaid?'tình trạng khách nợ quá hạn':'tình trạng nộp tiền')));
+}
+
+/* ================= upload screen ================= */
+function fakeUpload(){document.getElementById('upPreview').style.display='block';toast('파일 파싱 완료 — 2건 미리보기');}
+let indivRows=[];
+function renderIndiv(){
+  let h=`<thead><tr><th>구분</th><th>가상계좌</th><th>금액(VND)</th><th>입금일</th><th style="width:70px">삭제</th></tr></thead><tbody>`;
+  if(!indivRows.length) h+=`<tr><td colspan="5" class="muted">개별 등록 내역 없음</td></tr>`;
+  indivRows.forEach((v,i)=>{h+=`<tr><td><span class="b ${v.type==='위약금'?'s-canc':'s-done'}">${v.type}</span></td><td>${v.acct||'-'}</td><td>${won(v.amt)}</td><td>${v.date||'-'}</td><td><button class="b-ghost" onclick="delIndiv(${i})">삭제</button></td></tr>`;});
+  document.getElementById('indivTable').innerHTML=h+'</tbody>';
+}
+function addIndiv(){
+  const type=document.getElementById('ivType').value;
+  const acct=document.getElementById('ivAcct').value.trim();
+  const amt=+document.getElementById('ivAmt').value||0;
+  const date=document.getElementById('ivDate').value;
+  if(!acct||!amt){toast('가상계좌와 금액을 입력하세요');return;}
+  indivRows.push({type,acct,amt,date});
+  document.getElementById('ivAcct').value=''; document.getElementById('ivAmt').value='';
+  renderIndiv(); toast(L('<b>'+type+'</b> 개별 등록 — '+won(amt)+' VND',
+    'Đã đăng ký riêng lẻ <b>'+type+'</b> — '+won(amt)+' VND'));
+}
+function delIndiv(i){indivRows.splice(i,1);renderIndiv();}
+
+/* ================= 1-34 패키지 구성 관리 ================= */
+/* code = 내부코드 : 내부(관리자) 전용 식별값. 접수창·상담원 화면에는 노출하지 않고 관리자 엑셀에만 컬럼으로 출력 */
+let PKG=[
+  {name:'영어 패키지', code:'VN-EN04', dev:'Galaxy Tab A11', sw:['워드','토크','기초영어','처음영어'], type:'영어 패키지 (4종)', price:9900000, show:true},
+  {name:'W84-AD5000', code:'VN-EN03', dev:'Galaxy Tab A11', sw:['토크','기초영어','처음영어'], type:'영어 패키지 (4종)', price:15470000, show:true},
+  {name:'한국어 패키지', code:'VN-KR02', dev:'Galaxy Tab A11', sw:['기초한국어','실전한국어'], type:'한국어 패키지 (2종)', price:11900000, show:true},
+  {name:'영어+한국어 패키지', code:'VN-EK06', dev:'Galaxy Tab A11', sw:['워드','토크','기초영어','처음영어','기초한국어','실전한국어'], type:'영어+한국어 패키지 (6종)', price:19900000, show:true},
+];
+/* 제품명 → 내부코드 (엑셀 다운로드 시 컬럼으로 사용) */
+function pkgCodeOf(product){
+  if(!product) return '';
+  const hit=PKG.find(p=>product.indexOf(p.name)>=0);
+  if(hit) return hit.code;
+  if(/한국어/.test(product)&&!/외국어|영어/.test(product)) return 'VN-KR02';
+  if(/외국어|영어/.test(product)) return 'VN-EN04';
+  return '';
+}
+function renderPkg(){
+  let h=`<thead><tr><th>패키지명</th><th>🔒 내부코드</th><th>단말기</th><th>컨텐츠(SW)</th><th>유형</th><th>상품가격(VND)</th><th>노출</th></tr></thead><tbody>`;
+  PKG.forEach(p=>h+=`<tr><td class="name">${p.name}</td><td><b>${p.code||'-'}</b></td><td>${p.dev}</td>
+    <td style="text-align:left">${p.sw.map(s=>`<span>${s}</span>`).join(', ')} <span class="muted">(${p.sw.length}종)</span></td>
+    <td>${p.type}</td><td>${won(p.price)}</td>
+    <td>${p.show?'<span class="b s-done">보임</span>':'<span class="b cons">숨김</span>'}</td></tr>`);
+  document.getElementById('pkgTable').innerHTML=h+'</tbody>';
+}
+function addPkg(){
+  const name=document.getElementById('pkName').value.trim();
+  if(!name){toast('패키지명을 입력하세요');return;}
+  const code=document.getElementById('pkCode').value.trim();
+  if(!code){toast('내부코드를 입력하세요');return;}
+  if(PKG.some(p=>p.code===code)){toast(L('이미 사용 중인 내부코드입니다 — <b>'+code+'</b>',
+    'Mã nội bộ này đã được sử dụng — <b>'+code+'</b>'));return;}
+  const dev=[...document.querySelectorAll('#screen-pkg input[name=pkDev]')].find(x=>x.checked).value;
+  const sw=[...document.querySelectorAll('#pkSW input:checked')].map(x=>x.value);
+  if(!sw.length){toast('기본 컨텐츠(SW)를 1개 이상 선택하세요');return;}
+  const type=document.getElementById('pkType').value;
+  const price=+document.getElementById('pkPrice').value||0;
+  const show=document.querySelector('#screen-pkg input[name=pkShow]').checked;
+  PKG.unshift({name,code,dev,sw,type,price,show});
+  document.getElementById('pkName').value='';
+  document.getElementById('pkCode').value='';
+  renderPkg(); toast(L('<b>'+name+'</b> 패키지 등록 — 2-1 접수창 상품명에 노출 (내부코드 <b>'+code+'</b>는 엑셀에만)',
+    'Đã đăng ký gói <b>'+name+'</b> — hiển thị ở mục tên sản phẩm của cửa sổ tiếp nhận 2-1 (mã nội bộ <b>'+code+'</b> chỉ có trong Excel)'));
+}
+
+/* ================= 2-1 계약서 (접수 정보 + 계약서 출력) ================= */
+function contractInit(r){
+  if(r._ct) return r._ct;
+  r._ct={
+    orderKey:'WV'+(17802773991303+r.no)+'OHWS',
+    name:r.name.replace(/\s*\(\d+\)$/,''), gender:'여',
+    idNo:'045300003779', issueDate:'2025-03-12', issuer:'CTCCSQLHCVTTXH', dob:'2000-03-25',
+    addr:'15A Bãi Sậy, Phường 13, Quận 5, TP Hồ Chí Minh',
+    phone:r.phone, pkgName:r.product, device:'Galaxy Tab A11',
+    payType:r.pay==='할부'?'할부':'구매',
+    price:15470000, prepaid:1600000, prepaidDisc:0, months:6,
+    contractDate:'2026-06-30',
+  };
+  return r._ct;
+}
+function openContract(r){ window.__ct=r; contractInit(r); showScreen('contract'); }
+const principal=ct=>Math.max(0,ct.price-ct.prepaid-ct.prepaidDisc);
+const monthlyAmt=ct=>ct.payType==='할부'?Math.round(principal(ct)/ct.months):0;
+function renderContract(){
+  const r=window.__ct; const ct=r._ct;
+  document.getElementById('contractBody').innerHTML=`
+   <div class="hint">🇻🇳 <b>접수 단계 입력 항목</b>(계약자명·성별·생년월일·신분증번호·발행일·발급처·주소·결제방식)을 기반으로 계약서가 자동 생성됩니다. [계약서 출력]은 <b>1-3 사용자관리 유저타입 = 관리자</b>인 경우만 노출됩니다.</div>
+   ${(!ct.idNo||!ct.issueDate||!ct.issuer)?`<div class="hint" style="background:#fdeaea;border-color:#f3c5c5;color:#a33">⚠ <b>신분증 정보 미입력</b> — <span>미입력 항목:</span> ${[!ct.idNo&&'번호',!ct.issueDate&&'발행일',!ct.issuer&&'발급처'].filter(Boolean).map(x=>'<span>'+x+'</span>').join(' · ')}<br><span>접수 시에는 미입력해도 되지만 계약서 출력 전에는 반드시 입력해야 합니다. 아래에서 입력한 뒤 [계약 정보 저장]을 누르세요.</span></div>`:''}
+   <div class="sec">접수 · 계약 정보 입력 <span class="muted">(2-1 접수창 신규 항목)</span></div>
+   <div class="frm"><table>
+     <tr><th>계약번호(주문키)</th><td>${ct.orderKey}</td><th>계약일</th><td>${ct.contractDate}</td></tr>
+     <tr><th>계약자명</th><td><input type="text" id="ctName" value="${ct.name}"></td>
+         <th>성별</th><td><select id="ctGender"><option value="남" ${ct.gender==='남'?'selected':''}>남</option><option value="여" ${ct.gender==='여'?'selected':''}>여</option></select></td></tr>
+     <tr><th>생년월일</th><td><input type="date" id="ctDob" value="${ct.dob||'2000-03-25'}"></td>
+         <th>연락처</th><td>${ct.phone}</td></tr>
+     <tr><th>신분증번호(CCCD)</th><td><input type="text" id="ctId" value="${ct.idNo||''}" placeholder="미입력"></td>
+         <th>발행일</th><td><input type="date" id="ctIssue" value="${ct.issueDate||''}"></td></tr>
+     <tr><th>신분증 발급처</th><td colspan="3"><input type="text" id="ctIssuer" value="${ct.issuer||''}" list="dlIssuer2" placeholder="예: Cục Cảnh sát QLHC về TTXH" style="width:60%">
+        ${dlist('dlIssuer2',VN_ISSUER)}
+        <button class="b-pri" style="margin-left:8px;padding:6px 12px" onclick="saveContractInfo()">계약 정보 저장</button></td></tr>
+     <tr><th>주소</th><td colspan="3">
+        <select><option>-- vùng --</option><option selected>TP Hồ Chí Minh</option><option>Hà Nội</option></select>
+        <select><option>Quận/Huyện</option><option selected>Quận 5</option></select>
+        <select><option>Phường/Xã</option><option selected>Phường 13</option></select>
+        <input type="text" value="${ct.addr}" style="width:55%"> <span class="muted">(드롭다운 단어검색 가능)</span></td></tr>
+     <tr><th>패키지명</th><td><input type="text" id="ctPkg" value="${ct.pkgName}" style="width:90%"></td>
+         <th>단말기</th><td><input type="text" id="ctDev" value="${ct.device}"></td></tr>
+     <tr><th>결제방식</th><td><select id="ctPay" onchange="updateContractCalc()"><option value="할부" ${ct.payType==='할부'?'selected':''}>할부</option><option value="구매" ${ct.payType==='구매'?'selected':''}>구매</option></select></td>
+         <th>상품가격(동)</th><td><input type="number" id="ctPrice" value="${ct.price}" oninput="updateContractCalc()" style="width:150px"> VND</td></tr>
+   </table></div>
+   <div id="ctInstall">
+     <div class="sec">할부 결제금액 <span class="muted">(할부원금·월납부금 자동계산 / 수정불가)</span></div>
+     <div class="frm"><table>
+       <tr><th>선납금(동)</th><td><input type="number" id="ctPrepaid" value="${ct.prepaid}" oninput="updateContractCalc()"></td>
+           <th>선납금 할인(동)</th><td><input type="number" id="ctPrepaidDisc" value="${ct.prepaidDisc}" oninput="updateContractCalc()"></td></tr>
+       <tr><th>할부원금<br><span class="muted">상품가격 – 선납금 – 선납금할인</span></th><td><input type="text" id="ctPrincipal" readonly style="background:#f3f4f7;font-weight:700"></td>
+           <th>할부 개월</th><td><select id="ctMonths" onchange="updateContractCalc()">${[2,3,4,5,6,7,8,9,10,12,15,18,24].map(m=>`<option ${ct.months==m?'selected':''}>${m}</option>`).join('')}</select> 개월</td></tr>
+       <tr><th>월 납부금<br><span class="muted">할부원금 / 할부개월</span></th><td colspan="3"><input type="text" id="ctMonthly" readonly style="background:#f3f4f7;font-weight:700;color:var(--purple2)"></td></tr>
+     </table></div>
+   </div>
+   <div class="sec" style="margin-top:14px">계약서 미리보기
+     <span style="float:right">
+       <button id="ctTabI" onclick="ctMode('할부')">할부 계약서</button>
+       <button id="ctTabP" onclick="ctMode('구매')">구매(일시불) 계약서</button>
+       <button class="b-red" onclick="printContract()">🖨 계약서 출력 (PDF)</button>
+     </span></div>
+   <div class="muted" style="margin-bottom:6px">파일명: <b>[WM Viet Nam]HỢP ĐỒNG MUA BÁN_${ct.orderKey}.pdf</b></div>
+   <div id="ctDoc" data-notrans style="border:1px solid var(--line);background:#fff;padding:30px 42px;max-width:800px;margin:0 auto;box-shadow:0 2px 10px rgba(0,0,0,.08);font-size:12px;line-height:1.7"></div>`;
+  ct._view=ct.payType;
+  updateContractCalc();
+}
+/* 계약 이후 신분증 정보 추가·수정 → _ct에 반영 + 계약서 재생성 */
+function saveContractInfo(){
+  const r=window.__ct, ct=r._ct, g=id=>document.getElementById(id);
+  ct.name=g('ctName').value.trim()||ct.name;
+  ct.gender=g('ctGender').value; ct.dob=g('ctDob').value;
+  ct.idNo=g('ctId').value.trim(); ct.issueDate=g('ctIssue').value; ct.issuer=g('ctIssuer').value.trim();
+  ct.pkgName=g('ctPkg').value.trim()||ct.pkgName; ct.device=g('ctDev').value.trim()||ct.device;
+  const now=new Date().toISOString().slice(0,16).replace('T',' ');
+  r.history=r.history||[];
+  r.history.push({meta:`[${now} · <span>${role}</span> · <span>계약정보 수정</span>]`,
+    text:`<span>신분증 번호</span> ${ct.idNo||'<span>미입력</span>'} · <span>발행일</span> ${ct.issueDate||'<span>미입력</span>'} · <span>발급처</span> ${ct.issuer||'<span>미입력</span>'}`});
+  renderContract();
+  toast((!ct.idNo||!ct.issueDate||!ct.issuer)
+    ? '계약 정보 저장 — ⚠ 신분증 항목이 아직 비어 있습니다'
+    : '계약 정보 저장 완료 — 계약서에 반영되었습니다');
+}
+function updateContractCalc(){
+  const ct=window.__ct._ct;
+  ct.payType=document.getElementById('ctPay').value;
+  ct.price=+document.getElementById('ctPrice').value||0;
+  const isI=ct.payType==='할부';
+  document.getElementById('ctInstall').style.display=isI?'block':'none';
+  if(isI){
+    ct.prepaid=+document.getElementById('ctPrepaid').value||0;
+    ct.prepaidDisc=+document.getElementById('ctPrepaidDisc').value||0;
+    ct.months=+document.getElementById('ctMonths').value||1;
+    document.getElementById('ctPrincipal').value=won(principal(ct));
+    document.getElementById('ctMonthly').value=won(monthlyAmt(ct))+L(' VND / 월',' VND / tháng');
+  }
+  ctMode(ct._view||ct.payType);
+}
+function ctMode(mode){
+  const ct=window.__ct._ct; ct._view=mode;
+  const ti=document.getElementById('ctTabI'), tp=document.getElementById('ctTabP');
+  if(ti) ti.className=mode==='할부'?'b1':'b-ghost';
+  if(tp) tp.className=mode==='구매'?'b1':'b-ghost';
+  document.getElementById('ctDoc').innerHTML=contractDocHTML(ct,mode);
+}
+function contractDocHTML(ct,mode){
+  const [y,m,d]=ct.contractDate.split('-');
+  const num=d+m+y.slice(2)+'/HDMB/WV - '+window.__ct.no;
+  const lang=(/한국어/.test(ct.pkgName)&&!/영어/.test(ct.pkgName))?'Tiếng Hàn':'ngoại ngữ';
+  const start=addMonths(ct.contractDate,1), end=addMonths(ct.contractDate,ct.months);
+  const pay = (mode==='할부')
+    ? `<p style="margin:6px 0"><b>2.1</b> Giá trị sản phẩm: <b>${won(ct.price)} VND</b> / 01 sản phẩm. Giá bán này đã bao gồm VAT.</p>
+       <p style="margin:6px 0"><b>2.2</b> Phương thức thanh toán: bao gồm lần thanh toán đầu tiên + <b>${ct.months}</b> kỳ trả góp, cụ thể như sau:</p>
+       <p style="margin:6px 0">- Kỳ thanh toán tiếp theo áp dụng từ ngày <b>${start}</b> và kết thúc vào ngày <b>${end}</b></p>
+       <table class="list" style="margin:8px 0"><thead><tr><th>STT</th><th>Lịch trình thanh toán</th><th>Số tiền/Tháng</th><th>Ghi chú</th></tr></thead>
+       <tbody>
+         <tr><td>1</td><td style="text-align:left">Lần thanh toán đầu tiên</td><td>${won(ct.prepaid)} VND</td><td style="text-align:left">Áp dụng ngay sau kí hợp đồng</td></tr>
+         <tr><td>2</td><td style="text-align:left">Các kỳ thanh toán tiếp theo</td><td>${won(monthlyAmt(ct))} VND/tháng</td><td style="text-align:left">1 kỳ thanh toán / tháng</td></tr>
+       </tbody></table>`
+    : `<p style="margin:6px 0"><b>2.1</b> Giá trị sản phẩm (thanh toán một lần): <b>${won(ct.price-ct.prepaidDisc)} VND</b> / 01 sản phẩm. Đã bao gồm VAT.</p>
+       <p style="margin:6px 0"><b>2.2</b> Phương thức thanh toán: thanh toán <b>một lần</b> ngay sau khi ký hợp đồng.</p>`;
+  return `
+  <div style="display:flex;align-items:center;gap:18px;margin-bottom:6px">
+    <div style="font-weight:800;color:var(--purple2);font-size:15px">Weavers<span style="color:#e8820c">VIETNAM</span></div>
+    <div style="flex:1;text-align:center">
+      <div style="font-weight:700">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+      <div style="font-style:italic">Độc lập – Tự do – Hạnh phúc</div></div>
+  </div>
+  <hr style="border:none;border-top:1px solid #000;width:200px;margin:2px auto 14px">
+  <h3 style="text-align:center;margin:6px 0 2px;letter-spacing:1px">HỢP ĐỒNG MUA BÁN</h3>
+  <div style="text-align:center;margin-bottom:12px"><b>Số:</b> ${num}</div>
+  <p style="font-style:italic;margin:2px 0">- Căn cứ Bộ luật Dân sự 2015.</p>
+  <p style="font-style:italic;margin:2px 0 10px">- Căn cứ vào nhu cầu và thỏa thuận giữa hai bên.</p>
+  <p style="font-style:italic">Hôm nay, ngày <b>${d}</b> tháng <b>${m}</b> năm <b>${y}</b>, chúng tôi gồm có:</p>
+  <p style="margin:10px 0 2px"><b>BÊN A</b> &nbsp;: &nbsp;<b>CÔNG TY TNHH WEAVERS VIETNAM</b></p>
+  <table style="margin-left:10px"><tr><td style="padding:1px 0;width:170px">Mã số thuế</td><td>: 0318355438</td></tr>
+    <tr><td>Đại diện pháp luật</td><td>: Bà LEE KYUNGMIN</td></tr>
+    <tr><td>Chức danh</td><td>: Giám đốc</td></tr>
+    <tr><td>Địa chỉ</td><td>: 98 Lâm Văn Bền, Phường Tân Hưng, TP Hồ Chí Minh, Việt Nam</td></tr>
+    <tr><td>SĐT</td><td>: 0901981450 &amp; 0938910987 (zalo) &nbsp; Email: brainkeyviet@gmail.com</td></tr></table>
+  <p style="margin:10px 0 2px">Và:</p>
+  <p style="margin:6px 0 2px"><b>BÊN B</b> &nbsp;: &nbsp;<b>${(ct.name||'').toUpperCase()}</b></p>
+  <table style="margin-left:10px"><tr><td style="padding:1px 0;width:170px">Ngày sinh</td><td>: ${document.getElementById('ctDob')?document.getElementById('ctDob').value:'2000-03-25'}</td></tr>
+    <tr><td>Địa chỉ thường trú</td><td>: ${ct.addr}</td></tr>
+    <tr><td>SĐT</td><td>: ${ct.phone}</td></tr>
+    <tr><td>Số CCCD</td><td>: ${ct.idNo||'&nbsp;'.repeat(20)} &nbsp; Cấp bởi: ${ct.issuer||'&nbsp;'.repeat(20)}</td></tr>
+    <tr><td>Ngày cấp</td><td>: ${(document.getElementById('ctIssue')&&document.getElementById('ctIssue').value)||ct.issueDate||'&nbsp;'.repeat(20)}</td></tr></table>
+  <p style="font-style:italic;margin:10px 0">Trên cơ sở thỏa thuận, hai bên thống nhất ký kết Hợp đồng mua bán với các điều khoản sau đây:</p>
+  <p style="margin:8px 0 2px"><b>ĐIỀU 1.</b> &nbsp;<b>NỘI DUNG HỢP ĐỒNG</b></p>
+  <p style="margin:2px 0">Bên A cung cấp phần mềm <b>${lang}</b> Brainkey (gọi tắt là "Chương trình Brainkey") sử dụng vô thời hạn, được tích hợp trên thiết bị máy tính bảng <b>${ct.device}</b> (gọi tắt là "thiết bị") cho Bên B.</p>
+  <p style="margin:2px 0">Cổng kết nối: Cổng sạc Type-C</p>
+  <p style="margin:10px 0 2px"><b>ĐIỀU 2.</b> &nbsp;<b>GIÁ TRỊ SẢN PHẨM VÀ PHƯƠNG THỨC THANH TOÁN</b></p>
+  ${pay}
+  <p style="margin:10px 0 2px"><b>ĐIỀU 3.</b> &nbsp;<b>HÌNH THỨC THANH TOÁN</b></p>
+  <table style="margin-left:10px"><tr><td style="padding:1px 0;width:130px">- Tên tài khoản</td><td>: WEAVERS VIETNAM LIMITED COMPANY</td></tr>
+    <tr><td>- Số tài khoản</td><td>: 100202174734 [VND]</td></tr>
+    <tr><td>- Ngân hàng</td><td>: NGÂN HÀNG TNHH MTV WOORI VIETNAM</td></tr>
+    <tr><td>- Chi nhánh</td><td>: Chi nhánh PHÚ MỸ HƯNG</td></tr></table>
+  <p style="margin:10px 0 2px"><b>ĐIỀU 4.</b> &nbsp;<b>KIỂM TRA VÀ CAM KẾT CHẤT LƯỢNG</b></p>
+  <p style="margin:2px 0">Bên A cam kết bảo hành và hỗ trợ kỹ thuật. Đầu mối tiếp nhận thông tin về chất lượng sản phẩm:</p>
+  <p style="margin:2px 0">Email: <i>brainkeyviet@gmail.com</i> &nbsp; Zalo: <b>0907 036 822</b></p>
+  <div style="display:flex;justify-content:space-around;text-align:center;margin-top:24px">
+    <div><b>BÊN A</b><div class="muted">(Ký, ghi rõ họ tên)</div></div>
+    <div><b>BÊN B</b><div class="muted">(Ký, ghi rõ họ tên)</div></div>
+  </div>`;
+}
+function printContract(){
+  const ct=window.__ct._ct;
+  const w=window.open('','_blank');
+  if(!w){toast(L('계약서 PDF 생성 — 파일명 ','Tạo PDF hợp đồng — tên tệp ')+'[WM Viet Nam]HỢP ĐỒNG MUA BÁN_'+ct.orderKey+'.pdf');return;}
+  w.document.write(`<html><head><title>[WM Viet Nam]HỢP ĐỒNG MUA BÁN_${ct.orderKey}<\/title>
+    <style>body{font-family:'Times New Roman',serif;font-size:13px;line-height:1.7;padding:30px 50px}
+    table{border-collapse:collapse}table.list,table.list th,table.list td{border:1px solid #333;padding:5px 8px}h3{text-align:center}<\/style><\/head>
+    <body>${document.getElementById('ctDoc').innerHTML}<\/body><\/html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),300);
+  toast(L('계약서 PDF 출력 — ','In PDF hợp đồng — ')+'[WM Viet Nam]HỢP ĐỒNG MUA BÁN_'+ct.orderKey+'.pdf');
+}
+
+/* ================= 15-2-2 DB 재분배 관리 ================= */
+function renderRedist(){
+  const sample=[
+    {key:'WV1773122654493',name:'Nguyễn Văn An',p1:'0901234567',p2:'-',p3:'-',code:'재콜',inflow:'2026-06-20',grp:'R그룹',region:'Hà Nội',mgr:'Trần Văn Minh',mgrId:'minh01',distMgr:'Lê Thị Hoa'},
+    {key:'WV1773122654512',name:'Phạm Thị Bình',p1:'0912345678',p2:'-',p3:'-',code:'재콜',inflow:'2026-06-21',grp:'S그룹',region:'Miền Nam',mgr:'Lê Thị Hoa',mgrId:'hoa02',distMgr:'Phạm Văn Đức'},
+    {key:'WV1773122654533',name:'Trần Quốc Cường',p1:'0987654321',p2:'-',p3:'-',code:'부재재콜',inflow:'2026-06-22',grp:'A그룹',region:'Miền Trung',mgr:'Phạm Văn Đức',mgrId:'duc03',distMgr:'Trần Văn Minh'},
+  ];
+  let h=`<thead><tr><th>고객키</th><th>이름</th><th>전화1</th><th>전화2</th><th>전화3</th><th>코드</th><th>유입일</th>
+    <th>성과그룹</th><th>지역</th><th>상담원</th><th>상담원ID</th><th>분배상담원</th></tr></thead><tbody>`;
+  sample.forEach(s=>h+=`<tr><td>${s.key}</td><td class="name">${s.name}</td><td>${s.p1}</td><td>${s.p2}</td><td>${s.p3}</td>
+    <td><span class="b cons">${s.code}</span></td><td>${s.inflow}</td><td>${s.grp}</td><td>${s.region}</td>
+    <td>${s.mgr}</td><td>${s.mgrId}</td><td><b>${s.distMgr}</b></td></tr>`);
+  document.getElementById('redistTable').innerHTML=h+'</tbody>';
+  document.getElementById('redistTotal').textContent=sample.length;
+  toast(L('회수DB/분배지정 조회 완료 — '+sample.length+'건 (지역·성과그룹 기준)',
+          'Đã tra cứu DB thu hồi / chỉ định phân bổ — '+sample.length+' dòng (theo khu vực · nhóm thành tích)'));
+}
+
+/* ===== 검색·멀티체크 드롭다운 (회수/분배 조건) ===== */
+const MS_GROUPS=['R그룹','S그룹','A그룹','B그룹','C그룹','H그룹'];
+const MS_AGENTS=['Trần Văn Minh','Lê Thị Hoa','Phạm Văn Đức','Nguyễn Văn An','Hoàng Thị Mai','Đặng Thị Lan'];
+const MS_REGIONS=['Hà Nội','Miền Bắc','Miền Trung','Miền Nam','Khu vực phía Tây','Khu vực cao nguyên miền Trung','Khác'];
+function msHTML(id,opts){
+  return `<div class="msdd" id="${id}">
+    <div class="box" onclick="msToggle('${id}')"><span class="ph">- 선택 -</span></div>
+    <div class="panel" onclick="event.stopPropagation()">
+      <input class="srch" placeholder="일부 단어 검색" oninput="msFilter('${id}',this.value)">
+      <div class="opts">${opts.map(o=>`<label><input type="checkbox" value="${o}" onchange="msSync('${id}')"> ${o}</label>`).join('')}</div>
+    </div></div>`;
+}
+function msToggle(id){const el=document.getElementById(id);document.querySelectorAll('.msdd.open').forEach(x=>{if(x!==el)x.classList.remove('open');});el.classList.toggle('open');}
+function msFilter(id,q){q=(q||'').toLowerCase();document.querySelectorAll('#'+id+' .opts label').forEach(l=>{l.classList.toggle('hide',!l.textContent.toLowerCase().includes(q));});}
+function msSync(id){
+  const el=document.getElementById(id);
+  const chk=[...el.querySelectorAll('.opts input:checked')].map(x=>x.value);
+  el.querySelector('.box').innerHTML = chk.length? chk.map(v=>`<span class="tag">${v}</span>`).join('') : `<span class="ph">- 선택 -</span>`;
+}
+function msGet(id){return [...document.querySelectorAll('#'+id+' .opts input:checked')].map(x=>x.value);}
+function initRedistFilters(){
+  const map={msRcGrp:MS_GROUPS,msRcAgent:MS_AGENTS,msRcRegion:MS_REGIONS,
+    msDsGrp:MS_GROUPS,msDsAgent:MS_AGENTS,msExGrp:MS_GROUPS,msExAgent:MS_AGENTS};
+  Object.keys(map).forEach(id=>{const host=document.getElementById(id);if(host&&!host.classList.contains('msdd'))host.outerHTML=msHTML(id,map[id]);});
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.msdd'))document.querySelectorAll('.msdd.open').forEach(x=>x.classList.remove('open'));});
+
+/* ================= 17-1 베트남 엑셀 다운로드 (수금현황 / 주마감 RAW) ================= */
+function stamp(){const d=new Date();return d.toISOString().slice(0,10).replace(/-/g,'');}
+function cycHeaders(kind){ // 'both' → 날짜/금액 교차, 'amt'|'date' → 금액/날짜 60개
+  const a=[];
+  if(kind==='both'){for(let i=1;i<=60;i++)a.push(i+'회[날짜]',i+'회[금액]');}
+  else{for(let i=1;i<=60;i++)a.push(i+'회['+(kind==='amt'?'금액':'날짜')+']');}
+  return a;
+}
+function penaltyBits(c){
+  const el=elapsed(c), monthly=c.monthly, months=c.months;
+  const unpaidPrin=c.unpaidCnt*monthly, late=0; // 연체가산금 미적용(항목 유지)
+  return {el,monthly,months,unpaidPrin,late,total:unpaidPrin+late,remain:(months-el)*monthly};
+}
+/* 수금현황 (카드 3열 → 입금방식/입금은행/가상계좌·입금자명으로 대체) */
+function collectHeaders(){
+  const base=['순번','vendor','효성NO','이름','경과회차','면제회차수','전화번호','입금방식','할부기간','약정일','최초결제일','약정만료일',
+    '월납부금','선납금','월납총금액','제품총금액','경과금액(경과회차*월납금)','최초연체발생일','미납횟수','잔여금','미납원금','연체가산금','미납총액(연체가산금 포함)',
+    '제품명','패키지 내부코드','대표사은품','입금은행','가상계좌','입금자명','회원구분','유형','결제등록일','결제기간','계약담당자','누적납부금액','감면조정금액',
+    '2회차내용증명','연체등록내용증명','추심등록','연체정보등록','개인회생','최근회수일','시효도과','시효임박','기기반납','사고채권','금지명령'];
+  return base.concat(cycHeaders('both'),['브랜드명']);
+}
+function collectRow(c){
+  const b=penaltyBits(c);
+  const base=[c.no,'BrainKey VN','',c.name,b.el,0,c.phone,c.depositMethod,b.months,c.dueDay,c.payStart,c.expireDate,
+    b.monthly,c.prepaid,b.months*b.monthly,b.months*b.monthly,b.el*b.monthly,c.unpaidCnt?c.lastPayDate:'',c.unpaidCnt,b.remain,b.unpaidPrin,b.late,b.total,
+    c.product,pkgCodeOf(c.product),'',c.bankName,c.virtualAcct,c.depositorName,'렌탈',c.cust,c.contractDate,c.payStart+'~'+c.expireDate,c.manager,c.paidCount*b.monthly,c.adjust,
+    'N','N','N','N','N','','N','N','N','N','N'];
+  const cyc=[];for(let i=1;i<=60;i++){ if(i<=c.paidCount)cyc.push(addMonths(c.payStart,i-1),b.monthly); else cyc.push('',''); }
+  return base.concat(cyc,['BrainKey']);
+}
+/* 주마감 RAW (카드사명 → 입금은행, 빈 2열 → 가상계좌·입금자명) */
+function weeklyHeaders(){
+  const base=['고객번호','이름','경과회차','면제회차수','전화번호','입금방식','할부기간','약정일','최초결제일','약정만료일',
+    '월납부금','선납금','감면조정금','월납총금액','제품총금액','경과금액(경과회차*월납금)','최초연체발생일','미납횟수','잔여금','미납원금','연체가산금','미납총액(연체가산금 포함)',
+    '제품명','패키지 내부코드','대표사은품','입금은행','결제등록일(계약일)','가상계좌','입금자명','계약담당자','누적납부금액',
+    '2회차내용증명','연체등록내용증명','추심등록','연체정보등록','개인회생','최근회수일','시효도과','시효임박','기기반납','사고채권','금지명령'];
+  return base.concat(cycHeaders('amt'),cycHeaders('date'),['브랜드','사용대차 소유권이전']);
+}
+function weeklyRow(c){
+  const b=penaltyBits(c);
+  const base=[c.no,c.name,b.el,0,c.phone,c.depositMethod,b.months,c.dueDay,c.payStart,c.expireDate,
+    b.monthly,c.prepaid,c.adjust,b.months*b.monthly,b.months*b.monthly,b.el*b.monthly,c.unpaidCnt?c.lastPayDate:'',c.unpaidCnt,b.remain,b.unpaidPrin,b.late,b.total,
+    c.product,pkgCodeOf(c.product),'',c.bankName,c.contractDate,c.virtualAcct,c.depositorName,c.manager,c.paidCount*b.monthly,
+    'N','N','N','N','N','','N','N','N','N','N'];
+  const amts=[],dates=[];
+  for(let i=1;i<=60;i++){ if(i<=c.paidCount){amts.push(b.monthly);dates.push(addMonths(c.payStart,i-1));} else {amts.push('');dates.push('');} }
+  return base.concat(amts,dates,['BrainKey','N']);
+}
+function downloadCollectExcel(){
+  buildAndDownloadXlsx(L('수금현황_베트남_','TinhTrangThuTien_VietNam_')+stamp()+'.xlsx',L('수금현황','TinhTrangThuTien'),
+    collectHeaders().map(X),COL.map(c=>collectRow(c).map(X)));
+  toast(L('수금현황 엑셀(베트남) 다운로드 — '+COL.length+'건',
+          'Đã tải Excel tình trạng thu tiền (Việt Nam) — '+COL.length+' dòng'));
+}
+function downloadWeeklyRawExcel(){
+  buildAndDownloadXlsx(L('주마감RAW_베트남_','RAWChotTuan_VietNam_')+stamp()+'.xlsx',L('주마감RAW','RAWChotTuan'),
+    weeklyHeaders().map(X),COL.map(c=>weeklyRow(c).map(X)));
+  toast(L('주마감 RAW 엑셀(베트남) 다운로드 — '+COL.length+'건',
+          'Đã tải Excel RAW chốt tuần (Việt Nam) — '+COL.length+' dòng'));
+}
+
+/* ================= 메뉴 (상위 클릭 → 하위 펼침) ================= */
+const MENUS=[
+  {t:'1 관리자', subs:[
+    {n:'1-2 고객관리', s:'list'},
+    {n:'1-3 사용자관리'},
+    {n:'1-34 패키지 구성 관리', s:'pkg', badge:'개선'},
+  ]},
+  {t:'2 OUT-BOUND', subs:[
+    {n:'2-1 고객상담', info:'고객 상담은 1-2 고객관리 리스트의 [상담] 버튼으로 진행됩니다.'},
+  ]},
+  {t:'3 결제관리', subs:[
+    {n:'3-1 결제'},{n:'3-2 결제 변경'},{n:'3-3 결제 내역 확인'},
+    {n:'3-4 배송'},{n:'3-5 배송 내역 확인'},
+    {n:'3-6 환불', s:'refund'},{n:'3-7 환불 내역 확인'},
+    {n:'3-8 결제고객리스트'},{n:'3-9 선납금 입금', s:'pay', badge:'신규'},{n:'3-10 구매완료', s:'complete', badge:'신규'},
+    {n:'3-11 가상계좌 업로드', s:'upload', badge:'신규'},
+  ]},
+  {t:'4 출고/입고관리', subs:[
+    {n:'4-1 입고'},{n:'4-2-1 입고업로드 리스트'},
+    {n:'4-3 수동입고처리리스트', s:'receive'},{n:'4-4 입고처리내역리스트'},
+    {n:'4-5 누락리스트'},{n:'4-6 송장번호업로드', s:'ship'},{n:'4-6-1 미배송사은품 송장번호업로드'},
+  ]},
+  {t:'15 DB관리', subs:[
+    {n:'15-2-2 DB 재분배 관리', s:'redist', badge:'개선'},
+  ]},
+  {t:'17 수금관리', subs:[
+    {n:'17-1 회원현황', s:'members'},
+    {n:'17-6.1 리포트(미납자현황)', s:'rptUnpaid'},
+    {n:'17-6.3 리포트(입금현황)', s:'rptDeposit'},
+  ]},
+  {t:'18 미납관리', subs:[
+    {n:'18-2 미납콜 상담', s:'overdue'},
+  ]},
+];
+let openMenu=0, curScreen='list';
+function renderNav(){
+  document.getElementById('topnav').innerHTML=MENUS.map((m,i)=>`<a class="${i===openMenu?'on':''}" onclick="toggleMenu(${i})">${m.t}</a>`).join('');
+  document.getElementById('subnav').innerHTML=MENUS[openMenu].subs.map((sub,j)=>{
+    const on=sub.s&&sub.s===curScreen;
+    return `<a class="${on?'on':''} ${sub.s?'':'dis'}" onclick="navTo(${openMenu},${j})">${sub.n}${sub.badge?` <small>(${sub.badge})</small>`:''}</a>`;
+  }).join('');
+}
+function toggleMenu(i){openMenu=i;renderNav();}
+function navTo(i,j){
+  const sub=MENUS[i].subs[j];
+  if(!sub.s){ toast(sub.info || L(sub.n+' — 기존 메뉴 (이 프로토타입 범위 외)',
+    X(sub.n)+' — Menu hiện có (ngoài phạm vi nguyên mẫu này)')); return; }
+  curScreen=sub.s; showScreen(sub.s); renderNav();
+}
+/* ================= screens ================= */
+function showScreen(s){
+  ['list','ship','pay','complete','receive','refund','upload','members','memberDetail','rptUnpaid','rptDeposit','overdue','pkg','contract','redist'].forEach(x=>document.getElementById('screen-'+x).style.display=(x===s?'block':'none'));
+  if(s==='ship')renderShip();
+  if(s==='pay'){renderPay();renderPayManual();}
+  if(s==='complete')renderComplete();
+  if(s==='receive')renderReceive();
+  if(s==='refund')renderRefund();
+  if(s==='upload')renderIndiv();
+  if(s==='members')renderMembers();
+  if(s==='memberDetail')renderDetail();
+  if(s==='pkg')renderPkg();
+  if(s==='contract')renderContract();
+  if(s==='redist'){initRedistFilters();document.getElementById('redistTable').innerHTML='';document.getElementById('redistTotal').textContent='0';}
+  if(s==='rptUnpaid')renderRptUnpaid();
+  if(s==='rptDeposit')renderRptDeposit();
+  if(s==='overdue')renderOverdue();
+}
+
+/* ================= toast ================= */
+let tT;
+function toast(html){const t=document.getElementById('toast');t.innerHTML=html;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),3200);}
+
+/* init */
+document.getElementById('mask').addEventListener('click',e=>{if(e.target.id==='mask')closeModal();});
+renderNav();renderList();updateHint();
+document.documentElement.setAttribute('data-lang','ko');
+startObs();
+</script>
+</body>
+</html>
