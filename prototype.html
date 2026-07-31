@@ -1097,7 +1097,10 @@ const KO_NODE=new WeakMap();   // 텍스트노드/엘리먼트 원문
 const KO_ATTR=new WeakMap();   // {attr:원문}
 const TRANS_ATTR=['placeholder','title'];
 /* innerHTML 통째로 치환할 대상(내부에 JS 바인딩 핸들러가 없는 순수 텍스트 컨테이너만) */
-const HTML_SEL='.ptitle,.pdesc,.hint,.sec,.calc,.kbox,.up-msg,.muted,.opt h4,.opt p';
+const HTML_SEL='.ptitle,.sec,.calc,.kbox,.up-msg,.muted,.opt h4,.opt p';
+/* 번역 제외 — 개발자(한국인)에게만 설명하는 영역은 베트남어 모드에서도 한국어 유지.
+   .pdesc(화면 설명문) · .hint(안내박스)는 실제 CMS에 적재되지 않는 스펙 설명이다. */
+const NOTRANS_SEL='[data-notrans],.pdesc,.hint';
 const norm=s=>s.replace(/\s+/g,' ').trim();
 
 function trStr(s){
@@ -1113,13 +1116,13 @@ function trStr(s){
   return hit? pre+out+post : s;
 }
 function trNode(t){
-  if(!t.parentElement||t.parentElement.closest('[data-notrans]'))return;
+  if(!t.parentElement||t.parentElement.closest(NOTRANS_SEL))return;
   const src=KO_NODE.has(t)?KO_NODE.get(t):t.nodeValue;
   const out=trStr(src);
   if(out!==t.nodeValue){ if(!KO_NODE.has(t))KO_NODE.set(t,t.nodeValue); t.nodeValue=out; }
 }
 function trAttrs(el){
-  if(el.closest('[data-notrans]'))return;
+  if(el.closest(NOTRANS_SEL))return;
   TRANS_ATTR.forEach(a=>{
     if(!el.hasAttribute(a))return;
     const bag=KO_ATTR.get(el)||{};
@@ -1136,7 +1139,7 @@ function translateTree(root){
   const blocks=[]; if(root.matches&&root.matches(HTML_SEL))blocks.push(root);
   root.querySelectorAll&&root.querySelectorAll(HTML_SEL).forEach(e=>blocks.push(e));
   blocks.forEach(el=>{
-    if(!el.isConnected||el.closest('[data-notrans]'))return;
+    if(!el.isConnected||el.closest(NOTRANS_SEL))return;
     const key=norm(el.innerHTML);
     if(VI_HTML[key]!=null){
       if(!KO_NODE.has(el))KO_NODE.set(el,el.innerHTML);
