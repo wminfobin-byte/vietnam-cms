@@ -517,7 +517,7 @@
    톤앤매너 기준: 실운영 베트남 CMS 화면(1-2 DB 리스트 / 3-4 배송) 용어를 따름
      분배일=ngày phân loại · 유입일=ngày nhập · 오더일=ngày đơn hàng
      고객명=tên khách hàng · 상담상태=trạng thái tư vấn · 고객상태=trạng thái khách hàng
-     접수 제품=sản phẩm tiếp nhận · 기능=chức năng · 꼬리표=nhãn · DB정보=thông tin dữ liệu
+     접수 제품=sản phẩm tiếp nhận · 기능=chức năng · 꼬리표=nhãn · DB정보=Thông tin DB
    ---------------------------------------------------------------------
    VI_HTML : <b>/<span> 이 포함된 문장을 통째로 치환 (innerHTML 기준, 공백 정규화)
    VI_TEXT : 텍스트 노드 1개 전체와 정확히 일치하는 문자열
@@ -656,7 +656,7 @@ const VI_HTML={
 '위약금 산정 <span class="muted">(할인 입력 시 최종 자동 계산)</span>':
  'Tính phí phạt <span class="muted">(nhập số tiền giảm sẽ tự động tính số cuối)</span>',
 '상담 상태 <span class="muted">(대분류 → 소분류 선택)</span>':
- 'Trạng thái tư vấn <span class="muted">(chọn nhóm lớn → nhóm nhỏ)</span>',
+ 'Trạng thái tư vấn <span class="muted">(Danh mục nhỏ)</span>',
 '상담내용 <span class="muted">(저장 시 이력에 기록)</span>':
  'Nội dung tư vấn <span class="muted">(được ghi vào lịch sử khi lưu)</span>',
 
@@ -705,7 +705,7 @@ const VI_TEXT={
 '4-6 송장번호업로드':'4-6 Tải lên mã vận đơn',
 '4-6-1 미배송사은품 송장번호업로드':'4-6-1 Tải lên mã vận đơn quà tặng chưa giao',
 '15-2-2 DB 재분배 관리':'15-2-2 Quản lý tái phân bổ DB','17-1 회원현황':'17-1 Tình trạng hội viên',
-'17-6.1 리포트(미납자현황)':'17-6.1 Báo cáo (tình trạng khách nợ quá hạn)',
+'17-6.1 리포트(미납자현황)':'17-6.1 Báo cáo (Tình trạng khách chưa nộp phí phạt)',
 '17-6.3 리포트(입금현황)':'17-6.3 Báo cáo (tình trạng nộp tiền)',
 '18-2 미납콜 상담':'18-2 Tư vấn gọi thu nợ',
 '(신규)':'(Mới)','(개선)':'(Cải tiến)',
@@ -713,11 +713,11 @@ const VI_TEXT={
  'Việc tư vấn khách hàng được thực hiện bằng nút [Tư vấn] trong danh sách 1-2 Quản lý khách hàng.',
 
 /* ── 1-2 DB 리스트 ─────────────────────────────────────────── */
-'DB 리스트':'Danh sách DB','⬇ DB 리스트 엑셀 (관리자)':'⬇ Excel danh sách DB (quản trị viên)',
-'꼬리표':'nhãn','DBIDX':'DBIDX','DB포인트':'Điểm DB','OB명':'OB người',
+'DB 리스트':'Danh sách DB','⬇ DB 리스트 엑셀 (관리자)':'⬇ Xuất Excel danh sách DB (Quản trị viên)',
+'꼬리표':'nhãn','DBIDX':'DBIDX','DB포인트':'Điểm DB','OB명':'Tên',
 '분배일':'ngày phân loại','유입일':'ngày nhập','고객명':'tên khách hàng',
-'고객전화번호':'số điện thoại khách hàng','DB정보':'thông tin dữ liệu',
-'최종통화시간':'thời gian cuộc gọi cuối cùng','통화예약시간':'thời gian hẹn gọi điện',
+'고객전화번호':'số điện thoại khách hàng','DB정보':'Thông tin DB',
+'최종통화시간':'Thời gian gọi gần nhất','통화예약시간':'Thời gian hẹn gọi lại',
 '오더일':'ngày đơn hàng','접수 제품':'sản phẩm tiếp nhận','상담상태':'trạng thái tư vấn',
 '오토콜':'auto call','고객상태':'trạng thái khách hàng',
 '관리콜1차':'quản lý cuộc gọi lần 1','관리콜2차':'quản lý cuộc gọi lần 2','기능':'chức năng',
@@ -749,7 +749,7 @@ const VI_TEXT={
 '영어+한국어 패키지 (6종)':'Gói tiếng Anh + tiếng Hàn (6 loại)',
 'BrainKey TAB (외국어 패키지)':'BrainKey TAB (gói ngoại ngữ)',
 'W84-AD5000 (외국어 풀패키지)':'W84-AD5000 (gói ngoại ngữ đầy đủ)',
-'재콜':'Gọi lại','부재재콜':'Gọi lại khi vắng mặt',
+'재콜':'Gọi lại','부재재콜':'Gọi lại khi không liên lạc được',
 'R그룹':'Nhóm R','S그룹':'Nhóm S','A그룹':'Nhóm A','B그룹':'Nhóm B','C그룹':'Nhóm C','H그룹':'Nhóm H',
 
 /* ── 기능 버튼 · 공통 ──────────────────────────────────────── */
@@ -794,15 +794,15 @@ const VI_TEXT={
 '회원명':'Tên hội viên','구매제품':'Sản phẩm đã mua','입금방식':'Hình thức nộp tiền',
 '선납유무':'Có trả trước','선납':'Trả trước','일반':'Thông thường',
 '🔍 검색':'🔍 Tìm kiếm','검색 초기화':'Đặt lại tìm kiếm',
-'⬇ 수금현황 엑셀 (베트남)':'⬇ Excel tình trạng thu tiền (Việt Nam)',
-'⬇ 주마감 RAW 엑셀 (베트남)':'⬇ Excel RAW chốt tuần (Việt Nam)',
+'⬇ 수금현황 엑셀 (베트남)':'⬇ Xuất Excel tình trạng thu tiền (Việt Nam)',
+'⬇ 주마감 RAW 엑셀 (베트남)':'⬇ Xuất Excel dữ liệu RAW theo tuần (Việt Nam)',
 '※ 엑셀 다운로드 시 CMS 속도 저하 → 가급적 비업무시간에 다운로드':
  '※ Tải Excel làm chậm CMS → nên tải ngoài giờ làm việc',
 '] · 단위: VND':'] · đơn vị: VND','건] · 입금액 합계':'đơn] · tổng tiền nộp',
 'VND · 단위: VND':'VND · đơn vị: VND',
 '순번':'STT','상담원ID':'ID tư vấn viên','결제시작일':'ngày bắt đầu thanh toán',
-'약정일':'ngày đến hạn','월납부금':'tiền trả hàng tháng','미납횟수':'số lần nợ quá hạn',
-'누적미납금':'tổng tiền nợ quá hạn','경과차수':'kỳ đã trôi qua',
+'약정일':'ngày đến hạn','월납부금':'tiền trả hàng tháng','미납횟수':'Số kỳ nợ quá hạn',
+'누적미납금':'tổng tiền nợ quá hạn','경과차수':'Số kỳ đã qua',
 '문자수신내역':'Lịch sử nhận SMS','미납콜 이동':'Chuyển sang gọi thu nợ',
 '통합이력 조회':'Tra cứu lịch sử tổng hợp','OB 조회':'Tra cứu OB','IB 조회':'Tra cứu IB',
 '미납SMS':'SMS nợ quá hạn',
@@ -817,8 +817,8 @@ const VI_TEXT={
 '최근입금일':'Ngày nộp tiền gần nhất','약정개월':'Số tháng cam kết','결제기간':'Thời gian thanh toán',
 '월납총액':'Tổng tiền trả hàng tháng','제품총금액':'Tổng giá sản phẩm',
 '정산 현황':'Tình trạng quyết toán','계약담당자':'Người phụ trách hợp đồng',
-'경과회차수':'Số kỳ đã trôi qua','감면/조정금액':'Số tiền miễn giảm/điều chỉnh',
-'받아야할 금액':'Số tiền phải thu','(경과회차×월납금)':'(số kỳ đã trôi qua × tiền trả hàng tháng)',
+'경과회차수':'Số kỳ đã qua','감면/조정금액':'Số tiền miễn giảm/điều chỉnh',
+'받아야할 금액':'Số tiền phải thu','(경과회차×월납금)':'(số kỳ đã qua × tiền trả hàng tháng)',
 '누적납부금액':'Tổng tiền đã nộp','미경과분':'Phần chưa đến kỳ','미납원금':'Gốc chưa thanh toán',
 '연체가산금':'Tiền phạt chậm trả','총미납':'Tổng nợ quá hạn','마지막회차 면제여부':'Miễn kỳ cuối',
 '환급패키지/프로모션':'Gói hoàn tiền/Khuyến mãi','N / 500원패키지':'N / Gói 500 won',
@@ -839,11 +839,11 @@ const VI_TEXT={
 '요청금액':'Số tiền yêu cầu','입금금액':'Số tiền đã nộp','결과':'Kết quả','개월':'tháng',
 
 /* ── 리포트 ────────────────────────────────────────────────── */
-'17-6.1 리포트 (미납자현황)':'17-6.1 Báo cáo (tình trạng khách nợ quá hạn)',
-'⬇ 미납자현황 다운로드 (CSV)':'⬇ Tải tình trạng khách nợ quá hạn (CSV)',
+'17-6.1 리포트 (미납자현황)':'17-6.1 Báo cáo (Tình trạng khách chưa nộp phí phạt)',
+'⬇ 미납자현황 다운로드 (CSV)':'⬇ Xuất excel tình trạng khách chưa nộp phí phạt (CSV)',
 '17-6.3 리포트 (입금현황)':'17-6.3 Báo cáo (tình trạng nộp tiền)',
 '종류':'Loại','조회기간':'Thời gian tra cứu','계약상태':'Trạng thái hợp đồng',
-'🔍 조회':'🔍 Tra cứu','⬇ 입금현황 엑셀':'⬇ Excel tình trạng nộp tiền',
+'🔍 조회':'🔍 Tra cứu','⬇ 입금현황 엑셀':'⬇ Xuất excel tình trạng nộp tiền',
 '최초 산정 위약금':'Phí phạt tính ban đầu','할인 금액':'Số tiền giảm','최종 위약금':'Phí phạt cuối cùng',
 '미납 안내 SMS 발송':'Gửi SMS thông báo nợ quá hạn',
 '미납담당자로 로그인 후 [상담] → 위약금 협의·수정(최초/할인/최종) 입력 → 이력 기록됩니다.':
@@ -874,7 +874,7 @@ const VI_TEXT={
 '조회 결과 없음. 시리얼번호를 확인하세요.':'Không có kết quả tra cứu. Vui lòng kiểm tra số sê-ri.',
 '기기 PW 발송':'Gửi mật khẩu thiết bị','발송 (발신: 한국 번호)':'đã gửi (đầu số gửi: Hàn Quốc)',
 '고객 상담':'Tư vấn khách hàng','고객리뷰':'Đánh giá khách hàng','(샘플)':'(mẫu)',
-'상담 상태':'Trạng thái tư vấn','(대분류 → 소분류 선택)':'(chọn nhóm lớn → nhóm nhỏ)',
+'상담 상태':'Trạng thái tư vấn','(대분류 → 소분류 선택)':'(Danh mục nhỏ)',
 '위약금 산정':'Tính phí phạt','(할인 입력 시 최종 자동 계산)':'(nhập số tiền giảm sẽ tự động tính số cuối)',
 '상담내용':'Nội dung tư vấn','(저장 시 이력에 기록)':'(được ghi vào lịch sử khi lưu)',
 '상담 이력':'Lịch sử tư vấn','이력 없음':'Không có lịch sử','상담 내용 입력':'Nhập nội dung tư vấn',
@@ -882,7 +882,7 @@ const VI_TEXT={
 '최초 산정 위약금(VND)':'Phí phạt tính ban đầu (VND)',
 '(반품접수 시 산정값 — 수정 불가)':'(giá trị tính khi tiếp nhận trả hàng — không sửa được)',
 '할인 금액(VND)':'Số tiền giảm (VND)','최종 위약금(VND)':'Phí phạt cuối cùng (VND)',
-'일반':'Thông thường','반품':'Trả hàng','교환':'Đổi hàng','부재':'Vắng mặt',
+'일반':'Thông thường','반품':'Trả hàng','교환':'Đổi hàng','부재':'Không liên lạc được',
 'ACC & 사은품':'ACC & quà tặng','학습케어(관리콜)':'Chăm sóc học tập (cuộc gọi quản lý)',
 'COD (구매_현금) — 접수 진행':'COD (mua_tiền mặt) — Tiến hành tiếp nhận',
 '상담 진행':'Đang tư vấn','상담 완료':'Hoàn tất tư vấn','통화예약':'Hẹn gọi lại',
@@ -965,7 +965,7 @@ const VI_TEXT={
 '입고대기 (4-1/5-2-1/4-3 입고)':'Chờ nhập kho (nhập kho 4-1/5-2-1/4-3)',
 '위약금 미입금 (상담창 협의·입금)':'Chưa nộp phí phạt (thỏa thuận · nộp tiền tại cửa sổ tư vấn)',
 '반품접수':'Tiếp nhận trả hàng','반품방식':'hình thức trả hàng','최초':'ban đầu','할인':'giảm giá','최종':'cuối cùng',
-'고객이 “그냥 사용하겠다”고 한 경우 사용합니다.':'Dùng khi khách hàng nói “tôi cứ dùng tiếp”.',
+'고객이 “그냥 사용하겠다”고 한 경우 사용합니다.':'Sử dụng khi khách hàng cho biết sẽ tiếp tục sử dụng sản phẩm',
 '사유 (이력)':'Lý do (lịch sử)','예: 고객 변심, 계속 사용 의사 확인':'VD: khách hàng đổi ý, đã xác nhận ý định tiếp tục sử dụng',
 '반품 철회 → 구매완료 복귀':'Rút lại trả hàng → quay về hoàn tất mua hàng',
 '계약정보 수정':'Chỉnh sửa thông tin hợp đồng','미입력':'Chưa nhập',
@@ -1040,7 +1040,7 @@ const VI_TEXT={
 '기본 컨텐츠(SW)를 1개 이상 선택하세요':'Vui lòng chọn ít nhất 1 nội dung cơ bản (SW)',
 '계약자명을 입력하세요':'Vui lòng nhập tên người ký hợp đồng',
 '상품명(패키지)을 선택하세요':'Vui lòng chọn tên sản phẩm (gói)',
-'주소(vùng)를 선택하세요':'Vui lòng chọn địa chỉ (vùng)',
+'주소(vùng)를 선택하세요':'Vui lòng chọn địa chỉ (Tỉnh/Thành phố)',
 '상품가격을 입력하세요':'Vui lòng nhập giá sản phẩm','할부 개월을 선택하세요':'Vui lòng chọn số tháng trả góp',
 '시리얼번호를 입력하세요':'Vui lòng nhập số sê-ri','휴대폰번호를 입력하세요':'Vui lòng nhập số điện thoại di động',
 '시리얼번호 조회 결과가 없습니다':'Không có kết quả tra cứu số sê-ri',
@@ -1601,8 +1601,8 @@ function renderIntakeInline(){
   <div class="sec">★ 주소 <span class="muted">(4단 드롭다운 — 일부 단어 입력으로 검색)</span></div>
   <div class="frm"><table>
     <tr><th>주소 SELECT</th><td colspan="3">
-      <input type="text" id="ikProv" list="dlProv" placeholder="-- vùng --" style="width:190px">
-      <input type="text" id="ikDist" list="dlDist" placeholder="ĐẶC KHU" style="width:150px">
+      <input type="text" id="ikProv" list="dlProv" placeholder="-- Tỉnh/Thành phố --" style="width:190px">
+      <input type="text" id="ikDist" list="dlDist" placeholder="Quận/Huyện" style="width:150px">
       <input type="text" id="ikWard" list="dlWard" placeholder="PHƯỜNG" style="width:140px">
       <input type="text" id="ikXa"   list="dlXa"   placeholder="XÃ" style="width:130px">
       <span class="muted">← 'ho chi' 처럼 일부만 입력해도 검색됨</span>
@@ -2382,7 +2382,7 @@ function downloadRpt(kind){
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname+'.csv';
   document.body.appendChild(a);a.click();a.remove();
   toast(L((isUnpaid?'미납자현황':'입금현황')+' CSV 다운로드',
-          'Đã tải CSV '+(isUnpaid?'tình trạng khách nợ quá hạn':'tình trạng nộp tiền')));
+          'Đã tải CSV '+(isUnpaid?'tình trạng khách chưa nộp phí phạt':'tình trạng nộp tiền')));
 }
 
 /* ================= upload screen ================= */
@@ -2488,7 +2488,7 @@ function renderContract(){
         ${dlist('dlIssuer2',VN_ISSUER)}
         <button class="b-pri" style="margin-left:8px;padding:6px 12px" onclick="saveContractInfo()">계약 정보 저장</button></td></tr>
      <tr><th>주소</th><td colspan="3">
-        <select><option>-- vùng --</option><option selected>TP Hồ Chí Minh</option><option>Hà Nội</option></select>
+        <select><option>-- Tỉnh/Thành phố --</option><option selected>TP Hồ Chí Minh</option><option>Hà Nội</option></select>
         <select><option>Quận/Huyện</option><option selected>Quận 5</option></select>
         <select><option>Phường/Xã</option><option selected>Phường 13</option></select>
         <input type="text" value="${ct.addr}" style="width:55%"> <span class="muted">(드롭다운 단어검색 가능)</span></td></tr>
@@ -2733,7 +2733,7 @@ function downloadWeeklyRawExcel(){
   buildAndDownloadXlsx(L('주마감RAW_베트남_','RAWChotTuan_VietNam_')+stamp()+'.xlsx',L('주마감RAW','RAWChotTuan'),
     weeklyHeaders().map(X),COL.map(c=>weeklyRow(c).map(X)));
   toast(L('주마감 RAW 엑셀(베트남) 다운로드 — '+COL.length+'건',
-          'Đã tải Excel RAW chốt tuần (Việt Nam) — '+COL.length+' dòng'));
+          'Đã tải Excel dữ liệu RAW theo tuần (Việt Nam) — '+COL.length+' dòng'));
 }
 
 /* ================= 메뉴 (상위 클릭 → 하위 펼침) ================= */
