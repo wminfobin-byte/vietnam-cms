@@ -911,10 +911,12 @@ const VI_TEXT={
 '시리얼번호':'Số sê-ri','(단말기 뒷면 S/N)':'(S/N ở mặt sau thiết bị)',
 '휴대폰번호':'Số điện thoại di động','(기본값 = 고객 연락처, 수정 가능)':'(mặc định = số liên hệ của khách hàng, có thể sửa)',
 '예: A11VN26030001':'VD: A11VN26030001','조회 실패 시 발송되지 않습니다.':'Nếu tra cứu thất bại thì sẽ không gửi.',
-'기기 PW 발송 완료':'Đã gửi mật khẩu thiết bị',
+'기기 PW 발송 완료':'Đã gửi mật khẩu thiết bị','수신 담당자':'Nhân viên nhận','수신번호':'Số nhận',
+'직접 입력':'Nhập trực tiếp','(기본값 = 등록된 담당자 번호 · 고객 번호 아님)':'(mặc định = số nhân viên đã đăng ký · không phải số khách hàng)',
+'담당자 발송 (발신: 한국 번호)':'đã gửi cho nhân viên (đầu số gửi: Hàn Quốc)','수신번호를 입력하세요':'Vui lòng nhập số nhận',
 'PW ****(SMS 본문에만 표기)':'PW ****(chỉ hiển thị trong nội dung SMS)',
 '조회 결과 없음. 시리얼번호를 확인하세요.':'Không có kết quả tra cứu. Vui lòng kiểm tra số sê-ri.',
-'발송 (발신: 한국 번호)':'đã gửi (đầu số gửi: Hàn Quốc)',
+
 '고객 상담':'Tư vấn khách hàng','고객리뷰':'Đánh giá khách hàng','(샘플)':'(mẫu)',
 '상담 상태':'Trạng thái tư vấn','(대분류 → 소분류 선택)':'(Danh mục nhỏ)',
 '위약금 산정':'Tính phí phạt','(할인 입력 시 최종 자동 계산)':'(nhập số tiền giảm sẽ tự động tính số cuối)',
@@ -1595,16 +1597,28 @@ const DEVICE=[
   {serial:'A11VN26030003', pw:'119427', model:'Galaxy Tab A11', owner:'Nguyễn Hương Quỳnh Trâm'},
 ];
 function pwBoxHTML(r){
-  return `<div class="hint" style="margin:6px 0">발신번호는 <b>한국 번호</b>(기존 뇌새김 SMS 게이트웨이)를 사용합니다. 시리얼번호로 조회된 <b>기기 PW</b>가 아래 입력한 번호로 발송됩니다.</div>
+  return `<div class="hint" style="margin:6px 0"><b>고객에게 직접 보내지 않습니다.</b> 조회된 기기 PW는 <b>베트남 현지 한국인 담당자 번호</b>로 발송되고, 담당자가 고객에게 안내합니다. 발신번호는 <b>한국 번호</b>(기존 뇌새김 SMS 게이트웨이)를 사용합니다.</div>
   <div class="frm"><table>
     <tr><th>시리얼번호</th><td><input type="text" id="pwSerial" value="${r.serial||''}" placeholder="예: A11VN26030001" style="width:200px">
         <span class="muted">(단말기 뒷면 S/N)</span></td></tr>
-    <tr><th>휴대폰번호</th><td><input type="text" id="pwPhone" value="${r.phone||''}" style="width:170px">
-        <span class="muted">(기본값 = 고객 연락처, 수정 가능)</span></td></tr>
+    <tr><th>수신 담당자</th><td><select id="pwStaff" onchange="pwStaffChange()">${PW_STAFF.map((x,i)=>'<option value="'+i+'">'+x.name+' · '+x.phone+'</option>').join('')}<option value="etc">직접 입력</option></select></td></tr>
+    <tr><th>수신번호</th><td><input type="text" id="pwPhone" value="${PW_STAFF[0].phone}" style="width:170px">
+        <span class="muted">(기본값 = 등록된 담당자 번호 · 고객 번호 아님)</span></td></tr>
   </table></div>
   <div style="margin-top:6px"><button class="b-pri" onclick="sendDevicePw()">발송</button>
     <span class="muted" style="margin-left:8px">조회 실패 시 발송되지 않습니다.</span></div>
   <div id="pwResult" style="margin-top:8px"></div>`;
+}
+/* 기기 PW 수신 담당자 — 베트남 현지 한국인 직원. 1-3 사용자관리에 등록해 관리 */
+const PW_STAFF=[
+  {name:'김현우 (호치민)', phone:'010-2345-6789'},
+  {name:'박지훈 (하노이)', phone:'010-3456-7890'},
+];
+function pwStaffChange(){
+  const sel=document.getElementById('pwStaff'), inp=document.getElementById('pwPhone');
+  if(!sel||!inp)return;
+  if(sel.value==='etc'){ inp.value=''; inp.focus(); }
+  else inp.value=PW_STAFF[+sel.value].phone;
 }
 function togglePwBox(){
   const b=document.getElementById('pwBox');
@@ -1616,7 +1630,7 @@ function sendDevicePw(){
   const phone=document.getElementById('pwPhone').value.trim();
   const out=document.getElementById('pwResult');
   if(!serial){toast('시리얼번호를 입력하세요');return;}
-  if(!phone){toast('휴대폰번호를 입력하세요');return;}
+  if(!phone){toast('수신번호를 입력하세요');return;}
   /* 4-6에서 등록된 시리얼도 조회 대상에 포함 */
   const reg=rows.find(x=>x.serial&&x.serial.toUpperCase()===serial.toUpperCase());
   const d=DEVICE.find(x=>x.serial.toUpperCase()===serial.toUpperCase())
@@ -1627,11 +1641,11 @@ function sendDevicePw(){
   }
   const now=new Date().toISOString().slice(0,16).replace('T',' ');
   out.innerHTML=`<div class="hint" style="background:#eef7f1;border-color:#bfe0cd;color:#1c7a52">
-    <span>기기 PW 발송 완료</span> → <b>${phone}</b> <span class="muted">(${now})</span><br>
+    <span>기기 PW 발송 완료</span> → <b>${phone}</b> <span class="muted">(담당자 수신 · ${now})</span><br>
     <span class="muted"><span>단말기</span> ${d.model} · S/N ${d.serial} · <span>PW ****(SMS 본문에만 표기)</span></span></div>`;
   r.history=r.history||[];
   r.history.push({meta:`[${now} · <span>${role}</span> · <span>기기 PW 발송</span>]`,
-    text:`S/N ${d.serial} → ${phone} <span>발송 (발신: 한국 번호)</span>`});
+    text:`S/N ${d.serial} → ${phone} <span>담당자 발송 (발신: 한국 번호)</span>`});
   document.getElementById('cHist').innerHTML=r.history.map(h=>`<div class="h"><span class="meta">${h.meta}</span><br>${h.text}</div>`).join('');
   toast(L('기기 PW 발송 완료 → <b>'+phone+'</b>','Đã gửi mật khẩu thiết bị → <b>'+phone+'</b>'));
 }
