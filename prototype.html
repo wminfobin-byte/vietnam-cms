@@ -2037,20 +2037,20 @@ function autoComplete(r){ if(r.paid && r.serial && !r.locked && !r.completed){ r
 function renderApprove(){
   const list=rows.filter(r=>!r.locked&&r.intake!==false&&!r.approved);
   let h=`<thead><tr><th style="width:38px"><input type="checkbox" onclick="document.querySelectorAll('.apchk').forEach(x=>x.checked=this.checked)"></th>
-    <th>번호</th><th>고객키</th><th>고객명</th><th>제품</th><th>결제</th><th>결제금액(VND)</th><th>현재 상태</th><th style="width:90px">반려</th></tr></thead><tbody>`;
+    <th>번호</th><th>주문키</th><th>고객명</th><th>제품</th><th>결제</th><th>결제금액(VND)</th><th>현재 상태</th><th style="width:90px">반려</th></tr></thead><tbody>`;
   if(!list.length) h+=`<tr><td colspan="9" class="muted">구매승인 대기 건이 없습니다</td></tr>`;
   list.forEach(r=>{
     const ct=r._ct;
     const pk=PKG.find(p=>r.product&&r.product.indexOf(p.name)>=0);
     const amt=ct?(ct.payType==='할부'?ct.prepaid:(ct.price-ct.prepaidDisc)):(pk?pk.price:0);
     h+=`<tr><td><input type="checkbox" class="apchk" data-no="${r.no}"></td>
-    <td>${r.no}</td><td class="muted">${custKeyOf(r)}</td><td class="name">${r.name}</td><td>${r.product}</td><td>${r.pay}</td>
+    <td>${r.no}</td><td class="muted">${orderKeyOf(r)}</td><td class="name">${r.name}</td><td>${r.product}</td><td>${r.pay}</td>
     <td>${amt?won(amt):'<span class="muted">-</span>'}</td>
     <td>${badge(sellLabel(r))}</td>
     <td><button class="b-red" onclick="openReject(${r.no})">반려</button></td></tr>`;});
   document.getElementById('approveTable').innerHTML=h+'</tbody>';
 }
-/* 고객키 — 주문키는 3-4 배송처리 시점에 발급되므로 그 이전 화면에서는 고객키를 쓴다 */
+/* 고객키 — DB 고유번호. 주문키(WV…)는 DB 생성 시점에 이미 발급되어 있다 */
 function custKeyOf(r){ return 'BK'+String(300000+r.no); }
 /* ── 구매승인 반려 ──────────────────────────────────────────
    반려하면 접수 이전(상담대기)으로 되돌리고 상담상태에 '구매반려'를 남긴다.
