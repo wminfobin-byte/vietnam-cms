@@ -448,7 +448,7 @@
     <p class="pdesc">패키지에 <b>단말기명</b>과 <b>기본 컨텐츠(SW)</b>를 등록하면, 2-1 접수창의 <b>상품명</b> 선택에 그대로 노출됩니다.</p>
     <div class="hint"><b>컨텐츠 구성과 가격은 서로 무관합니다.</b> 같은 컨텐츠를 산 고객이라도 구매가가 다를 수 있습니다. 패키지는 <b>영어 · 한국어</b> 두 가지 기본 구성만 등록해 두고, 실제 컨텐츠 조합은 <b>코디가 2-1 접수창에서 계약 건별로 새로</b> 만듭니다. 가격은 접수창에서 <b>선납금 · 할부원금 · 할인금액 · 할부기간</b>을 입력하면 산출되는 <b>총액</b>으로 정해지고, 그 총액에 매핑된 <b>내부코드</b>가 자동 부여됩니다 — 아래 <b>② 가격 · 내부코드 관리</b>에서 등록·수정합니다.</div>
 
-    <div class="sec">① 패키지 구성 <span class="muted">(단말기 기본 제공 + 기본 컨텐츠 + 무료 컨텐츠)</span></div>
+    <div class="sec">① 패키지 구성 <span class="muted">(단말기 기본 제공 + 기본 컨텐츠)</span></div>
     <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start">
       <div style="flex:1;min-width:340px">
         <div class="sec" style="margin-top:0">신규 등록</div>
@@ -464,14 +464,6 @@
             <label class="ckL"><input type="checkbox" value="처음영어"> 처음영어</label>
             <label class="ckL"><input type="checkbox" value="기초한국어"> 기초한국어</label>
             <label class="ckL"><input type="checkbox" value="실전한국어"> 실전한국어</label></td></tr>
-          <tr><th>무료 컨텐츠</th><td id="pkFree">
-            <label class="ckL"><input type="checkbox" value="워드"> 워드</label>
-            <label class="ckL"><input type="checkbox" value="토크"> 토크</label>
-            <label class="ckL"><input type="checkbox" value="기초영어"> 기초영어</label>
-            <label class="ckL"><input type="checkbox" value="처음영어"> 처음영어</label>
-            <label class="ckL"><input type="checkbox" value="기초한국어"> 기초한국어</label>
-            <label class="ckL"><input type="checkbox" value="실전한국어"> 실전한국어</label>
-            <div class="muted" style="margin-top:4px">※ 기본 컨텐츠 외에 <b>무료로 제공</b>하는 컨텐츠. 접수창에서 건별로 다시 선택할 수 있고, 가격에는 반영되지 않습니다.</div></td></tr>
           <tr><th>렌탈창 노출</th><td><label class="radioL"><input type="radio" name="pkShow" checked> 보임</label><label class="radioL"><input type="radio" name="pkShow"> 숨김</label></td></tr>
         </table></div>
         <div style="margin-top:8px"><button class="b-pri" onclick="addPkg()">+ 저장(등록)</button></div>
@@ -484,14 +476,14 @@
     </div>
 
     <div class="sec" style="margin-top:24px">② 가격 · 내부코드 관리 <span class="b s-canc">신규</span></div>
-    <div class="hint">접수창에서 산출된 <b>총액</b>과 일치하는 행이 있으면 그 <b>내부코드</b>가 자동 부여되고, 일치하는 행이 없으면 <b>Promotion</b>으로 표기됩니다(코드 없는 금액 = 120일 이내 프로모션 적용 · 회계담당자 확인 대상). 내부코드는 <b>관리자 전용</b>이라 상담원 화면·계약서에는 노출되지 않고 관리자 엑셀에만 컬럼으로 출력됩니다.</div>
+    <div class="hint">접수창에서 산출된 <b>총액</b>과 일치하는 행이 있으면 그 <b>내부코드</b>가 자동 부여되고, 일치하는 행이 없으면 <b>WPR</b>으로 표기됩니다(코드 없는 금액 = 120일 이내 프로모션 적용 · 회계담당자 확인 대상). 내부코드는 <b>상담원 화면에는 노출되지 않고</b>, 관리자 엑셀과 <b>계약서(Mã sản phẩm)</b>에 출력됩니다.</div>
     <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start">
       <div style="flex:1;min-width:340px">
         <div class="sec" style="margin-top:0">가격 · 내부코드 등록</div>
         <div class="frm"><table>
           <tr><th>총액(VND)</th><td><input type="number" id="pcAmt" placeholder="예: 14380000" style="width:180px"></td></tr>
           <tr><th>내부코드</th><td><input type="text" id="pcCode" placeholder="예: A-01" style="width:180px">
-            <div class="muted" style="margin-top:4px">※ 관리자가 정한 표기를 그대로 입력합니다. 비워 두면 <b>Promotion</b>으로 저장됩니다.</div></td></tr>
+            <div class="muted" style="margin-top:4px">※ 관리자가 정한 표기를 그대로 입력합니다. 비워 두면 <b>WPR</b>으로 저장됩니다.</div></td></tr>
           <tr><th>비고</th><td><input type="text" id="pcNote" placeholder="예: 24 · 18 · 12개월 공통" style="width:100%"></td></tr>
           <tr><th>노출</th><td><label class="radioL"><input type="radio" name="pcShow" checked> 보임</label><label class="radioL"><input type="radio" name="pcShow"> 숨김</label></td></tr>
         </table></div>
@@ -679,8 +671,8 @@ const VI_HTML={
  'Khi đăng ký <b>Tên thiết bị</b> và <b>Nội dung cơ bản (SW)</b> cho gói, thông tin này sẽ được hiển thị ở mục <b>Tên sản phẩm</b> tại màn hình Tiếp nhận (2-1).',
 '<b>컨텐츠 구성과 가격은 서로 무관합니다.</b> 같은 컨텐츠를 산 고객이라도 구매가가 다를 수 있습니다. 패키지는 <b>영어 · 한국어</b> 두 가지 기본 구성만 등록해 두고, 실제 컨텐츠 조합은 <b>코디가 2-1 접수창에서 계약 건별로 새로</b> 만듭니다. 가격은 접수창에서 <b>선납금 · 할부원금 · 할인금액 · 할부기간</b>을 입력하면 산출되는 <b>총액</b>으로 정해지고, 그 총액에 매핑된 <b>내부코드</b>가 자동 부여됩니다 — 아래 <b>② 가격 · 내부코드 관리</b>에서 등록·수정합니다.':
  '<b>Cấu hình nội dung và giá là hai việc độc lập.</b> Hai khách mua cùng nội dung vẫn có thể có giá mua khác nhau. Gói chỉ đăng ký sẵn hai cấu hình cơ bản <b>tiếng Anh · tiếng Hàn</b>; tổ hợp nội dung thực tế do <b>điều phối viên tạo mới cho từng hợp đồng tại cửa sổ tiếp nhận 2-1</b>. Giá được quyết định bởi <b>tổng số tiền</b> tính ra khi nhập <b>tiền trả trước · gốc trả góp · số tiền giảm giá · kỳ hạn trả góp</b>, và <b>mã nội bộ</b> tương ứng với tổng số tiền đó sẽ được gán tự động — đăng ký · chỉnh sửa tại <b>② Quản lý giá · mã nội bộ</b> bên dưới.',
-'접수창에서 산출된 <b>총액</b>과 일치하는 행이 있으면 그 <b>내부코드</b>가 자동 부여되고, 일치하는 행이 없으면 <b>Promotion</b>으로 표기됩니다(코드 없는 금액 = 120일 이내 프로모션 적용 · 회계담당자 확인 대상). 내부코드는 <b>관리자 전용</b>이라 상담원 화면·계약서에는 노출되지 않고 관리자 엑셀에만 컬럼으로 출력됩니다.':
- 'Nếu có dòng khớp với <b>tổng số tiền</b> tính ra ở cửa sổ tiếp nhận thì <b>mã nội bộ</b> của dòng đó được gán tự động; nếu không khớp dòng nào thì ghi là <b>Promotion</b> (số tiền không có mã = áp dụng khuyến mãi trong vòng 120 ngày · thuộc diện kế toán kiểm tra). Mã nội bộ <b>chỉ dùng nội bộ</b> nên không hiển thị ở màn hình tư vấn viên và hợp đồng, chỉ xuất ra dưới dạng cột trong Excel của quản trị viên.',
+'접수창에서 산출된 <b>총액</b>과 일치하는 행이 있으면 그 <b>내부코드</b>가 자동 부여되고, 일치하는 행이 없으면 <b>WPR</b>으로 표기됩니다(코드 없는 금액 = 120일 이내 프로모션 적용 · 회계담당자 확인 대상). 내부코드는 <b>상담원 화면에는 노출되지 않고</b>, 관리자 엑셀과 <b>계약서(Mã sản phẩm)</b>에 출력됩니다.':
+ 'Nếu có dòng khớp với <b>tổng số tiền</b> tính ra ở cửa sổ tiếp nhận thì <b>mã nội bộ</b> của dòng đó được gán tự động; nếu không khớp dòng nào thì ghi là <b>WPR</b> (số tiền không có mã = áp dụng khuyến mãi trong vòng 120 ngày · thuộc diện kế toán kiểm tra). Mã nội bộ <b>không hiển thị ở màn hình tư vấn viên</b>, nhưng được xuất ra trong Excel của quản trị viên và trên <b>hợp đồng (Mã sản phẩm)</b>.',
 
 /* ── 2-1 계약서 ────────────────────────────────────────────── */
 '2-1 계약 정보 · 계약서 출력 <span class="b s-canc">신규</span>':
@@ -920,21 +912,16 @@ const VI_TEXT={
 /* ── 1-34 패키지 구성 관리 ─────────────────────────────────── */
 '신규 등록':'Đăng ký mới','패키지명':'Tên gói','내부코드':'Mã nội bộ',
 '단말기':'Thiết bị','기본 컨텐츠(SW)':'Nội dung cơ bản (SW)','기본 컨텐츠':'Nội dung cơ bản',
-'무료 컨텐츠':'Nội dung miễn phí',
 '상품가격(동)':'Giá sản phẩm (VND)','상품가격(VND)':'Giá sản phẩm (VND)','상품가격(정가)':'Giá sản phẩm (giá niêm yết)',
 '렌탈창 노출':'Hiển thị ở màn hình cho thuê','예: 영어 패키지':'VD: Gói tiếng Anh',
 '(베트남 단일 단말기 · 기본 제공)':'(thiết bị duy nhất tại Việt Nam · cung cấp kèm theo)',
 '(베트남 단일 단말기)':'(thiết bị duy nhất tại Việt Nam)','(기본 제공)':'(cung cấp kèm theo)',
-'※ 기본 컨텐츠 외에 <b>무료로 제공</b>하는 컨텐츠. 접수창에서 건별로 다시 선택할 수 있고, 가격에는 반영되지 않습니다.':
- '※ Nội dung được <b>cung cấp miễn phí</b> ngoài nội dung cơ bản. Có thể chọn lại theo từng đơn ở cửa sổ tiếp nhận và không tính vào giá.',
-'※ 기본 컨텐츠에 추가로 <b>무료 제공</b>하는 컨텐츠입니다. 가격(총액)에는 반영되지 않습니다.':
- '※ Nội dung được <b>cung cấp miễn phí</b> thêm vào nội dung cơ bản. Không tính vào giá (tổng số tiền).',
-'※ 선택하면 기본 컨텐츠·무료 컨텐츠가 자동 체크됩니다. 이후 <b>건별로 자유롭게 가감</b>할 수 있습니다.':
- '※ Khi chọn, nội dung cơ bản · nội dung miễn phí sẽ được tích tự động. Sau đó có thể <b>thêm bớt tự do theo từng đơn</b>.',
+'※ 선택하면 기본 컨텐츠가 자동 체크됩니다. 이후 <b>건별로 자유롭게 가감</b>할 수 있습니다.':
+ '※ Khi chọn, nội dung cơ bản sẽ được tích tự động. Sau đó có thể <b>thêm bớt tự do theo từng đơn</b>.',
 '+ 저장(등록)':'+ Lưu (đăng ký)','등록 패키지 관리':'Quản lý gói đã đăng ký',
 '컨텐츠(SW)':'Nội dung (SW)','유형':'Loại','노출':'Hiển thị',
 '① 패키지 구성':'① Cấu hình gói','② 가격 · 내부코드 관리':'② Quản lý giá · mã nội bộ',
-'(단말기 기본 제공 + 기본 컨텐츠 + 무료 컨텐츠)':'(thiết bị cung cấp kèm + nội dung cơ bản + nội dung miễn phí)',
+'(단말기 기본 제공 + 기본 컨텐츠)':'(thiết bị cung cấp kèm + nội dung cơ bản)',
 '가격 · 내부코드 등록':'Đăng ký giá · mã nội bộ','등록 가격 · 내부코드':'Giá · mã nội bộ đã đăng ký',
 '가격 · 내부코드 수정':'Sửa giá · mã nội bộ',
 '총액(VND)':'Tổng số tiền (VND)','총액(동)':'Tổng số tiền (VND)','총액':'Tổng số tiền',
@@ -943,7 +930,7 @@ const VI_TEXT={
 '선납금 + 할부원금 − 할인금액':'Trả trước + gốc trả góp − giảm giá','상품가격 − 할인금액':'Giá sản phẩm − giảm giá',
 '총액 매핑 (자동 · 관리자 전용)':'Ánh xạ theo tổng số tiền (tự động · chỉ quản trị viên)',
 '(정가 − 총액) / 정가':'(giá niêm yết − tổng số tiền) / giá niêm yết',
-'계약서에는 출력되지 않습니다':'Không được in ra trên hợp đồng',
+'계약서 <b>Mã sản phẩm</b>에 출력됩니다':'Được in trên hợp đồng tại mục <b>Mã sản phẩm</b>',
 
 /* ── 상담창 ────────────────────────────────────────────────── */
 '전화':'Điện thoại','접수제품':'Sản phẩm tiếp nhận',
@@ -1743,11 +1730,9 @@ function renderIntakeInline(){
   <div class="frm"><table>
     <tr><th>패키지</th><td colspan="3">
       ${pk.map((p,i)=>`<label style="margin-right:14px"><input type="radio" name="ikPkg" value="${i}" onchange="pickIntakePkg(${i})"> ${p.name}</label>`).join('')}
-      <div class="muted" style="margin-top:4px">※ 선택하면 기본 컨텐츠·무료 컨텐츠가 자동 체크됩니다. 이후 <b>건별로 자유롭게 가감</b>할 수 있습니다.</div></td></tr>
+      <div class="muted" style="margin-top:4px">※ 선택하면 기본 컨텐츠가 자동 체크됩니다. 이후 <b>건별로 자유롭게 가감</b>할 수 있습니다.</div></td></tr>
     <tr><th>단말기</th><td colspan="3"><label><input type="radio" name="ikDev" checked> Galaxy Tab A11</label> <span class="muted">(기본 제공)</span></td></tr>
     <tr><th>기본 컨텐츠</th><td colspan="3">${SW6.map(s=>`<label style="margin-right:10px"><input type="checkbox" class="ikSw" value="${s}"> ${s}</label>`).join('')}</td></tr>
-    <tr><th>무료 컨텐츠</th><td colspan="3">${SW6.map(s=>`<label style="margin-right:10px"><input type="checkbox" class="ikFree" value="${s}"> ${s}</label>`).join('')}
-      <div class="muted" style="margin-top:4px">※ 기본 컨텐츠에 추가로 <b>무료 제공</b>하는 컨텐츠입니다. 가격(총액)에는 반영되지 않습니다.</div></td></tr>
   </table></div>
 
   <div class="sec">결제방식 <span class="muted">(선택에 따라 아래 금액 입력 행이 전환됨)</span></div>
@@ -1779,7 +1764,7 @@ function renderIntakeInline(){
         <td><input type="text" id="ikRate" readonly style="background:#f3f4f7;font-weight:700"></td></tr>
     ${['관리자','매니저'].includes(role)?`<tr><th>내부코드<br><span class="muted">총액 매핑 (자동 · 관리자 전용)</span></th><td colspan="3">
         <input type="text" id="ikCode" readonly style="background:#f3f4f7;font-weight:700;width:220px">
-        <span class="muted">← 1-34 [가격 · 내부코드 관리] 등록값. 매칭 없으면 <b>Promotion</b> · 상담원 화면과 계약서에는 노출되지 않습니다.</span></td></tr>`:''}
+        <span class="muted">← 1-34 [가격 · 내부코드 관리] 등록값. 매칭 없으면 <b>WPR</b> · 상담원 화면에는 노출되지 않고 계약서 <b>Mã sản phẩm</b>에 출력됩니다.</span></td></tr>`:''}
   </table></div>
 
   <div class="sec">주소 <span class="muted">(4단 드롭다운 — 일부 단어 입력으로 검색)</span></div>
@@ -1801,11 +1786,10 @@ function renderIntakeInline(){
 function pickIntakePkg(i){
   const p=PKG.filter(x=>x.show)[i]; if(!p) return;
   document.querySelectorAll('.ikSw').forEach(c=>c.checked=p.sw.includes(c.value));
-  document.querySelectorAll('.ikFree').forEach(c=>c.checked=(p.free||[]).includes(c.value));
   calcIntake();
 }
 /* 총액 = (할부) 선납금 + 할부원금 − 할인금액 / (구매) 상품가격 − 할인금액.
-   총액이 1-34 [가격 · 내부코드]에 등록돼 있으면 그 코드가, 없으면 Promotion이 붙는다. */
+   총액이 1-34 [가격 · 내부코드]에 등록돼 있으면 그 코드가, 없으면 WPR이 붙는다. */
 function calcIntake(){
   const g=id=>document.getElementById(id);
   const isI=document.querySelector('input[name=ikPay]:checked').value==='할부';
@@ -1830,7 +1814,7 @@ function calcIntake(){
   if(codeEl){
     const code=codeOfAmt(total);
     codeEl.value=code||'-';
-    codeEl.style.color=(code==='Promotion')?'#c0392b':'var(--purple2)';
+    codeEl.style.color=(code==='WPR')?'#c0392b':'var(--purple2)';
   }
 }
 /* 접수 저장 — 상담상태 구매_현금(COD) · 고객상태 배송대기 전환 */
@@ -1846,7 +1830,6 @@ function saveIntake(r,memo,stamp){
   const p=PKG.filter(x=>x.show)[+pkIdx.value];
   const sw=[...document.querySelectorAll('.ikSw:checked')].map(x=>x.value);
   if(!sw.length){toast('기본 컨텐츠를 1개 이상 선택하세요');return false;}
-  const free=[...document.querySelectorAll('.ikFree:checked')].map(x=>x.value);
   const price=+(isI?g('ikPriceI').value:g('ikPriceB').value)||0;
   const months=isI?(+g('ikMonths').value||0):0;
   if(isI&&!months){toast('할부 개월을 선택하세요');return false;}
@@ -1865,7 +1848,7 @@ function saveIntake(r,memo,stamp){
   r._ct={ orderKey:'WV'+(17802773991303+r.no)+'OHWS', name, gender:g('ikSex').value,
     idNo:g('ikId').value.trim(), issueDate:iss, issuer:g('ikIssuer').value.trim(), dob, addr, phone:r.phone,
     pkgName:p.name, device:'Galaxy Tab A11', payType:isI?'할부':'구매',
-    sw, free, price, prepaid:pre, principal:prin, disc, months:months||1,
+    sw, price, prepaid:pre, principal:prin, disc, months:months||1,
     contractDate:new Date().toISOString().slice(0,10) };
   /* 결제방식(할부/구매)이 상담상태·리스트 결제 컬럼에 그대로 구분되어 남음 */
   /* 접수 저장 = 구매요청. 배송대기로 넘어가려면 3-1 결제에서 구매승인을 받아야 한다 */
@@ -1873,7 +1856,6 @@ function saveIntake(r,memo,stamp){
   r.history=r.history||[];
   r.history.push({meta:`[${stamp} · <span>${role}</span> · <span>결제</span> > <span>COD 접수</span>]`,
     text:`<span>${memo||'COD 접수'}</span> · <span>${p.name}</span> / <span>${isI?'할부':'구매'}</span> · <span>컨텐츠</span> ${sw.join('·')}`+
-      (free.length?` · <span>무료 컨텐츠</span> ${free.join('·')}`:'')+
       (isI?` · <span>선납금</span> ${won(pre)} · <span>할부원금</span> ${won(prin)} · <span>할부</span> ${months} <span>개월</span> · <span>월 납부금</span> ${won(monthly)}`:'')+
       ` · <span>총액</span> ${won(total)}`+(icode?` · <span>내부코드</span> ${icode}`:'')});
   renderList(); closeModal();
@@ -3447,13 +3429,13 @@ function delIndiv(i){indivRows.splice(i,1);renderIndiv();}
 
 /* ================= 1-34 패키지 구성 관리 ================= */
 /* 컨텐츠 구성과 가격은 서로 무관하다.
-   · 패키지 = 단말기(기본 제공) + 기본 컨텐츠 + 무료 컨텐츠 의 '기본값'일 뿐, 가격을 갖지 않는다.
+   · 패키지 = 단말기(기본 제공) + 기본 컨텐츠 의 '기본값'일 뿐, 가격을 갖지 않는다.
    · 실제 컨텐츠 조합은 코디가 2-1 접수창에서 계약 건별로 새로 만든다.
    · 가격은 접수창의 선납금 · 할부원금 · 할인금액 · 할부기간으로 산출된 '총액'으로 정해지고,
-     그 총액에 매핑된 내부코드(PRICECODE)가 자동 부여된다. 매칭이 없으면 Promotion. */
+     그 총액에 매핑된 내부코드(PRICECODE)가 자동 부여된다. 매칭이 없으면 WPR. */
 let PKG=[
-  {name:'영어 패키지', dev:'Galaxy Tab A11', sw:['워드','토크','기초영어','처음영어'], free:[], show:true},
-  {name:'한국어 패키지', dev:'Galaxy Tab A11', sw:['기초한국어','실전한국어'], free:[], show:true},
+  {name:'영어 패키지', dev:'Galaxy Tab A11', sw:['워드','토크','기초영어','처음영어'], show:true},
+  {name:'한국어 패키지', dev:'Galaxy Tab A11', sw:['기초한국어','실전한국어'], show:true},
 ];
 /* 가격 ↔ 내부코드 매핑 — 1-34에서 등록 · 수정 · 보임/숨김.
    아래 값은 화면 동작 확인용 예시일 뿐, 실제 값은 관리자가 운영하며 등록한다. */
@@ -3462,11 +3444,11 @@ let PRICECODE=[
   {amt:14080000, code:'A-02', note:'12개월 할인가', show:true},
   {amt:11900000, code:'B-01', note:'일시불', show:true},
 ];
-/* 총액 → 내부코드. 보임 상태 행과 정확히 일치할 때만 코드 부여, 없으면 Promotion */
+/* 총액 → 내부코드. 보임 상태 행과 정확히 일치할 때만 코드 부여, 없으면 WPR */
 function codeOfAmt(amt){
   amt=+amt||0; if(!amt) return '';
   const hit=PRICECODE.find(p=>p.show&&p.amt===amt);
-  return hit?hit.code:'Promotion';
+  return hit?hit.code:'WPR';
 }
 /* 총액 — 할부: 선납금 + 할부원금 − 할인금액 / 구매: 상품가격 − 할인금액 */
 function totalOfCt(ct){
@@ -3484,10 +3466,9 @@ function pkgCodeOf(o){
 }
 /* 1-34 ① — 등록 패키지는 [수정]으로 고치고, 노출은 [보임/숨김]으로 따로 제어한다 */
 function renderPkg(){
-  let h=`<thead><tr><th>패키지명</th><th>단말기</th><th>기본 컨텐츠</th><th>무료 컨텐츠</th><th style="width:150px">렌탈창 노출</th><th style="width:70px">관리</th></tr></thead><tbody>`;
+  let h=`<thead><tr><th>패키지명</th><th>단말기</th><th>기본 컨텐츠</th><th style="width:150px">렌탈창 노출</th><th style="width:70px">관리</th></tr></thead><tbody>`;
   PKG.forEach((p,i)=>h+=`<tr><td class="name">${p.name}</td><td>${p.dev}</td>
     <td style="text-align:left">${p.sw.map(s=>`<span>${s}</span>`).join(', ')} <span class="muted">(${p.sw.length}종)</span></td>
-    <td style="text-align:left">${(p.free&&p.free.length)?p.free.map(s=>`<span>${s}</span>`).join(', ')+` <span class="muted">(${p.free.length}종)</span>`:'<span class="muted">-</span>'}</td>
     <td>${p.show?'<span class="b s-done">보임</span>':'<span class="b cons">숨김</span>'}
       <button class="${p.show?'b-ghost':'b-pri'}" style="margin-left:6px;padding:3px 10px" onclick="togglePkgShow(${i})">${p.show?'숨김으로':'보임으로'}</button></td>
     <td><button class="b1" onclick="openPkgEdit(${i})">수정</button></td></tr>`);
@@ -3504,8 +3485,6 @@ function openPkgEdit(i){
       <tr><th>단말기</th><td>${p.dev} <span class="muted">(베트남 단일 단말기 · 기본 제공)</span></td></tr>
       <tr><th>기본 컨텐츠(SW)</th><td id="epSW">
         ${SW6.map(s=>`<label class="ckL"><input type="checkbox" value="${s}" ${p.sw.includes(s)?'checked':''}> ${s}</label>`).join('')}</td></tr>
-      <tr><th>무료 컨텐츠</th><td id="epFree">
-        ${SW6.map(s=>`<label class="ckL"><input type="checkbox" value="${s}" ${(p.free||[]).includes(s)?'checked':''}> ${s}</label>`).join('')}</td></tr>
       <tr><th>렌탈창 노출</th><td>
         <label class="radioL"><input type="radio" name="epShow" value="1" ${p.show?'checked':''}> 보임</label>
         <label class="radioL"><input type="radio" name="epShow" value="0" ${p.show?'':'checked'}> 숨김</label></td></tr>
@@ -3520,7 +3499,6 @@ function savePkgEdit(){
   const sw=[...document.querySelectorAll('#epSW input:checked')].map(x=>x.value);
   if(!sw.length){toast('기본 컨텐츠(SW)를 1개 이상 선택하세요');return;}
   p.name=name; p.sw=sw;
-  p.free=[...document.querySelectorAll('#epFree input:checked')].map(x=>x.value);
   p.show=document.querySelector('input[name=epShow]:checked').value==='1';
   closeModal(); renderPkg();
   toast(L('<b>'+name+'</b> 패키지 수정 완료','Đã sửa gói <b>'+name+'</b>'));
@@ -3538,24 +3516,23 @@ function addPkg(){
   const dev=[...document.querySelectorAll('#screen-pkg input[name=pkDev]')].find(x=>x.checked).value;
   const sw=[...document.querySelectorAll('#pkSW input:checked')].map(x=>x.value);
   if(!sw.length){toast('기본 컨텐츠(SW)를 1개 이상 선택하세요');return;}
-  const free=[...document.querySelectorAll('#pkFree input:checked')].map(x=>x.value);
   const show=document.querySelector('#screen-pkg input[name=pkShow]').checked;
-  PKG.unshift({name,dev,sw,free,show});
+  PKG.unshift({name,dev,sw,show});
   document.getElementById('pkName').value='';
-  document.querySelectorAll('#pkSW input, #pkFree input').forEach(x=>x.checked=false);
+  document.querySelectorAll('#pkSW input').forEach(x=>x.checked=false);
   renderPkg(); toast(L('<b>'+name+'</b> 패키지 등록 — 2-1 접수창 상품명에 노출',
     'Đã đăng ký gói <b>'+name+'</b> — hiển thị ở mục tên sản phẩm của cửa sổ tiếp nhận 2-1'));
 }
 
 /* ── 1-34 ② 가격 · 내부코드 관리 ───────────────────────────
    총액에 내부코드를 매핑해 둔다. 컨텐츠 조합과는 무관하며,
-   접수창에서 나온 총액이 여기에 있으면 그 코드가, 없으면 Promotion이 붙는다. */
+   접수창에서 나온 총액이 여기에 있으면 그 코드가, 없으면 WPR이 붙는다. */
 function renderPriceCode(){
   const el=document.getElementById('pcTable'); if(!el)return;
   let h=`<thead><tr><th style="width:26%">총액(VND)</th><th>내부코드</th><th>비고</th><th style="width:140px">노출</th><th style="width:70px">관리</th></tr></thead><tbody>`;
   if(!PRICECODE.length) h+=`<tr><td colspan="5" class="muted">등록된 가격이 없습니다</td></tr>`;
   PRICECODE.forEach((p,i)=>h+=`<tr><td style="text-align:right"><b>${won(p.amt)}</b></td>
-    <td><b style="color:${p.code==='Promotion'?'#c0392b':'var(--purple2)'}">${p.code}</b></td>
+    <td><b style="color:${p.code==='WPR'?'#c0392b':'var(--purple2)'}">${p.code}</b></td>
     <td class="muted" style="text-align:left">${p.note||'-'}</td>
     <td>${p.show?'<span class="b s-done">보임</span>':'<span class="b cons">숨김</span>'}
       <button class="${p.show?'b-ghost':'b-pri'}" style="margin-left:6px;padding:3px 10px" onclick="togglePcShow(${i})">${p.show?'숨김으로':'보임으로'}</button></td>
@@ -3566,7 +3543,7 @@ function addPriceCode(){
   const amt=+document.getElementById('pcAmt').value||0;
   if(!amt){toast('총액(VND)을 입력하세요');return;}
   if(PRICECODE.some(p=>p.amt===amt)){toast(L('이미 등록된 총액입니다 — <b>'+won(amt)+' ₫</b>','Tổng số tiền này đã được đăng ký — <b>'+won(amt)+' ₫</b>'));return;}
-  const code=document.getElementById('pcCode').value.trim()||'Promotion';
+  const code=document.getElementById('pcCode').value.trim()||'WPR';
   const note=document.getElementById('pcNote').value.trim();
   const show=document.querySelector('#screen-pkg input[name=pcShow]').checked;
   PRICECODE.unshift({amt,code,note,show});
@@ -3609,7 +3586,7 @@ function togglePcShow(i){
   const p=PRICECODE[i]; if(!p)return;
   p.show=!p.show;
   renderPriceCode();
-  toast(L('<b>'+won(p.amt)+' ₫</b> → '+(p.show?'보임':'숨김')+' — '+(p.show?'신규 계약에 내부코드 매칭됨':'신규 계약은 Promotion 처리 (기존 계약 코드는 유지)'),
+  toast(L('<b>'+won(p.amt)+' ₫</b> → '+(p.show?'보임':'숨김')+' — '+(p.show?'신규 계약에 내부코드 매칭됨':'신규 계약은 WPR 처리 (기존 계약 코드는 유지)'),
           '<b>'+won(p.amt)+' ₫</b> → '+(p.show?'hiển thị':'ẩn')));
 }
 
@@ -3674,7 +3651,7 @@ function renderContract(){
      <tr><th>총액(동)<br><span class="muted" id="ctTotalDesc">선납금 + 할부원금 − 할인금액</span></th>
          <td><input type="text" id="ctTotal" readonly style="background:#fff8e1;font-weight:800;color:#b8860b"></td>
          <th>내부코드<br><span class="muted">총액 매핑 (자동 · 관리자 전용)</span></th>
-         <td><input type="text" id="ctCode" readonly style="background:#f3f4f7;font-weight:700"> <span class="muted">계약서에는 출력되지 않습니다</span></td></tr>
+         <td><input type="text" id="ctCode" readonly style="background:#f3f4f7;font-weight:700"> <span class="muted">계약서 <b>Mã sản phẩm</b>에 출력됩니다</span></td></tr>
    </table></div>
    <div class="sec" style="margin-top:14px">계약서 미리보기
      <span style="float:right">
@@ -3723,7 +3700,7 @@ function updateContractCalc(){
   g('ctTotal').value=won(total)+' VND';
   const code=codeOfAmt(total);
   g('ctCode').value=code||'-';
-  g('ctCode').style.color=(code==='Promotion')?'#c0392b':'var(--purple2)';
+  g('ctCode').style.color=(code==='WPR')?'#c0392b':'var(--purple2)';
   ctMode(ct._view||ct.payType);
 }
 function ctMode(mode){
@@ -3782,6 +3759,7 @@ function contractDocHTML(ct,mode){
   <p style="margin:8px 0 2px"><b>ĐIỀU 1.</b> &nbsp;<b>NỘI DUNG HỢP ĐỒNG</b></p>
   <p style="margin:2px 0">Bên A cung cấp phần mềm <b>${lang}</b> Brainkey (gọi tắt là "Chương trình Brainkey") sử dụng vô thời hạn, được tích hợp trên thiết bị máy tính bảng <b>${ct.device}</b> (gọi tắt là "thiết bị") cho Bên B.</p>
   <p style="margin:2px 0">Cổng kết nối: Cổng sạc Type-C</p>
+  <p style="margin:2px 0">Mã sản phẩm: <b>${codeOfAmt(totalOfCt(ct))||'-'}</b></p>
   <p style="margin:10px 0 2px"><b>ĐIỀU 2.</b> &nbsp;<b>GIÁ TRỊ SẢN PHẨM VÀ PHƯƠNG THỨC THANH TOÁN</b></p>
   ${pay}
   <p style="margin:10px 0 2px"><b>ĐIỀU 3.</b> &nbsp;<b>HÌNH THỨC THANH TOÁN</b></p>
