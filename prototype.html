@@ -1144,7 +1144,7 @@ const VI_TEXT={
 'A. 회수 조건':'A. Điều kiện thu hồi','B. 분배 조건':'B. Điều kiện phân bổ',
 '① 분배일':'① Ngày phân loại','①-1 유입일':'①-1 Ngày nhập','② 성과그룹':'② Nhóm thành tích',
 '②-1 상담원':'②-1 Tư vấn viên','⑦ 지역':'⑦ Khu vực',
-'③-1 코드':'③-1 Mã','전체 선택':'Chọn tất cả','(0계열 ~ 9계열)':'(dòng 0 ~ dòng 9)','③-2 코드 제외':'③-2 Loại trừ mã','④ 계열':'④ Dòng DB',
+'③-1 코드':'③-1 Mã','새로 등록된 고객':'Khách hàng đăng ký mới','#':'#','전체 선택':'Chọn tất cả','(0계열 ~ 9계열)':'(dòng 0 ~ dòng 9)','③-2 코드 제외':'③-2 Loại trừ mã','④ 계열':'④ Dòng DB',
 '⑥ 회수제외 성과그룹':'⑥ Nhóm thành tích loại trừ thu hồi','⑥-1 회수제외 상담원':'⑥-1 Tư vấn viên loại trừ thu hồi',
 '추가':'Bổ sung','계열':'dòng DB','(1-2 DB 리스트의 DB계열 값)':'(giá trị cột dòng DB ở danh sách DB 1-2)',
 '조건에 맞는 데이터가 없습니다.':'Không có dữ liệu phù hợp điều kiện.',
@@ -2291,6 +2291,23 @@ function releaseSerialFrom(inv,keepNo){
   });
   return taken;
 }
+/* 중복 시리얼 알럿 — 기존에 같은 시리얼을 갖고 있던 고객의 고객명 · 연락처 · 주문키를 모두 보여준다.
+   파일 업로드처럼 여러 건이 한꺼번에 겹칠 수 있으므로 표 한 장에 전부 나열한다.
+   dups: [{inv, prev:[기존 보유 고객...], to:새로 등록된 고객}] */
+function serialDupAlert(dups){
+  const list=dups.flatMap(d=>d.prev.map(x=>({inv:normSerial(d.inv), x, to:d.to})));
+  if(!list.length) return;
+  const body=`<div class="hint" style="margin-top:0">아래 시리얼번호는 <b>이미 다른 고객에게 등록</b>돼 있었습니다.
+      <b>마지막 등록만 유효</b> 원칙에 따라 기존 고객의 시리얼은 <b>해제</b>되었고, 해당 건은 4-6 목록에 다시 나타납니다.</div>
+    <div style="max-height:360px;overflow:auto;border:1px solid var(--line);border-radius:6px">
+    <table class="list" style="border:none"><thead><tr>
+      <th style="width:40px">#</th><th>시리얼번호</th><th>고객명</th><th>연락처</th><th>주문키</th><th>새로 등록된 고객</th></tr></thead><tbody>
+      ${list.map((d,i)=>`<tr><td>${i+1}</td><td><b>${d.inv}</b></td><td class="name">${d.x.name}</td><td>${d.x.phone}</td>
+        <td class="muted">${orderKeyOf(d.x)}</td><td>${d.to.name} <span class="muted">(${orderKeyOf(d.to)})</span></td></tr>`).join('')}
+    </tbody></table></div>`;
+  openModal(L('이미 등록된 시리얼번호 — ','Số sê-ri đã được đăng ký — ')+list.length+L('건',' đơn'),
+    body,[btn(L('확인','Xác nhận'),'b-pri',closeModal)],true);
+}
 /* 고객키(주문키) — 프로토타입 전역 파생 규칙 */
 function orderKeyOf(r){return 'WV'+(17802773991303+r.no)+'OHWS';}
 /* 선납금 입금 + 시리얼 등록 둘 다 완료 시 자동 계약완료(3-10) */
@@ -2449,20 +2466,20 @@ function doShipOne(no){
   r.serial=inv; r.serialDate=r.serialDate||todayISO();
   const auto=autoComplete(r);
   renderList();renderShip();
-  if(taken.length) toast(L('동일 시리얼이 <b>'+taken.map(x=>x.name).join(', ')+'</b>에 등록돼 있어 <b>자동 해제</b>했습니다 — 마지막 등록만 유효',
-                           'Số sê-ri này đã đăng ký cho <b>'+taken.map(x=>x.name).join(', ')+'</b> nên đã <b>tự động gỡ</b> — chỉ đăng ký cuối cùng có hiệu lực'));
   toast(L(r.name+' 시리얼 등록 완료 — '+inv+' (시리얼)'+(auto?' · 시리얼+입금 완료 → <b>자동 계약완료</b>':'')+' — 4-6',
           'Đã đăng ký số sê-ri cho '+r.name+' — '+inv+' (Sê-ri)'+(auto?' · đủ sê-ri + nộp tiền → <b>tự động hoàn tất hợp đồng</b>':'')+' — 4-6'));
+  serialDupAlert([{inv,prev:taken,to:r}]);
 }
 function doShip(){
   const sel=[...document.querySelectorAll('.shipchk:checked')];
   if(!sel.length){toast('선택된 건이 없습니다');return;}
-  let n=0,auto=0,noInv=0,taken=0;
+  let n=0,auto=0,noInv=0,taken=0; const dups=[];
   sel.forEach(c=>{
     const r=rows.find(x=>x.no==c.dataset.no);
     const inv=(document.querySelector('.shipinv[data-no="'+r.no+'"]').value||'').trim();
     if(!inv){noInv++;return;}
-    taken+=releaseSerialFrom(inv,r.no).length;                  // 중복 시 직전 보유 건 자동 해제
+    const prev=releaseSerialFrom(inv,r.no);                     // 중복 시 직전 보유 건 자동 해제
+    taken+=prev.length; if(prev.length) dups.push({inv,prev,to:r});
     r.serial=inv; r.serialDate=r.serialDate||todayISO(); n++;   // 시리얼 등록일 = 배송완료일(위약금 기준)
     if(autoComplete(r))auto++;
   });
@@ -2470,6 +2487,7 @@ function doShip(){
   if(!n){toast('시리얼번호를 입력한 행만 등록됩니다');return;}
   toast(L('<b>'+n+'건</b> 시리얼 등록 완료 (시리얼)'+(auto?' · 시리얼+입금 완료 <b>'+auto+'건</b> 자동 계약완료':'')+(noInv?' · 시리얼번호 미입력 '+noInv+'건 제외':'')+(taken?' · <b>중복 '+taken+'건</b> 직전 등록 자동 해제':'')+' — 4-6',
           'Đã đăng ký số sê-ri cho <b>'+n+' đơn</b> (Sê-ri)'+(auto?' · <b>'+auto+' đơn</b> đủ sê-ri + nộp tiền nên tự động hoàn tất hợp đồng':'')+(noInv?' · loại trừ '+noInv+' đơn chưa nhập số sê-ri':'')+(taken?' · <b>'+taken+' đơn trùng</b> đã tự động gỡ đăng ký cũ':'')+' — 4-6'));
+  serialDupAlert(dups);
 }
 function addShipManual(){
   const key=document.getElementById('shipKey').value.trim();
@@ -2486,6 +2504,7 @@ function addShipManual(){
   document.getElementById('shipKey').value='';document.getElementById('shipInv').value='';
   renderList();renderShip();
   toast(''+msg);
+  serialDupAlert([{inv,prev:taken2,to:r}]);
 }
 function downloadShipTemplate(){
   buildAndDownloadXlsx(L('시리얼번호_업로드양식.xlsx','BieuMau_SoSeri.xlsx'),L('시리얼업로드','SoSeri'),
@@ -2494,18 +2513,20 @@ function downloadShipTemplate(){
 }
 function shipFileUpload(){
   pickXlsx(aoa=>{
-    let cnt=0,miss=0,dupCnt=0;
+    let cnt=0,miss=0,dupCnt=0; const dups=[];
     aoa.slice(1).forEach(row=>{
       const key=String(row[0]||'').trim(), inv=String(row[1]||'').trim();
       if(!key||!inv)return;
       const r=rows.find(x=>orderKeyOf(x)===key||String(x.no)===key);
       if(!r||r.locked){miss++;return;}
-      dupCnt+=releaseSerialFrom(inv,r.no).length;
+      const prev=releaseSerialFrom(inv,r.no);
+      dupCnt+=prev.length; if(prev.length) dups.push({inv,prev,to:r});
       r.serial=inv; r.serialDate=r.serialDate||todayISO(); autoComplete(r); cnt++;
     });
     renderList();renderShip();
     toast(L('엑셀 <b>'+cnt+'건</b> 시리얼 등록 완료'+(miss?' · 미매칭 '+miss+'건':'')+(dupCnt?' · <b>중복 '+dupCnt+'건</b> 직전 등록 자동 해제':'')+' (주문키·시리얼)',
             'Đã đăng ký số sê-ri từ Excel cho <b>'+cnt+' đơn</b>'+(miss?' · '+miss+' đơn không khớp':'')+(dupCnt?' · <b>'+dupCnt+' đơn trùng</b> đã gỡ đăng ký cũ':'')+' (mã đơn hàng · số sê-ri)'));
+    serialDupAlert(dups);
   });
 }
 
