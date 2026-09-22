@@ -482,7 +482,7 @@
         <div class="sec" style="margin-top:0">가격 · 내부코드 등록</div>
         <div class="frm"><table>
           <tr><th>총액(VND)</th><td><input type="number" id="pcAmt" placeholder="예: 14380000" style="width:180px"></td></tr>
-          <tr><th>내부코드</th><td><input type="text" id="pcCode" placeholder="예: A-01" style="width:180px">
+          <tr><th>내부코드</th><td><input type="text" id="pcCode" placeholder="예: WTKB" style="width:180px">
             <div class="muted" style="margin-top:4px">※ 관리자가 정한 표기를 그대로 입력합니다. 비워 두면 <b>WPR</b>으로 저장됩니다.</div></td></tr>
           <tr><th>비고</th><td><input type="text" id="pcNote" placeholder="예: 24 · 18 · 12개월 공통" style="width:100%"></td></tr>
           <tr><th>노출</th><td><label class="radioL"><input type="radio" name="pcShow" checked> 보임</label><label class="radioL"><input type="radio" name="pcShow"> 숨김</label></td></tr>
@@ -3440,9 +3440,9 @@ let PKG=[
 /* 가격 ↔ 내부코드 매핑 — 1-34에서 등록 · 수정 · 보임/숨김.
    아래 값은 화면 동작 확인용 예시일 뿐, 실제 값은 관리자가 운영하며 등록한다. */
 let PRICECODE=[
-  {amt:14380000, code:'A-01', note:'12 · 18 · 24개월 공통', show:true},
-  {amt:14080000, code:'A-02', note:'12개월 할인가', show:true},
-  {amt:11900000, code:'B-01', note:'일시불', show:true},
+  {amt:14380000, code:'WTKB', note:'12 · 18 · 24개월 공통', show:true},
+  {amt:14080000, code:'WTBS', note:'12개월 할인가', show:true},
+  {amt:11900000, code:'TKBS', note:'일시불', show:true},
 ];
 /* 총액 → 내부코드. 보임 상태 행과 정확히 일치할 때만 코드 부여, 없으면 WPR */
 function codeOfAmt(amt){
