@@ -582,7 +582,7 @@
   <div class="page reqscreen" id="screen-redist" style="display:none">
     <h2 class="ptitle">15-2-2 DB회수 재분배 관리 <span class="b s-canc">개선 요청</span></h2>
     <p class="pdesc">3사(국내) 레이아웃과 동일하게 적용. 회수조건에 국내와 같은 <b>코드 · 코드 제외 · 계열 · 회수제외 성과그룹 · 회수제외 상담원</b>을 넣고, 베트남 전용으로 <b>지역</b>을 추가. 분배조건은 <b>재콜그룹 → 성과그룹</b>으로 변경.</p>
-    <div class="hint">A. 회수조건: <b>③-1 코드 · ③-2 코드 제외 · ④ 계열 · ⑥ 회수제외 성과그룹 · ⑥-1 회수제외 상담원</b> 추가(국내 15-2-2와 동일 번호) · 기존 분배된 재콜 DB 중 <b>N회 분배된 재콜DB만 회수</b>(0회 디폴트) · <b>지역</b>(베트남 행정구역) 추가 · B. 분배조건: 분배대상/제외 <b>성과그룹</b><br>조건을 넣고 <b>⑫ 회수DB/분배지정 조회</b>를 누르면 아래 샘플 결과에 조건이 그대로 적용됩니다. <b>제외 조건은 포함 조건보다 우선</b>합니다.</div>
+    <div class="hint">A. 회수조건: <b>③-1 코드 · ③-2 코드 제외 · ④ 계열 · ⑥ 회수제외 성과그룹 · ⑥-1 회수제외 상담원</b> 추가(국내 15-2-2와 동일 번호) · 기존 분배된 재콜 DB 중 <b>N회 분배된 재콜DB만 회수</b>(0회 디폴트) · <b>지역</b>(베트남 행정구역) 추가 · B. 분배조건: 분배대상/제외 <b>성과그룹</b><br>조건을 넣고 <b>⑭ 분배하기</b>를 누르면 아래 샘플 결과에 조건이 그대로 적용됩니다. <b>제외 조건은 포함 조건보다 우선</b>합니다.</div>
     <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start">
       <!-- A. 회수조건 -->
       <div style="flex:1;min-width:380px;border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff">
@@ -623,7 +623,7 @@
         </table></div>
         <div style="margin-top:10px;text-align:center">
           <button class="b1" onclick="toast('분배현황 조회')">⑬ 분배현황 조회</button>
-          <button class="b-pri" onclick="renderRedist()">⑫ 회수DB/분배지정 조회</button>
+          <button class="b-amber" onclick="renderRedist()">⑭ 분배하기</button>
         </div>
       </div>
     </div>
@@ -1164,7 +1164,7 @@ const VI_TEXT={
 '⑪ 분배제외 성과그룹':'⑪ Nhóm thành tích loại trừ phân bổ',
 '⑪-1 분배제외 상담원':'⑪-1 Tư vấn viên loại trừ phân bổ',
 '(기존: 재콜그룹 0~9)':'(hiện tại: nhóm gọi lại 0~9)','분배일 선택':'Chọn ngày phân loại',
-'⑬ 분배현황 조회':'⑬ Tra cứu tình trạng phân bổ','⑫ 회수DB/분배지정 조회':'⑫ Tra cứu DB thu hồi / chỉ định phân bổ',
+'⑬ 분배현황 조회':'⑬ Tra cứu tình trạng phân bổ','⑭ 분배하기':'⑭ Phân bổ',
 '총 DB 분배수:':'Tổng số DB phân bổ:','이름':'họ tên','전화1':'điện thoại 1','전화2':'điện thoại 2',
 '전화3':'điện thoại 3','코드':'mã','성과그룹':'nhóm thành tích','지역':'khu vực',
 '분배상담원':'tư vấn viên được phân bổ',
@@ -4038,8 +4038,8 @@ function renderRedist(){
     <td>${s.mgr}</td><td>${s.mgrId}</td><td><b>${s.distMgr}</b></td></tr>`);
   document.getElementById('redistTable').innerHTML=h+'</tbody>';
   document.getElementById('redistTotal').textContent=list.length;
-  toast(L('회수DB/분배지정 조회 완료 — '+list.length+'건 / 샘플 '+REDIST_SAMPLE.length+'건'+(used.length?' · 적용: '+used.join(' · '):' · 조건 없음(전체)'),
-          'Đã tra cứu DB thu hồi / chỉ định phân bổ — '+list.length+' / '+REDIST_SAMPLE.length+' dòng'+(used.length?' · áp dụng: '+used.join(' · '):' · không điều kiện (toàn bộ)')));
+  toast(L('⑭ 분배하기 완료 — '+list.length+'건 / 샘플 '+REDIST_SAMPLE.length+'건'+(used.length?' · 적용: '+used.join(' · '):' · 조건 없음(전체)'),
+          '⑭ Đã phân bổ — '+list.length+' / '+REDIST_SAMPLE.length+' dòng'+(used.length?' · áp dụng: '+used.join(' · '):' · không điều kiện (toàn bộ)')));
 }
 
 /* ===== 검색·멀티체크 드롭다운 (회수/분배 조건) ===== */
