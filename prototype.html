@@ -163,6 +163,7 @@
   .msdd .opts label{display:flex;align-items:center;gap:6px;padding:4px 5px;border-radius:5px;cursor:pointer;font-size:12.5px;margin:0}
   .msdd .opts label:hover{background:#f3ecff}
   .msdd .opts label.hide{display:none}
+  .msdd .msall{display:flex;align-items:center;gap:6px;padding:4px 5px 7px;margin:0 0 4px;border-bottom:1px solid var(--line);cursor:pointer;font-size:12.5px}
   /* ===== 국내 CMS 스타일: 수기 등록 / 파일 업로드 ===== */
   .dm-panel{border:1px solid var(--line);background:#fff;padding:20px 18px;text-align:center;margin:0 0 10px;
     display:flex;flex-wrap:wrap;gap:8px 6px;align-items:center;justify-content:center}
@@ -213,22 +214,6 @@
     <p class="pdesc">고객 행의 <b>기능</b> 버튼을 클릭해 보세요. 상단 <b>로그인 권한</b>을 바꾸면 노출되는 버튼이 달라집니다(권한별 노출).</p>
 
     <div class="hint" id="listHint"></div>
-    <div class="hint"><b>2-1 개선 요청 3건 (요건서 21번)</b><br>
-      ① 분배일이 바뀌는 지점의 <b>회색 구분 행</b>은 화면에만 남고, <b>[DB 리스트 엑셀]에는 빈 행 없이</b> 데이터만 연속으로 나갑니다.<br>
-      ② 상담상태 옆 <b>(n) = 담당자가 남긴 상담이력 건수</b>. 아래 <b>상담이력 건수</b>로 거르고, <b>상담상태 헤더</b>를 눌러 건수순 정렬합니다. [상담]에서 이력을 저장하면 n이 1 올라갑니다.<br>
-      ③ 로그인 권한을 <b>매니저</b>로 바꾸면 <b>내 팀</b> 상담원의 DB만 보입니다(검색 · 건수 · 엑셀 모두 동일). 관리자는 전체.</div>
-    <div class="frm" style="margin-bottom:8px"><table>
-      <tr><th style="width:90px">상담상태</th>
-          <td><select id="fCons" onchange="renderList()"><option value="">-- 전체 --</option></select></td>
-          <th style="width:120px">상담이력 건수</th>
-          <td><input type="number" id="fNMin" min="0" placeholder="최소" style="width:70px" oninput="renderList()"> ~
-              <input type="number" id="fNMax" min="0" placeholder="최대" style="width:70px" oninput="renderList()">
-              <span class="muted">한쪽만 넣으면 이상 / 이하</span></td>
-          <td style="white-space:nowrap"><button class="b-ghost" onclick="resetListFilter()">검색 초기화</button></td></tr>
-      <tr id="teamRow"><th>내 팀</th>
-          <td colspan="4"><select id="fTeam" onchange="renderList()"><option value="1팀">1팀</option><option value="2팀">2팀</option></select>
-              <span class="muted">아웃바운드매니저는 <b>자기 팀 상담원</b>의 DB만 봅니다 — 판정: OB명 → 그 상담원의 1-3 팀</span></td></tr>
-    </table></div>
     <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <button class="b-ghost" id="colToggle" onclick="toggleListCols()">전체 컬럼 보기 (21)</button>
       <span class="muted">실운영 1-2는 컬럼이 21개입니다. 기본은 <b>핵심 컬럼</b>만 보여줍니다.</span>
@@ -241,6 +226,45 @@
     <table class="list" id="listTable" style="border:none">
       <thead id="listHead"></thead>
       <tbody id="rows"></tbody>
+    </table>
+    </div>
+    <div class="legend">
+      <span>배송/판매</span><span>해지 진행</span><span>계약요청/취소</span><span>종결</span>
+      <span style="margin-left:auto">※ 샘플 데이터 — 실제 동작 시연용</span>
+    </div>
+  </div>
+
+  <!-- ===== Screen: 2-1 고객상담 (OB CALL 목록) ===== -->
+  <div class="page" id="screen-oblist" style="display:none">
+    <h2 class="ptitle">2-1 고객상담 — OB CALL 목록 <span class="b s-canc">개선 요청</span></h2>
+    <p class="pdesc">상담원 · 매니저가 매일 보는 <b>OB CALL 목록</b>입니다. 요건서 <b>21번 개선 요청 3건</b>을 반영했습니다. 상단 <b>로그인 권한</b>을 <b>매니저</b>로 바꿔 보세요.</p>
+    <div class="hint" id="obRoleHint"></div>
+    <div class="hint"><b>개선 요청 3건 (요건서 21번)</b><br>
+      ① 분배일이 바뀌는 지점의 <b>회색 구분 행</b>은 화면에만 남고, <b>[화면다운로드] 엑셀에는 빈 행 없이</b> 데이터만 연속으로 나갑니다.<br>
+      ② 상담상태 옆 <b>(n) = 담당자가 남긴 상담이력 건수</b>. 아래 <b>상담이력 건수</b>로 거르고, <b>상담상태 헤더</b>를 눌러 건수순 정렬합니다. [상담]에서 이력을 저장하면 n이 1 올라갑니다.<br>
+      ③ 로그인 권한이 <b>매니저</b>(아웃바운드매니저)면 <b>내 팀</b> 상담원(아웃바운드)의 DB만 보입니다 — 목록 · 건수 · 검색 · 엑셀 모두 동일. 관리자는 전체.</div>
+    <div class="frm" style="margin-bottom:8px"><table>
+      <tr><th style="width:90px">상담상태</th>
+          <td><select id="fCons" onchange="renderObList()"><option value="">-- 전체 --</option></select></td>
+          <th style="width:120px">상담이력 건수</th>
+          <td><input type="number" id="fNMin" min="0" placeholder="최소" style="width:70px" oninput="renderObList()"> ~
+              <input type="number" id="fNMax" min="0" placeholder="최대" style="width:70px" oninput="renderObList()">
+              <span class="muted">한쪽만 넣으면 이상 / 이하</span></td>
+          <td style="white-space:nowrap"><button class="b-ghost" onclick="resetListFilter()">검색 초기화</button></td></tr>
+      <tr id="teamRow"><th>내 팀</th>
+          <td colspan="4"><select id="fTeam" onchange="renderObList()"><option value="1팀">1팀</option><option value="2팀">2팀</option></select>
+              <span class="muted">아웃바운드매니저는 <b>자기 팀 상담원</b>의 DB만 봅니다 — 판정: OB명 → 그 상담원의 1-3 팀</span></td></tr>
+    </table></div>
+    <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="b-ghost" id="obColToggle" onclick="toggleObCols()">전체 컬럼 보기 (21)</button>
+      <span class="muted">실운영 2-1은 컬럼이 21개입니다. 기본은 <b>핵심 컬럼</b>만 보여줍니다.</span>
+      <button class="b-amber" onclick="downloadObExcel()">화면다운로드</button>
+      <span class="muted">화면 조건 그대로 · <b>날짜 구분 공란 행 없이</b> · 상담이력수 컬럼 포함</span>
+    </div>
+    <div style="overflow-x:auto;border:1px solid var(--line);border-radius:8px">
+    <table class="list" id="obTable" style="border:none">
+      <thead id="obHead"></thead>
+      <tbody id="obRows"></tbody>
     </table>
     </div>
     <div class="muted" id="listCount" style="margin:6px 2px 0"></div>
@@ -527,8 +551,8 @@
   <!-- ===== Screen: 15-2-2 DB 재분배 관리 ===== -->
   <div class="page reqscreen" id="screen-redist" style="display:none">
     <h2 class="ptitle">15-2-2 DB회수 재분배 관리 <span class="b s-canc">개선 요청</span></h2>
-    <p class="pdesc">3사(국내) 레이아웃과 동일하게 적용. <b>차이점</b>: 회수조건에 <b>지역</b> 추가, 분배조건의 <b>재콜그룹 → 성과그룹</b>으로 변경.</p>
-    <div class="hint">A. 회수조건: 기존 분배된 재콜 DB 중 <b>N회 분배된 재콜DB만 회수</b>(0회 디폴트) · <b>지역</b>(베트남 행정구역) 추가 · B. 분배조건: 분배대상/제외 <b>성과그룹</b></div>
+    <p class="pdesc">3사(국내) 레이아웃과 동일하게 적용. 회수조건에 국내와 같은 <b>코드 · 코드 제외 · 계열 · 회수제외 성과그룹 · 회수제외 상담원</b>을 넣고, 베트남 전용으로 <b>지역</b>을 추가. 분배조건은 <b>재콜그룹 → 성과그룹</b>으로 변경.</p>
+    <div class="hint">A. 회수조건: <b>③-1 코드 · ③-2 코드 제외 · ④ 계열 · ⑥ 회수제외 성과그룹 · ⑥-1 회수제외 상담원</b> 추가(국내 15-2-2와 동일 번호) · 기존 분배된 재콜 DB 중 <b>N회 분배된 재콜DB만 회수</b>(0회 디폴트) · <b>지역</b>(베트남 행정구역) 추가 · B. 분배조건: 분배대상/제외 <b>성과그룹</b><br>조건을 넣고 <b>⑫ 회수DB/분배지정 조회</b>를 누르면 아래 샘플 결과에 조건이 그대로 적용됩니다. <b>제외 조건은 포함 조건보다 우선</b>합니다.</div>
     <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start">
       <!-- A. 회수조건 -->
       <div style="flex:1;min-width:380px;border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff">
@@ -538,6 +562,11 @@
           <tr><th>①-1 유입일</th><td><input type="date"> ~ <input type="date"></td></tr>
           <tr><th>② 성과그룹 <span class="b s-canc">검색·멀티</span></th><td><span id="msRcGrp"></span></td></tr>
           <tr><th>②-1 상담원 <span class="b s-canc">검색·멀티</span></th><td><span id="msRcAgent"></span></td></tr>
+          <tr><th>③-1 코드 <span class="b s-canc">추가</span></th><td><input type="text" id="rcCode" placeholder="예: gfa,gdn" style="width:100%"><div class="muted">여러 개는 <b>,</b>로 구분 — 입력한 코드의 DB만 회수</div></td></tr>
+          <tr><th>③-2 코드 제외 <span class="b s-canc">추가</span></th><td><input type="text" id="rcCodeEx" placeholder="예: gdn" style="width:100%"><div class="muted">여러 개는 <b>,</b>로 구분 — 입력한 코드의 DB는 회수 제외</div></td></tr>
+          <tr><th>④ 계열 <span class="b s-canc">추가·검색·멀티</span></th><td><span id="msRcLine"></span> <span class="muted">(0계열 ~ 9계열)</span></td></tr>
+          <tr><th>⑥ 회수제외 성과그룹 <span class="b s-canc">추가·검색·멀티</span></th><td><span id="msRcExGrp"></span></td></tr>
+          <tr><th>⑥-1 회수제외 상담원 <span class="b s-canc">추가·검색·멀티</span></th><td><span id="msRcExAgent"></span></td></tr>
           <tr><th>⑦ 지역 <span class="b s-canc">추가·검색·멀티</span></th><td><span id="msRcRegion"></span></td></tr>
           <tr><th>임시저장 회수</th><td><select><option>미회수</option><option>회수 포함</option></select></td></tr>
           <tr><th>기타 조건</th><td>
@@ -809,7 +838,7 @@ const VI_TEXT={
 '중도해지(위약금)':'Chấm dứt trước hạn (phí phạt)',
 '기기반납':'Trả lại thiết bị','위약금':'Phí phạt','할부':'Trả góp','구매':'Trả thẳng',
 '할부금':'Tiền trả góp','선납금':'Tiền trả trước',
-'통화(1)':'Cuộc gọi (1)','통화':'Cuộc gọi','부재':'Vắng mặt','상담이력 건수':'Số lịch sử tư vấn','상담이력수':'Số lịch sử tư vấn','내 팀':'Nhóm của tôi','검색 초기화':'Đặt lại tìm kiếm','한쪽만 넣으면 이상 / 이하':'Nhập một đầu = từ / đến','최소':'Tối thiểu','최대':'Tối đa','1팀':'Nhóm 1','2팀':'Nhóm 2','OB명':'Tên OB','구매_현금(COD)':'Trả thẳng_tiền mặt (COD)','할부_현금(COD)':'Trả góp_tiền mặt (COD)',
+'통화(1)':'Cuộc gọi (1)','통화':'Cuộc gọi','부재':'Vắng mặt','상담이력 건수':'Số lịch sử tư vấn','상담이력수':'Số lịch sử tư vấn','내 팀':'Nhóm của tôi','화면다운로드':'Tải màn hình','OB CALL 목록':'Danh sách OB CALL','검색 초기화':'Đặt lại tìm kiếm','한쪽만 넣으면 이상 / 이하':'Nhập một đầu = từ / đến','최소':'Tối thiểu','최대':'Tối đa','1팀':'Nhóm 1','2팀':'Nhóm 2','OB명':'Tên OB','구매_현금(COD)':'Trả thẳng_tiền mặt (COD)','할부_현금(COD)':'Trả góp_tiền mặt (COD)',
 '상담/계약확정':'Tư vấn/Xác nhận hợp đồng','없음':'Không có','렌탈':'Thuê','말일':'ngày cuối tháng','10일':'ngày 10',
 '계약중':'Đang hiệu lực','계약종료':'Đã kết thúc','일시정지':'Tạm dừng','미납':'Nợ quá hạn',
 '가상계좌':'Tài khoản ảo','계좌이체':'Chuyển khoản','보임':'Hiển thị','숨김':'Ẩn',
@@ -1085,6 +1114,10 @@ const VI_TEXT={
 'A. 회수 조건':'A. Điều kiện thu hồi','B. 분배 조건':'B. Điều kiện phân bổ',
 '① 분배일':'① Ngày phân loại','①-1 유입일':'①-1 Ngày nhập','② 성과그룹':'② Nhóm thành tích',
 '②-1 상담원':'②-1 Tư vấn viên','⑦ 지역':'⑦ Khu vực',
+'③-1 코드':'③-1 Mã','전체 선택':'Chọn tất cả','(0계열 ~ 9계열)':'(dòng 0 ~ dòng 9)','③-2 코드 제외':'③-2 Loại trừ mã','④ 계열':'④ Dòng DB',
+'⑥ 회수제외 성과그룹':'⑥ Nhóm thành tích loại trừ thu hồi','⑥-1 회수제외 상담원':'⑥-1 Tư vấn viên loại trừ thu hồi',
+'추가':'Bổ sung','계열':'dòng DB','(1-2 DB 리스트의 DB계열 값)':'(giá trị cột dòng DB ở danh sách DB 1-2)',
+'조건에 맞는 데이터가 없습니다.':'Không có dữ liệu phù hợp điều kiện.',
 '검색·멀티':'Tìm kiếm · nhiều lựa chọn','추가·검색·멀티':'Bổ sung · tìm kiếm · nhiều lựa chọn',
 '변경·검색·멀티':'Thay đổi · tìm kiếm · nhiều lựa chọn',
 '임시저장 회수':'Thu hồi DB lưu tạm','미회수':'Không thu hồi','회수 포함':'Bao gồm thu hồi',
@@ -1427,6 +1460,8 @@ function updateHint(){
     ? '<span>권한으로 로그인 중</span> <b>'+role+'</b>'
     : '<b>'+role+'</b> <span>권한으로 로그인 중</span>';
   document.getElementById('listHint').innerHTML=head+' — <span>'+tips[role]+'</span>';
+  const ob=document.getElementById('obRoleHint');
+  if(ob) ob.innerHTML=head+' — <span>'+(role==='매니저'?'2-1에서는 <b>내 팀</b> 상담원의 DB만 보입니다.':'2-1 OB CALL 목록 — 권한별 노출은 1-2와 동일')+'</span>';
 }
 
 /* ================= action map (state machine) ================= */
@@ -1456,13 +1491,25 @@ function actionsFor(r){
 
 /* 1-2 고객관리 DB 리스트 엑셀 — 관리자/매니저만. 내부코드 컬럼 포함 */
 function downloadDbExcel(){
-  /* 화면과 같은 행 집합(권한 범위 + 검색 + 정렬). 분배일 구분 행은 데이터가 아니므로 애초에 없다 */
-  const vis=visibleRows();
-  const header=['번호','주문키','OB명','분배일','고객명','전화번호','접수제품','내부코드','결제방식','상담상태','상담이력수','고객상태'].map(X);
-  const data=vis.map(r=>[r.no,orderKeyOf(r),r.ob,r.distDate,r.name,r.phone,X(r.product),pkgCodeOf(r),X(r.pay),X(r.cons),consN(r),X(displayState(r))]);
+  const header=['번호','주문키','고객명','전화번호','접수제품','내부코드','결제방식','상담상태','고객상태'].map(X);
+  const data=rows.map(r=>[r.no,orderKeyOf(r),r.name,r.phone,X(r.product),pkgCodeOf(r),X(r.pay),X(r.cons),X(displayState(r))]);
   buildAndDownloadXlsx(L('DB리스트_베트남_','DanhSachDB_VietNam_')+stamp()+'.xlsx',L('DB리스트','DanhSachDB'),header,data);
-  toast(L('DB 리스트 엑셀 다운로드 — '+vis.length+'건 · 날짜 구분 공란 행 없음 · 상담이력수 컬럼 포함',
-          'Đã tải Excel danh sách DB — '+vis.length+' dòng · không có dòng trống phân cách ngày · có cột số lịch sử tư vấn'));
+  toast(L('DB 리스트 엑셀 다운로드 — '+rows.length+'건 (내부코드 컬럼 포함)',
+          'Đã tải Excel danh sách DB — '+rows.length+' dòng (bao gồm cột mã nội bộ)'));
+}
+/* 2-1 OB CALL 목록 [화면다운로드] — 화면과 같은 행 집합(권한 범위 + 검색 + 정렬).
+   분배일 구분 행은 화면 장식일 뿐 데이터가 아니므로 엑셀에 넣지 않는다 */
+function obExcelData(){
+  const vis=visibleRows();
+  const header=['No','OB명','분배일','유입일','고객명','고객전화번호','오더일','접수 제품','상담상태','상담이력수','고객상태'].map(X);
+  const data=vis.map(r=>[r.no,r.ob,r.distDate,r.inDate,r.name,r.phone,r.orderDate,X(r.product),X(r.cons),consN(r),X(displayState(r))]);
+  return {header,data};
+}
+function downloadObExcel(){
+  const {header,data}=obExcelData();
+  buildAndDownloadXlsx(L('OBCALL목록_베트남_','DanhSachOBCALL_VietNam_')+stamp()+'.xlsx',L('OB CALL 목록','DanhSachOBCALL'),header,data);
+  toast(L('화면다운로드 — '+data.length+'건 · 날짜 구분 공란 행 없음 · 상담이력수 컬럼 포함',
+          'Tải màn hình — '+data.length+' dòng · không có dòng trống phân cách ngày · có cột số lịch sử tư vấn'));
 }
 
 /* ================= render list =================
@@ -1512,10 +1559,10 @@ function scopedRows(){
    (n) = 담당자가 그 DB에 남긴 상담이력 건수. 상담상태 이름은 최근 이력의 상태. */
 let consSort=0;   // 0: 기본(분배일순) · 1: 건수 오름차순 · -1: 건수 내림차순
 const consN=r=>+r.consN||0;
-function toggleConsSort(){ consSort = consSort===0?-1 : consSort===-1?1 : 0; renderList(); }
+function toggleConsSort(){ consSort = consSort===0?-1 : consSort===-1?1 : 0; renderObList(); }
 function resetListFilter(){
   ['fCons','fNMin','fNMax'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
-  consSort=0; renderList();
+  consSort=0; renderObList();
 }
 function visibleRows(){
   const g=id=>{const el=document.getElementById(id); return el?el.value:'';};
@@ -1538,6 +1585,17 @@ function fillConsOptions(){
 }
 let listAll=false;
 function toggleListCols(){ listAll=!listAll; renderList(); }
+/* 행 1개 — 1-2 · 2-1 공용 (기능 버튼 포함) */
+function listRow(cols,r){
+  const tr=document.createElement('tr');
+  tr.innerHTML=cols.map(c=>`<td${c.cls?' class="'+c.cls+'"':''}>${c.cell(r)}</td>`).join('')
+    +'<td class="stick"><div class="acts"></div></td>';
+  const box=tr.querySelector('.acts');
+  actionsFor(r).forEach(([label,cls,fn])=>{
+    const b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=fn;box.appendChild(b);});
+  return tr;
+}
+/* 1-2 고객관리 DB 리스트 — 현행 그대로 */
 function renderList(){
   const w=document.getElementById('dbExcelWrap');
   if(w) w.style.display=['관리자','매니저','재무담당자'].includes(role)?'inline':'none';
@@ -1547,14 +1605,31 @@ function renderList(){
   const btn=document.getElementById('colToggle');
   if(btn) btn.textContent=listAll?L('핵심 컬럼만 보기','Chỉ xem cột chính'):L('전체 컬럼 보기 (21)','Xem toàn bộ cột (21)');
   document.getElementById('listHead').innerHTML=
+    '<tr>'+cols.map(c=>`<th>${c.h}</th>`).join('')+'<th class="stick" style="width:150px">기능</th></tr>';
+  const tb=document.getElementById('rows'); tb.innerHTML='';
+  rows.forEach(r=>tb.appendChild(listRow(cols,r)));
+  renderObList();   // 같은 데이터를 쓰는 2-1 목록도 함께 갱신
+}
+/* 2-1 고객상담 — OB CALL 목록 (요건서 21번 개선 3건 반영) */
+let obAll=false;
+function toggleObCols(){ obAll=!obAll; renderObList(); }
+function renderObList(){
+  const head=document.getElementById('obHead'), tb=document.getElementById('obRows');
+  if(!head||!tb) return;
+  const cols=LIST_COLS.filter(c=>obAll||c.core);
+  const tbl=document.getElementById('obTable');
+  if(tbl) tbl.style.minWidth=obAll?'1980px':'0';
+  const btn=document.getElementById('obColToggle');
+  if(btn) btn.textContent=obAll?L('핵심 컬럼만 보기','Chỉ xem cột chính'):L('전체 컬럼 보기 (21)','Xem toàn bộ cột (21)');
+  head.innerHTML=
     '<tr>'+cols.map(c=>c.sort
       ? `<th style="cursor:pointer;white-space:nowrap" title="상담이력 건수로 정렬" onclick="toggleConsSort()">${c.h} ${consSort===1?'▲':consSort===-1?'▼':'↕'}</th>`
       : `<th>${c.h}</th>`).join('')+'<th class="stick" style="width:150px">기능</th></tr>';
-  const tb=document.getElementById('rows'); tb.innerHTML='';
+  tb.innerHTML='';
   const tRow=document.getElementById('teamRow'); if(tRow) tRow.style.display=role==='매니저'?'':'none';
   fillConsOptions();
   const vis=visibleRows(), scope=scopedRows();
-  /* 2-1 개선 ① — 분배일이 바뀌는 지점에 회색 구분 행(화면 전용). 엑셀에는 넣지 않는다.
+  /* ① 분배일이 바뀌는 지점에 회색 구분 행(화면 전용). 엑셀에는 넣지 않는다.
      건수 정렬 중에는 날짜 묶음이 깨지므로 구분 행을 그리지 않는다. */
   let prevDate=null;
   if(!vis.length){ tb.innerHTML='<tr><td colspan="'+(cols.length+1)+'" class="muted">'+L('조건에 맞는 DB가 없습니다','Không có DB phù hợp điều kiện')+'</td></tr>'; }
@@ -1565,13 +1640,7 @@ function renderList(){
       tb.appendChild(d);
     }
     prevDate=r.distDate;
-    const tr=document.createElement('tr');
-    tr.innerHTML=cols.map(c=>`<td${c.cls?' class="'+c.cls+'"':''}>${c.cell(r)}</td>`).join('')
-      +'<td class="stick"><div class="acts"></div></td>';
-    const box=tr.querySelector('.acts');
-    actionsFor(r).forEach(([label,cls,fn])=>{
-      const b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=fn;box.appendChild(b);});
-    tb.appendChild(tr);
+    tb.appendChild(listRow(cols,r));
   });
   const cnt=document.getElementById('listCount');
   if(cnt) cnt.innerHTML=L('표시 <b>'+vis.length+'건</b>','Hiển thị <b>'+vis.length+' dòng</b>')
@@ -3878,45 +3947,86 @@ function printContract(){
 }
 
 /* ================= 15-2-2 DB 재분배 관리 ================= */
+/* 회수 대상 샘플 — 코드 · 계열 · 성과그룹 · 상담원 · 지역이 섞이도록 구성 */
+const REDIST_SAMPLE=[
+  {key:'WV1773122654493',name:'Nguyễn Văn An',p1:'0901234567',p2:'-',p3:'-',code:'gfa',line:'3계열',inflow:'2026-06-20',grp:'R그룹',region:'Hà Nội',mgr:'Trần Văn Minh',mgrId:'minh01',distMgr:'Lê Thị Hoa'},
+  {key:'WV1773122654512',name:'Phạm Thị Bình',p1:'0912345678',p2:'-',p3:'-',code:'gdn',line:'4계열',inflow:'2026-06-21',grp:'S그룹',region:'Miền Nam',mgr:'Lê Thị Hoa',mgrId:'hoa02',distMgr:'Phạm Văn Đức'},
+  {key:'WV1773122654533',name:'Trần Quốc Cường',p1:'0987654321',p2:'-',p3:'-',code:'gfa',line:'4계열',inflow:'2026-06-22',grp:'A그룹',region:'Miền Trung',mgr:'Phạm Văn Đức',mgrId:'duc03',distMgr:'Trần Văn Minh'},
+  {key:'WV1773122654561',name:'Hoàng Thị Thu',p1:'0934567812',p2:'-',p3:'-',code:'gdn',line:'0계열',inflow:'2026-06-22',grp:'B그룹',region:'Miền Bắc',mgr:'Hoàng Thị Mai',mgrId:'mai04',distMgr:'Lê Thị Hoa'},
+  {key:'WV1773122654578',name:'Đặng Quang Huy',p1:'0945671238',p2:'-',p3:'-',code:'gfa',line:'7계열',inflow:'2026-06-23',grp:'C그룹',region:'Khu vực phía Tây',mgr:'Đặng Thị Lan',mgrId:'lan05',distMgr:'Phạm Văn Đức'},
+  {key:'WV1773122654590',name:'Vũ Thị Hạnh',p1:'0956712384',p2:'-',p3:'-',code:'gdn',line:'9계열',inflow:'2026-06-24',grp:'H그룹',region:'Hà Nội',mgr:'Nguyễn Văn An',mgrId:'an06',distMgr:'Trần Văn Minh'},
+];
+const codeList=id=>{const el=document.getElementById(id);return el?el.value.split(',').map(x=>x.trim()).filter(Boolean):[];};
+/* A. 회수조건 적용 — 제외 조건(③-2 · ⑥ · ⑥-1)은 포함 조건보다 우선 */
+function redistPick(){
+  const inc={grp:msGet('msRcGrp'), mgr:msGet('msRcAgent'), region:msGet('msRcRegion'), line:msGet('msRcLine'), code:codeList('rcCode')};
+  const exc={code:codeList('rcCodeEx'), grp:msGet('msRcExGrp'), mgr:msGet('msRcExAgent')};
+  const list=REDIST_SAMPLE.filter(s=>
+    (!inc.grp.length    || inc.grp.includes(s.grp)) &&
+    (!inc.mgr.length    || inc.mgr.includes(s.mgr)) &&
+    (!inc.region.length || inc.region.includes(s.region)) &&
+    (!inc.line.length   || inc.line.includes(s.line)) &&
+    (!inc.code.length   || inc.code.includes(s.code)) &&
+    !exc.code.includes(s.code) && !exc.grp.includes(s.grp) && !exc.mgr.includes(s.mgr));
+  const used=[];
+  if(inc.code.length)   used.push(L('코드 ','mã ')+inc.code.join(','));
+  if(exc.code.length)   used.push(L('코드 제외 ','loại trừ mã ')+exc.code.join(','));
+  if(inc.line.length)   used.push(inc.line.length===MS_LINES.length?L('계열 전체','toàn bộ dòng'):L('계열 ','dòng ')+inc.line.join(','));
+  if(inc.grp.length)    used.push(L('성과그룹 ','nhóm ')+inc.grp.join(','));
+  if(exc.grp.length)    used.push(L('회수제외 성과그룹 ','loại trừ nhóm ')+exc.grp.join(','));
+  if(inc.mgr.length)    used.push(L('상담원 ','TVV ')+inc.mgr.length+L('명',''));
+  if(exc.mgr.length)    used.push(L('회수제외 상담원 ','loại trừ TVV ')+exc.mgr.length+L('명',''));
+  if(inc.region.length) used.push(L('지역 ','khu vực ')+inc.region.join(','));
+  return {list, used};
+}
 function renderRedist(){
-  const sample=[
-    {key:'WV1773122654493',name:'Nguyễn Văn An',p1:'0901234567',p2:'-',p3:'-',code:'재콜',inflow:'2026-06-20',grp:'R그룹',region:'Hà Nội',mgr:'Trần Văn Minh',mgrId:'minh01',distMgr:'Lê Thị Hoa'},
-    {key:'WV1773122654512',name:'Phạm Thị Bình',p1:'0912345678',p2:'-',p3:'-',code:'재콜',inflow:'2026-06-21',grp:'S그룹',region:'Miền Nam',mgr:'Lê Thị Hoa',mgrId:'hoa02',distMgr:'Phạm Văn Đức'},
-    {key:'WV1773122654533',name:'Trần Quốc Cường',p1:'0987654321',p2:'-',p3:'-',code:'부재재콜',inflow:'2026-06-22',grp:'A그룹',region:'Miền Trung',mgr:'Phạm Văn Đức',mgrId:'duc03',distMgr:'Trần Văn Minh'},
-  ];
-  let h=`<thead><tr><th>고객키</th><th>이름</th><th>전화1</th><th>전화2</th><th>전화3</th><th>코드</th><th>유입일</th>
+  const {list, used}=redistPick();
+  let h=`<thead><tr><th>고객키</th><th>이름</th><th>전화1</th><th>전화2</th><th>전화3</th><th>코드</th><th>계열</th><th>유입일</th>
     <th>성과그룹</th><th>지역</th><th>상담원</th><th>상담원ID</th><th>분배상담원</th></tr></thead><tbody>`;
-  sample.forEach(s=>h+=`<tr><td>${s.key}</td><td class="name">${s.name}</td><td>${s.p1}</td><td>${s.p2}</td><td>${s.p3}</td>
-    <td><span class="b cons">${s.code}</span></td><td>${s.inflow}</td><td>${s.grp}</td><td>${s.region}</td>
+  if(!list.length) h+=`<tr><td colspan="13" class="muted">${L('조건에 맞는 데이터가 없습니다.','Không có dữ liệu phù hợp điều kiện.')}</td></tr>`;
+  list.forEach(s=>h+=`<tr><td>${s.key}</td><td class="name">${s.name}</td><td>${s.p1}</td><td>${s.p2}</td><td>${s.p3}</td>
+    <td><span class="b cons">${s.code}</span></td><td>${s.line}</td><td>${s.inflow}</td><td>${s.grp}</td><td>${s.region}</td>
     <td>${s.mgr}</td><td>${s.mgrId}</td><td><b>${s.distMgr}</b></td></tr>`);
   document.getElementById('redistTable').innerHTML=h+'</tbody>';
-  document.getElementById('redistTotal').textContent=sample.length;
-  toast(L('회수DB/분배지정 조회 완료 — '+sample.length+'건 (지역·성과그룹 기준)',
-          'Đã tra cứu DB thu hồi / chỉ định phân bổ — '+sample.length+' dòng (theo khu vực · nhóm thành tích)'));
+  document.getElementById('redistTotal').textContent=list.length;
+  toast(L('회수DB/분배지정 조회 완료 — '+list.length+'건 / 샘플 '+REDIST_SAMPLE.length+'건'+(used.length?' · 적용: '+used.join(' · '):' · 조건 없음(전체)'),
+          'Đã tra cứu DB thu hồi / chỉ định phân bổ — '+list.length+' / '+REDIST_SAMPLE.length+' dòng'+(used.length?' · áp dụng: '+used.join(' · '):' · không điều kiện (toàn bộ)')));
 }
 
 /* ===== 검색·멀티체크 드롭다운 (회수/분배 조건) ===== */
 const MS_GROUPS=['R그룹','S그룹','A그룹','B그룹','C그룹','H그룹'];
 const MS_AGENTS=['Trần Văn Minh','Lê Thị Hoa','Phạm Văn Đức','Nguyễn Văn An','Hoàng Thị Mai','Đặng Thị Lan'];
 const MS_REGIONS=['Hà Nội','Miền Bắc','Miền Trung','Miền Nam','Khu vực phía Tây','Khu vực cao nguyên miền Trung','Khác'];
+const MS_LINES=Array.from({length:10},(_,i)=>i+'계열');   // 계열 — 0계열 ~ 9계열
 function msHTML(id,opts){
   return `<div class="msdd" id="${id}">
     <div class="box" onclick="msToggle('${id}')"><span class="ph">- 선택 -</span></div>
     <div class="panel" onclick="event.stopPropagation()">
       <input class="srch" placeholder="일부 단어 검색" oninput="msFilter('${id}',this.value)">
+      <label class="msall"><input type="checkbox" onchange="msAllToggle('${id}',this.checked)"> <b>전체 선택</b></label>
       <div class="opts">${opts.map(o=>`<label><input type="checkbox" value="${o}" onchange="msSync('${id}')"> ${o}</label>`).join('')}</div>
     </div></div>`;
 }
 function msToggle(id){const el=document.getElementById(id);document.querySelectorAll('.msdd.open').forEach(x=>{if(x!==el)x.classList.remove('open');});el.classList.toggle('open');}
 function msFilter(id,q){q=(q||'').toLowerCase();document.querySelectorAll('#'+id+' .opts label').forEach(l=>{l.classList.toggle('hide',!l.textContent.toLowerCase().includes(q));});}
+/* 전체 선택 — 검색으로 걸러진 상태면 보이는 항목만 켜고 끈다 */
+function msAllToggle(id,on){
+  document.querySelectorAll('#'+id+' .opts label:not(.hide) input').forEach(x=>x.checked=on);
+  msSync(id);
+}
 function msSync(id){
   const el=document.getElementById(id);
-  const chk=[...el.querySelectorAll('.opts input:checked')].map(x=>x.value);
-  el.querySelector('.box').innerHTML = chk.length? chk.map(v=>`<span class="tag">${v}</span>`).join('') : `<span class="ph">- 선택 -</span>`;
+  const all=[...el.querySelectorAll('.opts input')];
+  const chk=all.filter(x=>x.checked).map(x=>x.value);
+  const ca=el.querySelector('.msall input');
+  if(ca){ ca.checked=chk.length===all.length; ca.indeterminate=chk.length>0&&chk.length<all.length; }
+  el.querySelector('.box').innerHTML = !chk.length ? `<span class="ph">- 선택 -</span>`
+    : chk.length===all.length ? `<span class="tag">${L('전체','Tất cả')} (${all.length})</span>`
+    : chk.map(v=>`<span class="tag">${v}</span>`).join('');
 }
 function msGet(id){return [...document.querySelectorAll('#'+id+' .opts input:checked')].map(x=>x.value);}
 function initRedistFilters(){
-  const map={msRcGrp:MS_GROUPS,msRcAgent:MS_AGENTS,msRcRegion:MS_REGIONS,
+  const map={msRcGrp:MS_GROUPS,msRcAgent:MS_AGENTS,msRcRegion:MS_REGIONS,msRcLine:MS_LINES,msRcExGrp:MS_GROUPS,msRcExAgent:MS_AGENTS,
     msDsGrp:MS_GROUPS,msDsAgent:MS_AGENTS,msExGrp:MS_GROUPS,msExAgent:MS_AGENTS};
   Object.keys(map).forEach(id=>{const host=document.getElementById(id);if(host&&!host.classList.contains('msdd'))host.outerHTML=msHTML(id,map[id]);});
 }
@@ -3991,7 +4101,7 @@ const MENUS=[
     {n:'1-34 패키지 구성 관리', s:'pkg', badge:'개선'},
   ]},
   {t:'2 OUT-BOUND', subs:[
-    {n:'2-1 고객상담', info:'고객 상담은 1-2 고객관리 리스트의 [상담] 버튼으로 진행됩니다.'},
+    {n:'2-1 고객상담', s:'oblist', badge:'개선'},
   ]},
   {t:'3 결제관리', subs:[
     {n:'3-1 결제', s:'approve', badge:'신규'},{n:'3-2 결제 변경'},{n:'3-3 결제 내역 확인'},
@@ -4034,7 +4144,8 @@ function navTo(i,j){
 }
 /* ================= screens ================= */
 function showScreen(s){
-  ['list','approve','deliver','ship','pay','complete','refund','upload','members','memberDetail','rptUnpaid','rptDeposit','overdue','pkg','contract','redist'].forEach(x=>document.getElementById('screen-'+x).style.display=(x===s?'block':'none'));
+  ['list','oblist','approve','deliver','ship','pay','complete','refund','upload','members','memberDetail','rptUnpaid','rptDeposit','overdue','pkg','contract','redist'].forEach(x=>document.getElementById('screen-'+x).style.display=(x===s?'block':'none'));
+  if(s==='oblist')renderObList();
   if(s==='approve')renderApprove();
   if(s==='deliver')renderDeliver();
   if(s==='ship')renderShip();
