@@ -69,6 +69,14 @@
   .s-work{background:#f3ecff;color:#7a4dd0}
   .s-end{background:#3a3f47;color:#fff}
   .cons{background:#eef1f5;color:#555}
+  .obsrch{border:1px solid var(--line);background:#fff;border-radius:6px;padding:9px 12px;margin-bottom:5px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:center;font-size:12.5px}
+  .obsrch label.f{display:inline-flex;align-items:center;gap:5px;margin:0;white-space:nowrap}
+  .obsrch input[type=text]{width:130px}
+  .obsrch input[type=date]{width:128px}
+  .obsrch label.f.new{outline:2px solid #e8a33d;outline-offset:2px;border-radius:6px;background:#fff8e8;padding:2px 6px}
+  .obsrch .btns{display:inline-flex;gap:4px;align-items:center;flex-wrap:wrap}
+  .b-green{background:#e6f6ee;color:var(--green);border-color:#a9dcc2;font-weight:700}
+  .demo{border:1px dashed #b9a6dc;background:#faf7ff;border-radius:6px;padding:7px 12px;margin-bottom:8px;font-size:12.5px}
   tr.dateDiv td{background:#e6e8ec;color:#6b7380;font-size:12px;padding:5px 10px;text-align:left;border-top:1px solid #d3d7de;border-bottom:1px solid #d3d7de}
   tr.dateDiv .dd-note{margin-left:12px;color:#9aa1ab;font-weight:400}
 
@@ -243,23 +251,45 @@
       ① 분배일이 바뀌는 지점의 <b>회색 구분 행</b>은 화면에만 남고, <b>[화면다운로드] 엑셀에는 빈 행 없이</b> 데이터만 연속으로 나갑니다.<br>
       ② 상담상태 옆 <b>(n) = 담당자가 남긴 상담이력 건수</b>. 아래 <b>상담이력 건수</b>로 거르고, <b>상담상태 헤더</b>를 눌러 건수순 정렬합니다. [상담]에서 이력을 저장하면 n이 1 올라갑니다.<br>
       ③ 로그인 권한이 <b>매니저</b>(아웃바운드매니저)면 <b>내 팀</b> 상담원(아웃바운드)의 DB만 보입니다 — 목록 · 건수 · 검색 · 엑셀 모두 동일. 관리자는 전체.</div>
-    <div class="frm" style="margin-bottom:8px"><table>
-      <tr><th style="width:90px">상담상태</th>
-          <td><select id="fCons" onchange="renderObList()"><option value="">-- 전체 --</option></select></td>
-          <th style="width:120px">상담이력 건수</th>
-          <td><input type="number" id="fNMin" min="0" placeholder="최소" style="width:70px" oninput="renderObList()"> ~
-              <input type="number" id="fNMax" min="0" placeholder="최대" style="width:70px" oninput="renderObList()">
-              <span class="muted">한쪽만 넣으면 이상 / 이하</span></td>
-          <td style="white-space:nowrap"><button class="b-ghost" onclick="resetListFilter()">검색 초기화</button></td></tr>
-      <tr id="teamRow"><th>내 팀</th>
-          <td colspan="4"><select id="fTeam" onchange="renderObList()"><option value="1팀">1팀</option><option value="2팀">2팀</option></select>
-              <span class="muted">아웃바운드매니저는 <b>자기 팀 상담원</b>의 DB만 봅니다 — 판정: OB명 → 그 상담원의 1-3 팀</span></td></tr>
-    </table></div>
+    <!-- 실운영 2-1 검색 영역 배치 그대로. 신규 항목만 주황 테두리 -->
+    <div class="obsrch">
+      <label class="f">분배일 : <input type="date" id="sDistFrom"> ~ <input type="date" id="sDistTo"></label>
+      <label class="f">주문일 : <input type="date" id="sOrdFrom"> ~ <input type="date" id="sOrdTo"></label>
+      <label class="f">환불일 : <input type="date" id="sRefFrom"> ~ <input type="date" id="sRefTo"></label>
+    </div>
+    <div class="obsrch">
+      <label class="f">고객명 : <input type="text" id="sName"></label>
+      <label class="f">고객전화번호 : <input type="text" id="sPhone"></label>
+      <label class="f">DB정보 : <input type="text" id="sDbInfo"></label>
+      <label class="f">꼬리표 : <input type="text" id="sTag"></label>
+      <label class="f">코드 : <input type="text" id="sCode"></label>
+    </div>
+    <div class="obsrch">
+      <label class="f"><input type="checkbox" id="sMediaOn"> 매체그룹명활성화 회사 : <select id="sMediaCo"><option>전체</option></select></label>
+      <label class="f"><input type="checkbox" id="sRecallEx"> 회수재콜 제외</label>
+    </div>
+    <div class="obsrch">
+      <label class="f">유입일 : <input type="date" id="sInFrom"> ~ <input type="date" id="sInTo"></label>
+      <label class="f">상담상태 : <select id="fCons"><option value="">--선택하세요--</option></select></label>
+      <label class="f new" title="신규 — 상담상태 옆 (n) = 담당자가 남긴 상담이력 건수">상담이력 건수 <span class="b s-canc">신규</span> : <input type="number" id="fNMin" min="0" placeholder="최소" style="width:62px"> ~ <input type="number" id="fNMax" min="0" placeholder="최대" style="width:62px"></label>
+      <label class="f">고객상태 : <select id="fCust"><option value="">--선택하세요--</option></select></label>
+      <label class="f">임시저장 : <select id="sTemp"><option value="">--선택하세요--</option><option>임시저장</option></select></label>
+      <span class="btns">
+        <button class="b-red" onclick="resetListFilter()">검색 초기화</button>
+        <button class="b-red" onclick="renderObList()">검색</button>
+        <button class="b-red" onclick="searchAllOb()">전체 검색</button>
+        <button class="b-red" onclick="toast(L('DB 추가 (기존 기능)','Thêm DB (chức năng hiện có)'))">DB 추가</button>
+        <select id="sPageSize"><option>1000</option><option>500</option><option>100</option></select>
+        <button class="b-green" onclick="downloadObExcel()">화면다운로드</button>
+      </span>
+    </div>
+    <div class="muted" style="margin:2px 2px 8px;font-size:12px">조건 입력 후 <b>[검색]</b>(또는 Enter)으로 적용 · <b>[화면다운로드]</b>는 화면 조건 그대로, <b>날짜 구분 공란 행 없이</b>, 상담이력수 컬럼 포함. 환불일 · 꼬리표 · 코드 · 매체그룹 · 회수재콜 · 임시저장은 시연 데이터에 값이 없어 <b>배치만</b> 표시.</div>
+    <div class="demo" id="teamRow"><b>프로토타입 시연용</b> — 실제 화면에는 없음. 매니저의 팀은 <b>로그인 계정의 1-3 팀</b>으로 자동 결정.
+      &nbsp; 내 팀 <select id="fTeam" onchange="renderObList()"><option value="1팀">1팀</option><option value="2팀">2팀</option></select>
+      <span class="muted">판정: OB명 → 그 상담원의 1-3 팀</span></div>
     <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <button class="b-ghost" id="obColToggle" onclick="toggleObCols()">전체 컬럼 보기 (21)</button>
       <span class="muted">실운영 2-1은 컬럼이 21개입니다. 기본은 <b>핵심 컬럼</b>만 보여줍니다.</span>
-      <button class="b-amber" onclick="downloadObExcel()">화면다운로드</button>
-      <span class="muted">화면 조건 그대로 · <b>날짜 구분 공란 행 없이</b> · 상담이력수 컬럼 포함</span>
     </div>
     <div style="overflow-x:auto;border:1px solid var(--line);border-radius:8px">
     <table class="list" id="obTable" style="border:none">
@@ -838,7 +868,7 @@ const VI_TEXT={
 '중도해지(위약금)':'Chấm dứt trước hạn (phí phạt)',
 '기기반납':'Trả lại thiết bị','위약금':'Phí phạt','할부':'Trả góp','구매':'Trả thẳng',
 '할부금':'Tiền trả góp','선납금':'Tiền trả trước',
-'통화(1)':'Cuộc gọi (1)','통화':'Cuộc gọi','부재':'Vắng mặt','상담이력 건수':'Số lịch sử tư vấn','상담이력수':'Số lịch sử tư vấn','내 팀':'Nhóm của tôi','화면다운로드':'Tải màn hình','OB CALL 목록':'Danh sách OB CALL','검색 초기화':'Đặt lại tìm kiếm','한쪽만 넣으면 이상 / 이하':'Nhập một đầu = từ / đến','최소':'Tối thiểu','최대':'Tối đa','1팀':'Nhóm 1','2팀':'Nhóm 2','OB명':'Tên OB','구매_현금(COD)':'Trả thẳng_tiền mặt (COD)','할부_현금(COD)':'Trả góp_tiền mặt (COD)',
+'통화(1)':'Cuộc gọi (1)','통화':'Cuộc gọi','부재':'Vắng mặt','상담이력 건수':'Số lịch sử tư vấn','상담이력수':'Số lịch sử tư vấn','내 팀':'Nhóm của tôi','주문일 :':'Ngày đặt hàng :','환불일 :':'Ngày hoàn tiền :','분배일 :':'Ngày phân loại :','고객명 :':'Tên khách hàng :','고객전화번호 :':'Số điện thoại :','DB정보 :':'Thông tin DB :','꼬리표 :':'Nhãn :','코드 :':'Mã :','매체그룹명활성화 회사 :':'Công ty kích hoạt nhóm truyền thông :','회수재콜 제외':'Loại trừ gọi lại thu hồi','유입일 :':'Ngày nhập :','상담상태 :':'Trạng thái tư vấn :','고객상태 :':'Trạng thái khách hàng :','임시저장 :':'Lưu tạm :','신규':'Mới','전체 검색':'Tìm toàn bộ','DB 추가':'Thêm DB','--선택하세요--':'--Vui lòng chọn--','임시저장':'Lưu tạm','전체':'Tất cả','화면다운로드':'Tải màn hình','OB CALL 목록':'Danh sách OB CALL','검색 초기화':'Đặt lại tìm kiếm','한쪽만 넣으면 이상 / 이하':'Nhập một đầu = từ / đến','최소':'Tối thiểu','최대':'Tối đa','1팀':'Nhóm 1','2팀':'Nhóm 2','OB명':'Tên OB','구매_현금(COD)':'Trả thẳng_tiền mặt (COD)','할부_현금(COD)':'Trả góp_tiền mặt (COD)',
 '상담/계약확정':'Tư vấn/Xác nhận hợp đồng','없음':'Không có','렌탈':'Thuê','말일':'ngày cuối tháng','10일':'ngày 10',
 '계약중':'Đang hiệu lực','계약종료':'Đã kết thúc','일시정지':'Tạm dừng','미납':'Nợ quá hạn',
 '가상계좌':'Tài khoản ảo','계좌이체':'Chuyển khoản','보임':'Hiển thị','숨김':'Ẩn',
@@ -1560,15 +1590,26 @@ function scopedRows(){
 let consSort=0;   // 0: 기본(분배일순) · 1: 건수 오름차순 · -1: 건수 내림차순
 const consN=r=>+r.consN||0;
 function toggleConsSort(){ consSort = consSort===0?-1 : consSort===-1?1 : 0; renderObList(); }
+const OB_SEARCH_IDS=['sDistFrom','sDistTo','sOrdFrom','sOrdTo','sRefFrom','sRefTo','sName','sPhone','sDbInfo','sTag','sCode',
+  'sInFrom','sInTo','fCons','fNMin','fNMax','fCust','sTemp'];
 function resetListFilter(){
-  ['fCons','fNMin','fNMax'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  OB_SEARCH_IDS.forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  ['sMediaOn','sRecallEx'].forEach(id=>{const el=document.getElementById(id); if(el) el.checked=false;});
   consSort=0; renderObList();
 }
+function searchAllOb(){ resetListFilter(); toast(L('전체 검색 — 조건 없이 조회','Tìm toàn bộ — không điều kiện')); }
 function visibleRows(){
-  const g=id=>{const el=document.getElementById(id); return el?el.value:'';};
-  const cs=g('fCons'), mn=g('fNMin'), mx=g('fNMax');
+  const g=id=>{const el=document.getElementById(id); return el?el.value.trim():'';};
+  const cs=g('fCons'), mn=g('fNMin'), mx=g('fNMax'), cu=g('fCust');
+  const inRange=(d,a,b)=>(!a&&!b) || (!!d && d!=='-' && (!a||d.slice(0,10)>=a) && (!b||d.slice(0,10)<=b));
+  const has=(v,q)=>!q || String(v||'').toLowerCase().includes(q.toLowerCase());
   let v=scopedRows().filter(r=>
+    inRange(r.distDate,g('sDistFrom'),g('sDistTo')) &&
+    inRange(r.orderDate,g('sOrdFrom'),g('sOrdTo')) &&
+    inRange(r.inDate,g('sInFrom'),g('sInTo')) &&
+    has(r.name,g('sName')) && has(r.phone,g('sPhone')) && has(r.dbInfo,g('sDbInfo')) &&
     (!cs || r.cons===cs) &&
+    (!cu || displayState(r)===cu) &&
     (mn==='' || consN(r)>=+mn) &&
     (mx==='' || consN(r)<=+mx));
   if(consSort) v=[...v].sort((a,b)=>(consN(a)-consN(b))*consSort || b.no-a.no);
@@ -1579,10 +1620,18 @@ function fillConsOptions(){
   const sel=document.getElementById('fCons'); if(!sel) return;
   const cur=sel.value;
   const vals=[...new Set(scopedRows().map(r=>r.cons))];
-  sel.innerHTML='<option value="">'+L('-- 전체 --','-- Tất cả --')+'</option>'
+  sel.innerHTML='<option value="">'+L('--선택하세요--','--Vui lòng chọn--')+'</option>'
     + vals.map(v=>'<option value="'+v+'"'+(v===cur?' selected':'')+'>'+X(v)+'</option>').join('');
   if(cur && !vals.includes(cur)) sel.value='';
+  /* 고객상태도 같은 방식 */
+  const cu=document.getElementById('fCust'); if(!cu) return;
+  const cc=cu.value, cv=[...new Set(scopedRows().map(displayState))];
+  cu.innerHTML='<option value="">'+L('--선택하세요--','--Vui lòng chọn--')+'</option>'
+    + cv.map(v=>'<option value="'+v+'"'+(v===cc?' selected':'')+'>'+X(v)+'</option>').join('');
+  if(cc && !cv.includes(cc)) cu.value='';
 }
+/* 2-1 검색 영역 — Enter 로 [검색] */
+document.addEventListener('keydown',e=>{ if(e.key==='Enter' && e.target.closest && e.target.closest('.obsrch')) renderObList(); });
 let listAll=false;
 function toggleListCols(){ listAll=!listAll; renderList(); }
 /* 행 1개 — 1-2 · 2-1 공용 (기능 버튼 포함) */
