@@ -144,16 +144,16 @@
 
   <nav class="toc" id="toc">
     <h1>베트남 WM-CMS 화면설명서</h1>
-    <div class="meta">구매승인·배송 + 취소·해지 + 수금·미납 + 개선요청</div>
+    <div class="meta">계약승인·배송 + 취소·해지 + 수금·미납 + 개선요청</div>
     <div class="grp">개요</div>
     <a href="#scope">0. 개발 범위</a>
     <a href="#flow">1. 전체 흐름</a>
     <a href="#status">2. 상태 · 권한 정의</a>
     <a href="#s-format">2-1. 표기 표준 (VND · 날짜)</a>
     <div class="grp">판매 · 배송</div>
-    <a href="#s-approve">3. 구매요청 · 구매승인</a>
+    <a href="#s-approve">3. 계약요청 · 계약승인</a>
     <a href="#s-deliver">4. 배송처리 · 계약서 출력</a>
-    <a href="#s-complete">5. 구매완료 — 시리얼 · 입금</a>
+    <a href="#s-complete">5. 계약완료 — 시리얼 · 입금</a>
     <div class="grp">취소 · 해지</div>
     <a href="#s-cancel">6. 취소 접수</a>
     <a href="#s-term">7. 해지 접수 · 해지취소 버튼</a>
@@ -176,19 +176,21 @@
     <a href="#s-contract">19. 계약서 출력 · 양식 매핑</a>
     <div class="grp">기기 관리</div>
     <a href="#s-devicepw">20. 상담창 기기 PW 발송</a>
+    <div class="grp">DB 리스트</div>
+    <a href="#s-oblist">21. 2-1 OB CALL 목록 개선</a>
   </nav>
 
   <main>
     <header class="doc">
       <span class="tag">개발요청 · 베트남 WM-CMS</span>
       <h1>베트남 WM-CMS 개발요청 화면설명서</h1>
-      <p class="sub">구매요청 · 구매승인 → 배송 → 구매완료, 취소 · 해지 흐름 + 수금 · 미납 관리 + 패키지 구성 · DB 재분배 개선 요청.</p>
+      <p class="sub">계약요청 · 계약승인 → 배송 → 계약완료, 취소 · 해지 흐름 + 수금 · 미납 관리 + 패키지 구성 · DB 재분배 개선 요청.</p>
       <div class="info">
         <span>작성 <b>세일즈마케팅실 정보빈</b></span>
         <span>버전 <b>v4.0</b></span>
         <span>기준일 <b>2026-08-28</b></span>
       </div>
-      <div class="note new" style="margin-top:12px"><b>이 문서의 뼈대</b> 판매는 <code>구매요청 → 구매승인 → 배송대기 → 배송중 → 구매완료</code> 5단계. 되돌리는 경로는 <b>취소 접수</b>(구매완료 전)와 <b>해지 접수</b>(구매완료 후) 두 가지뿐이며 각각 <b>승인 한 번</b>으로 종결됨. 해지 방식(위약금 / 기기반납)은 <b>접수가 아니라 3-6 해지대기에서 결정</b>됨. 환불 프로세스는 두지 않음.</div>
+      <div class="note new" style="margin-top:12px"><b>이 문서의 뼈대</b> 판매는 <code>계약요청 → 계약승인 → 배송대기 → 배송중 → 계약완료</code> 5단계. 되돌리는 경로는 <b>취소 접수</b>(계약완료 전)와 <b>해지 접수</b>(계약완료 후) 두 가지뿐이며 각각 <b>승인 한 번</b>으로 종결됨. 해지 방식(위약금 / 기기반납)은 <b>접수가 아니라 3-6 해지대기에서 결정</b>됨. 환불 프로세스는 두지 않음.</div>
       <a class="protobtn" href="prototype.html">클릭형 프로토타입 보기 →</a>
     </header>
 
@@ -199,16 +201,17 @@
       <div class="card">
         <table>
           <tr><th style="width:110px">구분</th><th>범위</th><th style="width:70px">상태</th></tr>
-          <tr><td>① 구매승인</td><td>접수 건을 <b>구매요청</b>으로 두고, <b>구매승인</b>을 거쳐야 배송대기로 진행. 구매승인 처리 페이지(3-1 결제) 신설</td><td><span class="pill tag-new">신규</span></td></tr>
+          <tr><td>① 계약승인</td><td>접수 건을 <b>계약요청</b>으로 두고, <b>계약승인</b>을 거쳐야 배송대기로 진행. 계약승인 처리 페이지(3-1 결제) 신설</td><td><span class="pill tag-new">신규</span></td></tr>
           <tr><td>② 배송 · 계약서</td><td>3-4 배송에 <b>행별 계약서 개별 출력</b> + <b>배송처리 시 계약서 ZIP 일괄 다운로드</b> 추가</td><td>개선</td></tr>
-          <tr><td>③ 구매완료</td><td><b>4-6 시리얼번호 업로드</b>(주문키 · 시리얼 2열) + 3-9 선납금 입금 + 3-10 구매완료 처리 페이지 신설</td><td><span class="pill tag-new">신규</span></td></tr>
+          <tr><td>③ 계약완료</td><td><b>4-6 시리얼번호 업로드</b>(주문키 · 시리얼 2열) + 3-9 선납금 입금 + 3-10 계약완료 처리 페이지 신설</td><td><span class="pill tag-new">신규</span></td></tr>
           <tr><td>④ 취소</td><td>배송대기 · 배송중 단계의 <b>취소 접수</b> → <b>취소 승인</b> → <code>취소</code> 종결 (배송전취소 / 배송후 수취거절). 환불 단계 없음</td><td><span class="pill tag-new">신규</span></td></tr>
-          <tr><td>⑤ 해지</td><td>구매완료 이후 <b>해지 접수</b> → <b>3-6 해지대기</b>에서 위약금 입금액 또는 반납 시리얼 입력 → <b>해지 승인</b>으로 종결</td><td><span class="pill tag-new">신규</span></td></tr>
+          <tr><td>⑤ 해지</td><td>계약완료 이후 <b>해지 접수</b> → <b>3-6 해지대기</b>에서 위약금 입금액 또는 반납 시리얼 입력 → <b>해지 승인</b>으로 종결</td><td><span class="pill tag-new">신규</span></td></tr>
           <tr><td>⑥ 수금 · 미납</td><td>17-1 회원현황(납부·미납) + 개별 상세, 17-6 미납자·입금현황 리포트, 18-2 미납콜 상담</td><td><span class="pill tag-new">신규</span></td></tr>
           <tr><td>⑦ 개선 요청</td><td>1-34 패키지 구성 관리(단말기·컨텐츠 등록 · <b>가격/내부코드 매핑</b> · 수정 · 보임/숨김), 15-2-2 DB회수 재분배 관리(지역·성과그룹)</td><td>개선</td></tr>
           <tr><td>⑧ 접수 개선</td><td>1-2 접수창 주소 검색형 드롭다운, 접수 항목 추가(계약자명·결제방식·신분증·생년월일), COD 접수창 할부 금액행 전환</td><td>개선</td></tr>
           <tr><td>⑨ 계약서</td><td>1-2 [계약서 출력] 버튼 + 계약서 PDF 자동 생성(구매/할부 2종) · 접수 입력값 매핑</td><td><span class="pill tag-new">신규</span></td></tr>
           <tr><td>⑩ 회차 반영</td><td>17-1 입금 팝업(<b>입금금액 · 감면 금액</b>) → 1회차부터 순서대로 충당 · 부분납부는 미납으로 집계하지 않음</td><td><span class="pill tag-new">신규</span></td></tr>
+          <tr><td>⑪ DB 리스트</td><td>2-1 OB CALL 목록 — <b>엑셀 공란 행 제거</b> · <b>상담상태 횟수(n) 검색 조건</b> 신설 · <b>아웃바운드매니저 자기 팀 DB만 노출</b></td><td>개선</td></tr>
           <tr><td class="muted">제외</td><td class="muted"><b>가상계좌 전체</b>(발급 · 양식 업로드 · 자동 입금 반영)는 <b>후속 개발</b>. 1차는 계좌이체 + 수기 입금 확인으로 운영</td><td class="muted">후속</td></tr>
         </table>
         <div class="note">⑧ · ⑨는 <b>「베트남 CMS 개발요청 — 계약서 및 재콜」(2026-03-30)</b> 요청분을 본 문서에 통합한 것. ⑦의 1-34 · 15-2-2도 동일 문서 건.</div>
@@ -223,8 +226,8 @@
         <div class="frow" style="margin-bottom:10px">
           <div class="fbox">DB분배</div><span class="arr">→</span>
           <div class="fbox">상담원 통화</div><span class="arr">→</span>
-          <div class="fbox f-new">구매요청<small>일시불/할부 · 접수</small></div><span class="arr">→</span>
-          <div class="fbox f-new">구매승인<small>3-1 결제 · 신규 페이지</small></div><span class="arr">→</span>
+          <div class="fbox f-new">계약요청<small>일시불/할부 · 접수</small></div><span class="arr">→</span>
+          <div class="fbox f-new">계약승인<small>3-1 결제 · 신규 페이지</small></div><span class="arr">→</span>
           <div class="fbox f-done">배송대기</div><span class="arr">→</span>
           <div class="fbox f-new">배송처리<small>3-4 · 계약서 ZIP</small></div><span class="arr">→</span>
           <div class="fbox f-done">배송중</div><span class="arr">→</span>
@@ -232,10 +235,10 @@
           <span class="arr" style="transform:none">+</span>
           <div class="fbox f-new">입금처리<small>3-9 · 선납금 확인</small></div>
           <span class="arr">→</span>
-          <div class="fbox f-new">구매완료<small>둘 다 완료 시</small></div>
+          <div class="fbox f-new">계약완료<small>둘 다 완료 시</small></div>
         </div>
-        <p style="margin:4px 0 0;font-size:12px;color:var(--sub)">구매완료 = 시리얼 등록(4-6) + 입금처리(3-9) 둘 다 완료. 구매완료가 되어야 <b>해지 접수</b> 진입 가능.</p>
-        <div class="note new" style="margin-top:10px"><b>구매요청 · 구매승인</b> 상담원이 접수하면 <code>구매요청</code>, 승인권자가 <b>3-1 결제</b>에서 승인하면 <code>배송대기</code>. 베트남은 COD(대금상환)라 이 시점에 실제 결제가 일어나지 않으므로 <b>'결제'가 아니라 '구매'</b>로 부름. <b>구매승인 처리 페이지(3-1 결제)는 신규 개발 대상</b>.</div>
+        <p style="margin:4px 0 0;font-size:12px;color:var(--sub)">계약완료 = 시리얼 등록(4-6) + 입금처리(3-9) 둘 다 완료. 계약완료가 되어야 <b>해지 접수</b> 진입 가능.</p>
+        <div class="note new" style="margin-top:10px"><b>계약요청 · 계약승인</b> 상담원이 접수하면 <code>계약요청</code>, 승인권자가 <b>3-1 결제</b>에서 승인하면 <code>배송대기</code>. 베트남은 COD(대금상환)라 이 시점에 실제 결제가 일어나지 않으므로 <b>'결제'가 아니라 '계약'</b>으로 부름. <b>계약승인 처리 페이지(3-1 결제)는 신규 개발 대상</b>.</div>
 
         <div class="branchwrap">
           <div class="branch">
@@ -249,7 +252,7 @@
           </div>
 
           <div class="branch" style="min-width:560px;flex:2">
-            <div class="bt" style="color:var(--red)">② 해지 — 구매완료에서 분기</div>
+            <div class="bt" style="color:var(--red)">② 해지 — 계약완료에서 분기</div>
             <div class="col" style="margin-bottom:6px">
               <div class="fbox f-new">해지 접수<small>방식 선택 없음</small></div><span class="arr">→</span>
               <div class="fbox f-new" style="border-radius:24px">해지대기<small>3-6 해지대기 메뉴</small></div><span class="arr">→</span>
@@ -294,13 +297,13 @@
       <div class="card">
         <table>
           <tr><th style="width:130px">단계</th><th style="width:100px">상태종류</th><th>상태값 (신규)</th><th style="width:130px">처리권한</th></tr>
-          <tr><td>접수(구매요청)</td><td><span class="pill p-cust">고객상태</span></td><td><code>구매요청</code> — 상담창 COD 접수 저장 시</td><td>상담원</td></tr>
-          <tr><td>구매승인 (3-1)</td><td><span class="pill p-cust">고객상태</span></td><td><code>배송대기</code> — 승인되어야 3-4 배송 목록에 노출</td><td>관리자 / 매니저 / 재무담당자</td></tr>
+          <tr><td>접수(계약요청)</td><td><span class="pill p-cust">고객상태</span></td><td><code>계약요청</code> — 상담창 COD 접수 저장 시</td><td>상담원</td></tr>
+          <tr><td>계약승인 (3-1)</td><td><span class="pill p-cust">고객상태</span></td><td><code>배송대기</code> — 승인되어야 3-4 배송 목록에 노출</td><td>관리자 / 매니저 / 재무담당자</td></tr>
           <tr><td>배송처리 (3-4)</td><td><span class="pill p-cust">고객상태</span></td><td><code>배송중</code> — 처리 시 계약서 ZIP 다운로드</td><td>물류 / 매니저 / 관리자</td></tr>
           <tr><td>시리얼 업로드 (4-6)</td><td>플래그</td><td>시리얼번호 등록 여부 (고객상태 아님, 별도 플래그)</td><td>물류 / 관리자</td></tr>
           <tr><td>입금처리 (3-9)</td><td>플래그</td><td>입금 여부 (고객상태 아님, 별도 플래그)</td><td>재무담당자 / 관리자</td></tr>
-          <tr><td>구매완료 (3-10)</td><td><span class="pill p-cust">고객상태</span></td><td><code>구매완료</code> = 시리얼 + 입금 둘 다 완료 후 → 해지 접수 가능 시점</td><td>(3-10에서 처리)</td></tr>
-          <tr><td>취소 접수</td><td><span class="pill p-cust">고객상태</span></td><td><code>취소접수</code> (구매완료 전까지만 접수 가능)</td><td>상담원</td></tr>
+          <tr><td>계약완료 (3-10)</td><td><span class="pill p-cust">고객상태</span></td><td><code>계약완료</code> = 시리얼 + 입금 둘 다 완료 후 → 해지 접수 가능 시점</td><td>(3-10에서 처리)</td></tr>
+          <tr><td>취소 접수</td><td><span class="pill p-cust">고객상태</span></td><td><code>취소접수</code> (계약완료 전까지만 접수 가능)</td><td>상담원</td></tr>
           <tr><td>취소 승인</td><td><span class="pill p-cust">고객상태</span></td><td><code>취소</code> — 종결</td><td><span class="pill p-role">매니저</span><span class="exp">타입 아웃바운드매니저</span> / 관리자</td></tr>
           <tr><td>해지 접수</td><td><span class="pill p-cust">고객상태</span></td><td><code>해지대기</code> <b>— 방식(위약금/기기반납)에 따른 분기 상태값 없음</b></td><td>상담원</td></tr>
           <tr><td>위약금 협의·수정</td><td><span class="pill p-cons">상담상태</span></td><td><code>위약금 협의</code> — <b>고객상태는 <code>해지대기</code> 그대로 유지</b>(금액 기록용)</td><td><span class="pill p-role">미납담당자</span><span class="exp">재무 · 아웃바운드(매니저)</span></td></tr>
@@ -309,7 +312,7 @@
         </table>
         <div class="note new"><b><code>일시정지</code> 신설</b> 계약을 끝내지 않고 <b>수금만 잠시 멈추는</b> 상태. 17-1 회원현황 분류 필터와 17-6.3 납부대상자 집계에서 사용. <b>정지 기간 중에도 회차 약정일은 그대로 둠</b>(순연하지 않음). 정지는 <b>수납 · 미납콜 대상에서만 제외</b>하고 회차 일정과 계약만료일은 변동 없음.</div>
         <div class="note new"><b>상태값은 위 표가 전부</b> 해지 접수 시 방식을 고르지 않으므로 접수 상태를 여러 개로 나누지 않고, COD 특성상 환불 단계도 발생하지 않음. 따라서 <b>위약금 미입금 · 입고대기 · 반품입고 · 환불요청</b> 같은 중간 상태값은 두지 않음. 해지는 접수하면 곧바로 <code>해지대기</code>가 되고, 그 다음은 종결뿐.</div>
-        <div class="note">베트남 CMS에는 <b>상담상태 · 고객상태가 이미 별도 컬럼으로 존재</b>함. 현재 관측값 — 상담상태: <code>부재중</code> <code>통화</code> <code>통화예약</code> <code>구매_현금(COD)</code> <code>일반/결제</code> <code>상담/구매확정</code> / 고객상태: <code>상담대기</code> <code>배송대기</code> <code>배송중</code> <code>구매완료</code>. 위 신규 상태값을 여기에 추가.</div>
+        <div class="note">베트남 CMS에는 <b>상담상태 · 고객상태가 이미 별도 컬럼으로 존재</b>함. 현재 관측값 — 상담상태: <code>부재중</code> <code>통화</code> <code>통화예약</code> <code>구매_현금(COD)</code> <code>일반/결제</code> <code>상담/계약확정</code> / 고객상태: <code>상담대기</code> <code>배송대기</code> <code>배송중</code> <code>계약완료</code>. 위 신규 상태값을 여기에 추가.</div>
       </div>
 
       <h3>권한(유저타입) — 기존 팀·타입 조합으로 매핑</h3>
@@ -317,12 +320,12 @@
       <div class="card">
         <table>
           <tr><th style="width:120px">역할</th><th style="width:80px">팀</th><th style="width:180px">타입</th><th>비고</th></tr>
-          <tr><td><span class="pill p-role">매니저</span></td><td>무관</td><td>아웃바운드매니저</td><td>구매승인 · 취소 승인 · 해지 승인, [해지취소] 노출</td></tr>
+          <tr><td><span class="pill p-role">매니저</span></td><td>무관</td><td>아웃바운드매니저</td><td>계약승인 · 취소 승인 · 해지 승인, [해지취소] 노출</td></tr>
           <tr><td rowspan="2"><span class="pill p-role">미납담당자</span></td><td>재무</td><td>아웃바운드</td><td rowspan="2">통화 때문에 1인 2계정 사용</td></tr>
           <tr><td>재무</td><td>아웃바운드매니저</td></tr>
-          <tr><td><span class="pill p-role">재무담당자</span></td><td>재무</td><td>관리자</td><td>구매승인 · 입금처리 · 해지 처리 · 양식 업로드</td></tr>
-          <tr><td><span class="pill p-role">관리자</span></td><td>관리</td><td>관리자</td><td>전체 메뉴 노출 (최상위) · 구매승인 · 구매완료 확정 · 해지 처리 등</td></tr>
-          <tr><td>상담원(기본 OB)</td><td>무관</td><td>아웃바운드</td><td>COD 접수(구매요청) · 취소 접수 · 해지 접수 등</td></tr>
+          <tr><td><span class="pill p-role">재무담당자</span></td><td>재무</td><td>관리자</td><td>계약승인 · 입금처리 · 해지 처리 · 양식 업로드</td></tr>
+          <tr><td><span class="pill p-role">관리자</span></td><td>관리</td><td>관리자</td><td>전체 메뉴 노출 (최상위) · 계약승인 · 계약완료 확정 · 해지 처리 등</td></tr>
+          <tr><td>상담원(기본 OB)</td><td>무관</td><td>아웃바운드</td><td>COD 접수(계약요청) · 취소 접수 · 해지 접수 등</td></tr>
         </table>
         <div class="note">화면 요소별 노출 조건은 <a href="#s-perm">11. 권한 매핑</a> 참조.</div>
       </div>
@@ -347,33 +350,33 @@
       </div>
     </section>
 
-    <!-- 3. 구매요청 · 구매승인 -->
+    <!-- 3. 계약요청 · 계약승인 -->
     <section id="s-approve">
-      <h2><span class="num">3</span> 구매요청 · 구매승인 <span class="pill tag-new" style="font-size:12px">신규</span></h2>
+      <h2><span class="num">3</span> 계약요청 · 계약승인 <span class="pill tag-new" style="font-size:12px">신규</span></h2>
       <div class="spec reqbox">
-        <div class="sphead"><span class="pg">3-1 결제</span><h3>구매승인 처리 페이지 신설</h3></div>
+        <div class="sphead"><span class="pg">3-1 결제</span><h3>계약승인 처리 페이지 신설</h3></div>
         <div class="spbody">
-          <p class="purpose">상담원이 접수(COD)한 건은 <b>구매요청</b> 상태가 되고, 승인권자가 <b>3-1 결제</b> 화면에서 <b>구매승인</b>해야 <code>배송대기</code>로 진행됨. 승인 전 건은 3-4 배송 목록에 나타나지 않음.</p>
+          <p class="purpose">상담원이 접수(COD)한 건은 <b>계약요청</b> 상태가 되고, 승인권자가 <b>3-1 결제</b> 화면에서 <b>계약승인</b>해야 <code>배송대기</code>로 진행됨. 승인 전 건은 3-4 배송 목록에 나타나지 않음.</p>
 
-          <div class="note new"><b>용어 — 결제가 아니라 구매</b> 베트남은 COD(대금상환)라 이 시점에 실제 결제가 일어나지 않음. 그래서 <b><code>구매요청</code> · <code>구매승인</code></b>으로 부름.</div>
-          <div class="note new"><b>현재 화면 없음 — 신규 개발</b> 현행 CMS에는 승인 단계 자체가 없어 접수 후 곧바로 배송대기로 넘어감. <b>구매승인 처리 페이지(3-1 결제)를 신설</b>해 승인 게이트를 만들어야 함.</div>
+          <div class="note new"><b>용어 — 결제가 아니라 구매</b> 베트남은 COD(대금상환)라 이 시점에 실제 결제가 일어나지 않음. 그래서 <b><code>계약요청</code> · <code>계약승인</code></b>으로 부름.</div>
+          <div class="note new"><b>현재 화면 없음 — 신규 개발</b> 현행 CMS에는 승인 단계 자체가 없어 접수 후 곧바로 배송대기로 넘어감. <b>계약승인 처리 페이지(3-1 결제)를 신설</b>해 승인 게이트를 만들어야 함.</div>
 
           <ol class="req">
-            <li><b>구매요청 생성</b> — 1-2 고객상담 &gt; [상담] &gt; COD 접수 저장 시 상담상태 <code>할부_현금(COD)</code> / <code>구매_현금(COD)</code> · 고객상태 <code>구매요청</code>.</li>
-            <li><b>구매승인 목록 (3-1 결제)</b> — 고객상태 <code>구매요청</code>인 건 목록. 컬럼: 번호 · 고객명 · <b>주문키</b> · 제품 · 결제방식(할부/구매) · 결제금액 · 현재 상태. 다중 선택 → <b>[선택 건 구매승인]</b>.</li>
+            <li><b>계약요청 생성</b> — 1-2 고객상담 &gt; [상담] &gt; COD 접수 저장 시 상담상태 <code>할부_현금(COD)</code> / <code>구매_현금(COD)</code> · 고객상태 <code>계약요청</code>.</li>
+            <li><b>계약승인 목록 (3-1 결제)</b> — 고객상태 <code>계약요청</code>인 건 목록. 컬럼: 번호 · 고객명 · <b>주문키</b> · 제품 · 결제방식(할부/구매) · 결제금액 · 현재 상태. 다중 선택 → <b>[선택 건 계약승인]</b>.</li>
             <li><b>승인 결과</b> — 고객상태 <code>배송대기</code>로 전환. 이때부터 3-4 배송 목록에 노출됨.</li>
             <li><b>권한</b> — 관리자<span class="exp">관리 · 관리자</span> · 매니저<span class="exp">아웃바운드매니저</span> · 재무담당자<span class="exp">재무 · 관리자</span>.</li>
           </ol>
-          <h3 style="font-size:14px">구매 반려 <span class="pill tag-new" style="font-size:12px">신규</span></h3>
+          <h3 style="font-size:14px">계약 반려 <span class="pill tag-new" style="font-size:12px">신규</span></h3>
           <ol class="req">
             <li>3-1 목록 행마다 <b>[반려]</b> 버튼. 클릭 시 <b>반려 사유</b>(드롭다운) + <b>상세 내용</b>(텍스트)을 입력받음.</li>
             <li>사유 선택지(안) — 고객 변심 · 재확인 필요 / 결제금액 · 할부조건 오류 / 주소 · 연락처 불명확 / 신분증 정보 미비 / 중복 접수 / 기타.</li>
-            <li><b>반려 결과</b> — 고객상태를 <b>접수 이전(<code>상담대기</code>)으로 되돌리고</b>, 상담상태에 <code>구매반려</code>를 기록. 상담원이 내용을 보완해 <b>다시 접수</b>할 수 있음.</li>
-            <li><b>별도 <code>구매반려</code> 고객상태는 두지 않음</b> — 상태값을 늘리지 않고 상담상태 + 이력으로 구분(<a href="#status">2번 상태값 최소화 원칙</a>).</li>
-            <li>반려 이력은 고객 히스토리에 <code>[일시 · 처리자 · 구매 반려] 사유 — 상세</code>로 기록.</li>
-            <li><b>권한</b> — 구매승인과 동일(관리자 · 매니저 · 재무담당자).</li>
+            <li><b>반려 결과</b> — 고객상태를 <b>접수 이전(<code>상담대기</code>)으로 되돌리고</b>, 상담상태에 <code>계약반려</code>를 기록. 상담원이 내용을 보완해 <b>다시 접수</b>할 수 있음.</li>
+            <li><b>별도 <code>계약반려</code> 고객상태는 두지 않음</b> — 상태값을 늘리지 않고 상담상태 + 이력으로 구분(<a href="#status">2번 상태값 최소화 원칙</a>).</li>
+            <li>반려 이력은 고객 히스토리에 <code>[일시 · 처리자 · 계약 반려] 사유 — 상세</code>로 기록.</li>
+            <li><b>권한</b> — 계약승인과 동일(관리자 · 매니저 · 재무담당자).</li>
           </ol>
-          <div class="note"><b>상태전이</b> <code>상담대기</code> → <code>구매요청</code> → <b>(3-1 구매승인)</b> → <code>배송대기</code></div>
+          <div class="note"><b>상태전이</b> <code>상담대기</code> → <code>계약요청</code> → <b>(3-1 계약승인)</b> → <code>배송대기</code></div>
         </div>
       </div>
     </section>
@@ -388,7 +391,7 @@
 
           <ol class="req">
             <li><b>주문키</b> — <b>DB가 생성되는 시점에 건마다 이미 발급되어 있고</b>, 3-4 배송처리 화면에서 목록에 함께 노출됨. <a href="#s-complete">4-6 시리얼 업로드</a>의 매칭 키, <a href="#s-contract">계약서 계약번호(<code>Số</code>)</a>, 계약서 ZIP 파일명에 모두 이 값을 씀. 접수 이전 단계에도 값이 존재하므로 <b>계약서 출력 시점에 제약이 없음</b>.</li>
-            <li><b>목록</b> — 고객상태 <code>배송대기</code>(=구매승인 완료) 건. 컬럼: 선택 · 번호 · 고객명 · 주문키 · 제품 · 결제 · 현재 상태 · <b>계약서</b>.</li>
+            <li><b>목록</b> — 고객상태 <code>배송대기</code>(=계약승인 완료) 건. 컬럼: 선택 · 번호 · 고객명 · 주문키 · 제품 · 결제 · 현재 상태 · <b>계약서</b>.</li>
             <li><b>① 개별 출력</b> — 행별 <b>[계약서]</b> 버튼. 클릭 시 그 고객 계약서 1건을 PDF로 출력(인쇄창). 양식·매핑은 <a href="#s-contract">19번 계약서 출력 · 양식 매핑</a>과 동일.</li>
             <li><b>② 일괄 ZIP</b> — 다중 선택 후 <b>[선택 건 배송처리]</b> 시 선택한 고객의 <b>계약서 PDF 전체를 ZIP 파일 하나로 다운로드</b>하고, 고객상태를 <code>배송중</code>으로 전환.</li>
             <li><b>ZIP 내부 파일명</b> — <code>[WM Viet Nam]HỢP ĐỒNG MUA BÁN_{주문키}.pdf</code> (1건 = 1파일). ZIP 파일명은 <code>계약서_{YYYYMMDD}_{건수}건.zip</code>.</li>
@@ -402,29 +405,29 @@
       </div>
     </section>
 
-    <!-- 5. 구매완료 -->
+    <!-- 5. 계약완료 -->
     <section id="s-complete">
-      <h2><span class="num">5</span> 구매완료 처리 — 시리얼 업로드 / 입금처리</h2>
+      <h2><span class="num">5</span> 계약완료 처리 — 시리얼 업로드 / 입금처리</h2>
       <div class="spec reqbox">
-        <div class="sphead"><span class="pg">4-6 · 3-9 · 3-10</span><h3>구매완료 = ① 시리얼 업로드 + ② 입금처리</h3></div>
+        <div class="sphead"><span class="pg">4-6 · 3-9 · 3-10</span><h3>계약완료 = ① 시리얼 업로드 + ② 입금처리</h3></div>
         <div class="spbody">
-          <p class="purpose">구매완료는 ① 시리얼번호 등록(출고 단말기 확정)과 ② 입금처리(선납금 확인)가 <b>모두 완료</b>되어야 성립. 둘 다 완료되면 <code>구매완료</code>가 되고, 그 시점부터 해지 접수 가능.</p>
+          <p class="purpose">계약완료는 ① 시리얼번호 등록(출고 단말기 확정)과 ② 입금처리(선납금 확인)가 <b>모두 완료</b>되어야 성립. 둘 다 완료되면 <code>계약완료</code>가 되고, 그 시점부터 해지 접수 가능.</p>
           <div class="note new"><b>4-6은 시리얼번호 업로드</b> 메뉴명은 <b><code>4-6 시리얼번호 업로드</code></b>, 업로드 양식 컬럼은 <b><code>주문키</code> · <code>시리얼</code> 2열</b>뿐. 그 외 컬럼은 두지 않음.</div>
-          <div class="note new"><b>현재 화면 없음 — 신규 개발</b> 시리얼 업로드 · 입금처리 · 구매완료 화면이 베트남 CMS에 존재하지 않음.</div>
+          <div class="note new"><b>현재 화면 없음 — 신규 개발</b> 시리얼 업로드 · 입금처리 · 계약완료 화면이 베트남 CMS에 존재하지 않음.</div>
           <ol class="req">
             <li><b>① 시리얼번호 업로드 (4-6)</b> — 시리얼 미등록 건 목록 → 행별 시리얼번호 입력 후 <b>행마다 [시리얼확인] 개별 처리</b> 또는 체크 후 다중 선택 일괄 처리. 그 외 <b>엑셀 업로드(주문키 | 시리얼 2열)</b> · <b>수기 등록(주문키 + 시리얼)</b>. 노출: 물류 · 관리자<span class="exp">아웃바운드매니저 / 관리 · 관리자</span>.</li>
             <li><b>② 입금처리 (3-9)</b> — 입금 미확인 건 목록 → 행별 입금액 입력 후 <b>행마다 [입금확인] 개별 처리</b> 또는 체크 후 다중 선택 일괄 처리. 가상계좌 연동은 <a href="#s-upload">10번(후속 개발)</a> — 1차는 수기 확인. 노출: 재무담당자<span class="exp">재무 · 관리자</span>.</li>
             <li><b>시리얼은 마지막 등록만 유효</b> <span class="pill tag-new">추가</span> — 같은 시리얼번호가 이미 <b>다른 고객에게 등록돼 있으면</b>, 저장을 막지 않고 <b>직전 고객의 시리얼을 자동으로 해제</b>한 뒤 새로 등록한 쪽에만 남김.
               <ul style="margin:6px 0 0 16px">
-                <li>해제된 건은 <b>시리얼 미등록 상태로 되돌아가</b> 4-6 목록에 다시 나타나고, <b>구매완료도 함께 해제</b>됨.</li>
+                <li>해제된 건은 <b>시리얼 미등록 상태로 되돌아가</b> 4-6 목록에 다시 나타나고, <b>계약완료도 함께 해제</b>됨.</li>
                 <li>해제 사실을 <b>양쪽 고객 히스토리에 기록</b>하고, 처리 결과 토스트에 "중복 n건 직전 등록 자동 해제"로 표시.</li>
                 <li>비교는 <b><code>S/N:</code> 접두어와 대소문자를 무시</b>하고 수행(<code>S/N: R83X…</code> · <code>S/N:R83X…</code> · <code>R83X…</code>를 같은 값으로 봄).</li>
               </ul>
               이렇게 하면 <a href="#s-migrate">기존 데이터의 시리얼 중복</a>도 적재를 막지 않고, 결과적으로 <b>시리얼 1개 = 고객 1명</b>이 보장되어 <a href="#s-termwait">8번 기기반납 확인</a> 판정이 성립함.</li>
             <li><b>엑셀 재업로드 방지</b> <span class="pill tag-new">추가</span> — 같은 파일을 두 번 올려도 <b>중복 반영되지 않도록</b> 업로드 이력(파일명 · 행 키 · 처리일시)을 남기고, 이미 처리된 키는 건너뛴 뒤 결과에 "미반영 n건(중복)"으로 표시.</li>
-            <li><b>③ 구매완료 처리 (3-10)</b> — 시리얼 + 입금이 모두 완료된 건은 <b>자동 구매완료</b>. 3-10은 자동 처리가 누락된 건을 <b>수동 확정</b>하는 백업 화면. 노출: 관리자<span class="exp">관리 · 관리자</span>.</li>
+            <li><b>③ 계약완료 처리 (3-10)</b> — 시리얼 + 입금이 모두 완료된 건은 <b>자동 계약완료</b>. 3-10은 자동 처리가 누락된 건을 <b>수동 확정</b>하는 백업 화면. 노출: 관리자<span class="exp">관리 · 관리자</span>.</li>
           </ol>
-          <div class="note">①②는 <b>처리 순서 무관(독립)</b>. 고객상태는 <code>배송대기 → 배송중(3-4) → 구매완료(3-10)</code>만 사용하고, <b>시리얼 등록 여부와 입금 여부는 고객상태가 아니라 별도 플래그</b>로 관리함.</div>
+          <div class="note">①②는 <b>처리 순서 무관(독립)</b>. 고객상태는 <code>배송대기 → 배송중(3-4) → 계약완료(3-10)</code>만 사용하고, <b>시리얼 등록 여부와 입금 여부는 고객상태가 아니라 별도 플래그</b>로 관리함.</div>
           <div class="note"><b>시리얼번호의 쓰임</b> ⓐ 1-2 상담창에 시리얼 표시 ⓑ <a href="#s-devicepw">20번 기기 PW 발송</a> 조회 키 ⓒ <a href="#s-termwait">8번 해지대기</a>에서 <b>기기반납 확인 키</b>. 세 곳이 같은 값을 쓰므로 4-6에서 반드시 등록되어야 함.</div>
           <div class="note new" style="background:var(--green-bg);border-left-color:var(--green)"><b style="color:var(--green)">시리얼 등록일 = 배송완료일</b> <b>4-6에서 시리얼번호를 등록한 날</b>이 곧 <b>배송완료일</b>이며, <a href="#s-term">해지 위약금 산정의 기준일</a>이 됨. 따라서 <b>시리얼 등록일을 별도 컬럼으로 저장</b>해야 함(등록 시각 자동 기록, 수정 시 이력 남김).</div>
         </div>
@@ -438,7 +441,7 @@
         <div class="sphead"><span class="pg">1-2 고객상담 &gt; [상담]</span><h3>취소 접수 (배송 전/후)</h3></div>
         <div class="spbody">
           <p class="purpose">배송대기 · 배송중 상태의 건을 상담원이 취소로 전환. 배송전취소와 배송후 수취거절을 동일하게 처리.</p>
-          <div class="note new"><b>워딩 규칙 — 접수는 두 가지뿐</b> 구매완료 <b>전</b>에 되돌리는 것은 <b>「취소 접수」</b>, 구매완료 <b>후</b>에 계약을 끝내는 것은 <b>「해지 접수」</b>. 화면·상담상태·이력 문구를 전부 이 두 워딩으로 통일. <code>반품접수</code> · <code>중도해지</code> 표현은 쓰지 않음.</div>
+          <div class="note new"><b>워딩 규칙 — 접수는 두 가지뿐</b> 계약완료 <b>전</b>에 되돌리는 것은 <b>「취소 접수」</b>, 계약완료 <b>후</b>에 계약을 끝내는 것은 <b>「해지 접수」</b>. 화면·상담상태·이력 문구를 전부 이 두 워딩으로 통일. <code>반품접수</code> · <code>중도해지</code> 표현은 쓰지 않음.</div>
           <div class="note new"><b>환불 단계 없음</b> <b><code>취소 접수</code> → <code>취소 승인</code> → <code>취소</code></b>로 끝남. 베트남은 COD(대금상환)라 배송 전 취소·수취거절 시점에는 <b>고객이 지불한 금액이 없어 환불 자체가 발생하지 않음</b>.</div>
 
           <div class="fig">
@@ -475,7 +478,7 @@
       <div class="spec reqbox">
         <div class="sphead"><span class="pg">1-2 DB 리스트 / 상담창</span><h3>해지 접수 + [해지취소] 버튼 노출</h3></div>
         <div class="spbody">
-          <p class="purpose">구매완료 건을 해지 접수로 전환. 접수 시점에는 <b>위약금 결제인지 기기 반납인지 고르지 않고</b>, 위약금 산정만 하고 접수함.</p>
+          <p class="purpose">계약완료 건을 해지 접수로 전환. 접수 시점에는 <b>위약금 결제인지 기기 반납인지 고르지 않고</b>, 위약금 산정만 하고 접수함.</p>
 
           <div class="note new"><b>접수 시 반품방식 선택 없음</b> 해지 접수는 <b>위약금이니 기기반납이니 선택 없이</b> 진행하고, 실제 해지를 확정하는 시점(<a href="#s-termwait">8번 해지대기</a>)에 기기반납 / 위약금결제가 결정됨. 따라서 접수 상태값은 <code>해지대기</code> 하나뿐이고, <b><code>위약금 미입금</code> · <code>위약금 협의</code> · <code>위약금 입금</code> · <code>입고대기</code> · <code>반품입고</code> 같은 세분화 상태값은 두지 않음</b>.</div>
 
@@ -484,16 +487,16 @@
             <figcaption><b>현재 베트남 CMS DB 리스트</b> — 상담상태 · 고객상태가 이미 별도 컬럼으로 존재. 기능 컬럼은 현재 [상담] · [고객 관리]뿐 → 여기에 <b>[취소 승인]</b> · <b>[해지취소]</b> 추가.</figcaption>
           </div>
 
-          <div class="note"><b>용어 주의 — [해지취소] = 해지 철회</b> 이 버튼은 "해지를 시작"하는 버튼이 <b>아님</b>. 해지 접수까지 진행한 건에서 고객이 "그냥 사용하겠다"고 할 때 <b>해지를 철회해 다시 <code>구매완료</code>로 되돌리는</b> 버튼임.</div>
+          <div class="note"><b>용어 주의 — [해지취소] = 해지 철회</b> 이 버튼은 "해지를 시작"하는 버튼이 <b>아님</b>. 해지 접수까지 진행한 건에서 고객이 "그냥 사용하겠다"고 할 때 <b>해지를 철회해 다시 <code>계약완료</code>로 되돌리는</b> 버튼임.</div>
 
           <ol class="req">
             <li><b>해지 접수 시작</b>은 <b>상담창에서 선택</b> — 상담상태 <code>취소 · 해지</code> 대분류 &gt; <code>해지 접수</code> 소분류 선택(<a href="#s-cancel">6번 상담창</a> 방식). 선택 시 <a href="#s-template">해지 접수창(9번, 국내 반품접수창 기반)</a>이 상담창 안에 인라인으로 열림.</li>
             <li><b>접수창에서 하는 일</b> — 고객·계약 정보 확인 → 위약금 산정 기준일 → <b>위약금 산정(최초 산정 · 조정(할인) · 최종)</b> → 안내 확인 → 저장. <b>반품방식 선택 · 수거방식 선택 UI는 두지 않음</b>.</li>
             <li><b>저장 결과</b> — 고객상태 <code>해지대기</code>. 접수와 동시에 <a href="#s-termwait">8번 3-6 해지대기</a> 목록에 올라가며, <b>접수 직후의 별도 승인 단계는 없음</b>. 승인은 3-6에서 종결과 함께 이뤄짐.</li>
-            <li><b>[해지취소] 버튼(철회)</b>은 <code>해지대기</code> 구간에 노출<span class="exp">팀 무관 · 타입 아웃바운드매니저</span> — 매니저·관리자 계정에만 표시. 클릭 시 확인 후 <code>구매완료</code>로 복귀(이력 기록).</li>
+            <li><b>[해지취소] 버튼(철회)</b>은 <code>해지대기</code> 구간에 노출<span class="exp">팀 무관 · 타입 아웃바운드매니저</span> — 매니저·관리자 계정에만 표시. 클릭 시 확인 후 <code>계약완료</code>로 복귀(이력 기록).</li>
           </ol>
           <div class="note"><b>처리 위치</b> 해지 최종 처리(위약금 입금 확인 / 기기반납 확인)는 <b>3-6 해지대기</b>에서 진행. 따라서 1-2 기능 컬럼에는 [상담] · [취소 승인] · [해지취소(철회)] · [고객 관리]만 둠.</div>
-          <div class="note"><b>상태전이</b> <code>구매완료</code> → <code>해지대기</code> → <b>(3-6 해지 승인)</b> → <code>해지(위약금)</code> / <code>해지(기기반납)</code></div>
+          <div class="note"><b>상태전이</b> <code>계약완료</code> → <code>해지대기</code> → <b>(3-6 해지 승인)</b> → <code>해지(위약금)</code> / <code>해지(기기반납)</code></div>
         </div>
       </div>
     </section>
@@ -605,7 +608,7 @@
             <tr><td><b>60일 초과</b></td><td class="muted">—</td><td><b style="color:var(--red)">원칙상 중도해지 불가</b> — 접수는 되지만 경고 표시 + <b>관리자 승인</b>이 있어야 종결</td></tr>
           </table>
 
-          <div class="note new"><b>기준일 = 배송완료일 = <a href="#s-complete">4-6 시리얼번호 등록일</a></b> 시리얼을 등록한 날을 배송완료로 보고, 그날부터 경과일수를 센다. 시리얼 등록 전(=구매완료 전) 건은 애초에 해지 접수 대상이 아님.</div>
+          <div class="note new"><b>기준일 = 배송완료일 = <a href="#s-complete">4-6 시리얼번호 등록일</a></b> 시리얼을 등록한 날을 배송완료로 보고, 그날부터 경과일수를 센다. 시리얼 등록 전(=계약완료 전) 건은 애초에 해지 접수 대상이 아님.</div>
 
           <h3 style="font-size:14px">계산식</h3>
           <div class="card" style="padding:12px 14px">
@@ -689,8 +692,8 @@
           <h3>화면 요소별 노출 조건</h3>
           <table>
             <tr><th>화면 요소 (위치)</th><th style="width:80px">팀</th><th style="width:180px">타입</th><th style="width:100px">담당</th></tr>
-            <tr><td>COD 접수(구매요청) · <b>취소 접수</b> · <b>해지 접수</b> (상담창 / 1-2)</td><td>무관</td><td>아웃바운드</td><td>상담원</td></tr>
-            <tr><td rowspan="3"><b>구매승인 (3-1 결제)</b></td><td>관리</td><td>관리자</td><td>관리자</td></tr>
+            <tr><td>COD 접수(계약요청) · <b>취소 접수</b> · <b>해지 접수</b> (상담창 / 1-2)</td><td>무관</td><td>아웃바운드</td><td>상담원</td></tr>
+            <tr><td rowspan="3"><b>계약승인 (3-1 결제)</b></td><td>관리</td><td>관리자</td><td>관리자</td></tr>
             <tr><td>무관</td><td>아웃바운드매니저</td><td>매니저</td></tr>
             <tr><td>재무</td><td>관리자</td><td>재무담당자</td></tr>
             <tr><td><b>배송처리 (3-4 배송)</b></td><td>무관</td><td>아웃바운드매니저 <span style="color:var(--sub)">/ 물류 계정</span></td><td>매니저 · 물류</td></tr>
@@ -702,7 +705,7 @@
             <tr><td rowspan="3"><b>해지 승인 (3-6 해지대기)</b> — 위약금 입금액 / 시리얼 입력 후 [해지 승인]</td><td>관리</td><td>관리자</td><td>관리자</td></tr>
             <tr><td>무관</td><td>아웃바운드매니저</td><td>매니저</td></tr>
             <tr><td>재무</td><td>관리자</td><td>재무담당자</td></tr>
-            <tr><td>구매완료 확정(3-10)</td><td>관리</td><td>관리자</td><td>관리자</td></tr>
+            <tr><td>계약완료 확정(3-10)</td><td>관리</td><td>관리자</td><td>관리자</td></tr>
             <tr><td rowspan="2"><b>시리얼번호 업로드(4-6)</b></td><td>무관</td><td>아웃바운드매니저 <span style="color:var(--sub)">/ 물류 계정</span></td><td>매니저 · 물류</td></tr>
             <tr><td>관리</td><td>관리자</td><td>관리자</td></tr>
             <tr><td>17-1 회원현황 · 17-6 리포트 (수금·미납 조회 / 수금현황 엑셀)</td><td>재무</td><td>관리자</td><td>재무담당자</td></tr>
@@ -1177,7 +1180,7 @@
     <section id="s-intake">
       <h2><span class="num">17</span> 1-2 접수창 개선 · 항목 추가 <span class="pill p-role" style="font-size:12px">개선</span></h2>
       <p class="lead">1-2 고객상담 &gt; [상담]창 &gt; <b>접수 단계</b>의 입력 편의 개선 + 계약서 출력에 필요한 항목 신설. 노출: 상담원 이상<span class="exp">아웃바운드 · 상담원</span>.</p>
-      <div class="note new"><b>진입 조건 — 상담대기 건만 접수 가능</b> 1-2 고객관리에서 고객상태가 <code>상담대기</code>인 DB의 [상담] 버튼 → 상담창에서 <b>상담상태 <code>결제 &gt; COD(구매_현금)</code> 선택</b> → 접수창 진행. 저장 시 상담상태 <code>구매_현금(COD)</code> · 고객상태 <code>구매요청</code>으로 전환(이후 <a href="#s-approve">3-1 구매승인</a>을 거쳐 <code>배송대기</code>). 접수 전(<code>상담대기</code>) 건은 <b>계약서가 존재하지 않으므로 [계약서 출력] 버튼도 노출되지 않음</b>.</div>
+      <div class="note new"><b>진입 조건 — 상담대기 건만 접수 가능</b> 1-2 고객관리에서 고객상태가 <code>상담대기</code>인 DB의 [상담] 버튼 → 상담창에서 <b>상담상태 <code>결제 &gt; COD(구매_현금)</code> 선택</b> → 접수창 진행. 저장 시 상담상태 <code>구매_현금(COD)</code> · 고객상태 <code>계약요청</code>으로 전환(이후 <a href="#s-approve">3-1 계약승인</a>을 거쳐 <code>배송대기</code>). 접수 전(<code>상담대기</code>) 건은 <b>계약서가 존재하지 않으므로 [계약서 출력] 버튼도 노출되지 않음</b>.</div>
 
       <div class="spec reqbox">
         <div class="sphead"><span class="pg">1-2 접수</span><h3>① 주소 드롭다운 — 검색 기능 추가</h3></div>
@@ -1282,7 +1285,7 @@
             <figcaption><b>[계약서 출력] 버튼</b> — 상담창 기능 컬럼의 [수정] · [예약시간정보변경] 아래에 추가. 클릭 시 계약서 PDF 화면 노출.</figcaption>
           </div>
           <ol class="req">
-            <li>접수 저장으로 고객상태가 <code>구매요청</code> 이상이 되면 1-2 고객관리 &gt; [상담]창 &gt; <b>기능</b> 컬럼에 <b>[계약서 출력]</b> 버튼 노출. <b><code>상담대기</code>(접수 전) 건은 계약 자체가 없으므로 버튼 미노출</b> — <a href="#s-intake">17번 진입 조건</a> 참조. 배송 단계의 출력은 <a href="#s-deliver">4번 3-4 배송</a>에서도 가능.</li>
+            <li>접수 저장으로 고객상태가 <code>계약요청</code> 이상이 되면 1-2 고객관리 &gt; [상담]창 &gt; <b>기능</b> 컬럼에 <b>[계약서 출력]</b> 버튼 노출. <b><code>상담대기</code>(접수 전) 건은 계약 자체가 없으므로 버튼 미노출</b> — <a href="#s-intake">17번 진입 조건</a> 참조. 배송 단계의 출력은 <a href="#s-deliver">4번 3-4 배송</a>에서도 가능.</li>
             <li>해당 버튼은 <b>관리자</b><span class="exp">관리 · 관리자</span> · <b>매니저</b><span class="exp">아웃바운드매니저</span>에게만 노출. 상담원 · 물류 · 재무담당자 비노출.</li>
             <li>클릭 시 <b>계약서 PDF 화면</b>이 새 창으로 노출(미리보기 → 인쇄 · 저장).</li>
             <li>파일명은 <code>[WM Viet Nam]HỢP ĐỒNG MUA BÁN_주문키</code>로 <b>자동 명명</b>.</li>
@@ -1290,7 +1293,7 @@
           <div class="note new"><b>계약 이후 신분증 정보 입력 · 수정</b> 접수 시 미입력한 <b>신분증 번호 · 발행일 · 발급처</b>는 이 화면에서 추가 입력 · 수정 후 저장 가능. 3항목 중 하나라도 비어 있으면 화면 상단에 <b>경고 배너</b>를 띄우고, 채워진 뒤에 [계약서 출력]하도록 안내. 수정 이력은 고객 히스토리에 기록.</div>
           <div class="note new"><b>계약서 출력 권한 = 관리자 · 매니저</b> 1-2 [계약서 출력]과 <a href="#s-deliver">3-4 배송의 개별 [계약서] · ZIP 다운로드</a> <b>모두 동일 권한</b>으로 통일.<br />
             <b>물류 계정은 배송처리는 하지만 계약서는 받지 못함</b> — 물류가 [선택 건 배송처리]를 누르면 <b>상태 전이(배송중)만 되고 ZIP은 내려가지 않으며</b> 안내 문구가 뜸. 계약서는 관리자·매니저가 [선택 건 계약서 ZIP만 받기]로 별도 수령.</div>
-          <div class="note"><b>노출 범위 — 배송대기 이후 계속 노출</b> <code>배송대기</code> · <code>배송중</code> · <code>구매완료</code> 어디서든 재출력할 수 있게 함(분실 · 재발송 대응). <span style="color:var(--sub)">※ 기본값으로 정한 항목 — 다르게 가려면 알려주실 것</span></div>
+          <div class="note"><b>노출 범위 — 배송대기 이후 계속 노출</b> <code>배송대기</code> · <code>배송중</code> · <code>계약완료</code> 어디서든 재출력할 수 있게 함(분실 · 재발송 대응). <span style="color:var(--sub)">※ 기본값으로 정한 항목 — 다르게 가려면 알려주실 것</span></div>
         </div>
       </div>
 
@@ -1395,6 +1398,94 @@
           <div class="note">그 외 7-1 전화상담툴의 나머지 기능은 <b>이식 대상 아님</b> — 이 버튼 하나만 상담창에 추가.</div>
         </div>
       </div>
+    </section>
+
+    <!-- 21. 2-1 OB CALL 목록 개선 -->
+    <section id="s-oblist">
+      <h2><span class="num">21</span> 2-1 OB CALL 목록 개선 <span class="pill p-role" style="font-size:12px">개선</span></h2>
+      <p class="lead">상담원·매니저가 하루 종일 보는 <b>2-1 OB CALL 목록</b>(= 1-2 DB 리스트와 같은 목록 컴포넌트)에 대한 개선 요청 3건. ① 엑셀 공란 행 제거 ② 상담상태 <b>횟수(n)</b> 검색 조건 신설 ③ 아웃바운드매니저의 <b>자기 팀 DB만</b> 노출.</p>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">2-1</span><h3>① 날짜 구분 행이 엑셀에 공란으로 내려옴 <span class="pill p-role" style="font-size:12px">개선</span></h3></div>
+        <div class="spbody">
+          <p class="purpose">목록은 <b>분배일이 바뀌는 지점에 회색 구분 행</b>을 한 줄 넣어 날짜 그룹을 구분함. 화면에서는 유용하지만, <b>[화면다운로드] 엑셀에 이 구분 행이 값 없는 빈 행으로 그대로 포함</b>됨.</p>
+          <div class="fig">
+            <img src="2-1%20OB%20CALL%20%EB%AA%A9%EB%A1%9D%20%EB%82%A0%EC%A7%9C%20%EA%B5%AC%EB%B6%84%ED%96%89.png" alt="2-1 OB CALL 목록 — 날짜 구분 행" />
+            <figcaption><b>현재 2-1 OB CALL 목록</b> — 분배일 <code>2026-09-22</code> 그룹과 <code>2026-09-21</code> 그룹 사이에 <b>회색 구분 행</b>이 삽입됨. 이 행이 엑셀에도 <b>공란 행</b>으로 그대로 내려옴.</figcaption>
+          </div>
+
+          <h3 style="font-size:14px">문제</h3>
+          <table>
+            <tr><th style="width:24%">증상</th><th>영향</th></tr>
+            <tr><td>빈 행이 섞여 내려옴</td><td>엑셀에서 <b>자동 필터 · 정렬 범위가 빈 행에서 끊김</b>. 범위를 매번 수동으로 다시 잡아야 함</td></tr>
+            <tr><td>행 수 ≠ DB 건수</td><td>행 개수로 건수를 세면 구분 행만큼 더 잡힘. <b>피벗 · 집계 시 오차</b></td></tr>
+            <tr><td>날짜가 여러 날이면 반복</td><td>조회 기간이 길수록 빈 행이 계속 늘어남(날짜 수 − 1개)</td></tr>
+          </table>
+
+          <h3 style="font-size:14px">요청</h3>
+          <table>
+            <tr><th style="width:24%">구분</th><th>처리</th></tr>
+            <tr><td><b>화면</b></td><td><b>현행 유지</b> — 날짜 구분 행은 화면에서 계속 보여야 함(가독성 목적)</td></tr>
+            <tr><td><b>엑셀</b> <span class="pill tag-new">변경</span></td><td><b>[화면다운로드] 산출물에서만 구분 행 제외.</b> 헤더 1행 + 데이터 행만 <b>연속</b>으로 출력</td></tr>
+            <tr><td>대안(선택)</td><td>날짜 구분이 엑셀에도 필요하다면, 빈 행 대신 <b>분배일 컬럼 값</b>으로 구분되게 두면 됨 — 이미 <code>분배일</code> 컬럼이 있으므로 <b>빈 행은 불필요</b></td></tr>
+          </table>
+          <div class="note q"><b>확인 기준</b> 다운로드한 xlsx를 열었을 때 <b>완전 공란 행 0건</b>, <code>Ctrl+Shift+↓</code>로 마지막 데이터 행까지 한 번에 선택될 것.</div>
+        </div>
+      </div>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">2-1</span><h3>② 상담상태 횟수(n) 검색 조건 <span class="pill tag-new" style="font-size:12px">신규</span></h3></div>
+        <div class="spbody">
+          <p class="purpose">상담상태 컬럼은 <code>부재중(1)</code> · <code>통화(2)</code> · <code>부재중(5)</code> 처럼 <b>최근 상태명 + 담당자가 남긴 상담이력 건수</b>로 표시됨. 그런데 <b>이 괄호 숫자로 거르거나 정렬할 방법이 없음</b>. 검색 조건은 상담상태 <b>종류</b>만 고를 수 있음.</p>
+          <div class="fig">
+            <img src="2-1%20OB%20CALL%20%EB%AA%A9%EB%A1%9D%20%EA%B2%80%EC%83%89%EC%A1%B0%EA%B1%B4.png" alt="2-1 OB CALL 목록 검색 조건" />
+            <figcaption><b>현재 검색 영역</b> — <code>상담상태 : --선택하세요--</code> 드롭다운만 있고 <b>횟수 조건이 없음</b>. 목록 상담상태 컬럼에는 <code>부재중(1)</code> · <code>부재중(2)</code> 처럼 횟수가 이미 붙어 있음.</figcaption>
+          </div>
+
+          <h3 style="font-size:14px">요청 — 검색 조건 추가</h3>
+          <table>
+            <tr><th style="width:22%">항목</th><th style="width:20%">입력</th><th>동작</th></tr>
+            <tr><td><b>상담이력 건수</b> <span class="pill tag-new">신규</span></td><td>숫자 <code>최소</code> ~ <code>최대</code> (둘 다 선택 입력)</td><td>상담상태 옆 괄호 값(=담당자가 남긴 이력 건수)이 이 범위에 드는 건만 조회. 한쪽만 넣으면 <b>이상 / 이하</b>로 동작</td></tr>
+            <tr><td>기존 <b>상담상태</b> 드롭다운</td><td>현행 유지</td><td>이력 건수 조건과 <b>AND 결합</b> — 예) <code>상담상태=부재중</code> + <code>이력 3건 이상</code> → <b>세 번 넘게 붙었는데 아직 부재중</b>인 DB만</td></tr>
+            <tr><td>상담상태 <b>미선택</b> + 건수만</td><td>—</td><td>상태 종류와 무관하게 <b>이력 건수 기준</b>으로만 조회</td></tr>
+          </table>
+
+          <h3 style="font-size:14px">정렬 · 엑셀</h3>
+          <table>
+            <tr><th style="width:22%">구분</th><th>처리</th></tr>
+            <tr><td><b>정렬</b></td><td>목록 <code>상담상태</code> 컬럼 헤더 클릭 시 <b>이력 건수 기준</b> 오름/내림차순 정렬(현재는 정렬 불가)</td></tr>
+            <tr><td><b>엑셀</b></td><td>[화면다운로드] 결과에 <b>검색 조건 · 정렬이 그대로 반영</b>되고, 상담상태 텍스트와 별개로 <b>이력 건수 숫자 컬럼 1개</b>를 <code>상담상태</code> 우측에 추가(엑셀에서 바로 필터·집계 가능하도록)</td></tr>
+          </table>
+          <div class="vn"><b>목적</b> <b>부재중이 여러 번 누적된 DB를 골라내기 위함.</b> 지금은 목록을 눈으로 훑어야 해서 재콜 우선순위 판단과 <b>DB 회수 · 재분배 대상 선별</b>(→ <a href="#s-redist">16번 15-2-2</a>)이 사실상 수작업임.</div>
+          <div class="note new"><b>괄호 숫자의 정의 <span class="pill tag-new">확정</span></b> <b>담당자(OB)가 그 DB에 남긴 상담이력 건수</b>임. 상담상태 이름은 <b>가장 최근 이력의 상태</b>이고, 괄호 숫자는 <b>누적 이력 개수</b>. 상태별 횟수가 아니므로 <code>부재중(5)</code>는 <b>“이력 5건이 쌓였고 마지막이 부재중”</b>이라는 뜻. 이력이 아직 없으면 <code>상담시작(0)</code>.</div>
+        </div>
+      </div>
+
+      <div class="spec reqbox">
+        <div class="sphead"><span class="pg">2-1 · 1-3</span><h3>③ 아웃바운드매니저는 자기 팀 DB만 노출 <span class="pill p-role" style="font-size:12px">개선</span></h3></div>
+        <div class="spbody">
+          <p class="purpose">1-3 사용자관리에서 타입이 <b>아웃바운드매니저</b>(= 매니저)인 계정으로 2-1을 열면 <b>팀 구분 없이 전체 DB가 보임</b>. 매니저는 <b>자기 팀 상담원</b>(타입 <b>아웃바운드</b>)의 DB만 봐야 함.</p>
+
+          <h3 style="font-size:14px">노출 규칙</h3>
+          <table>
+            <tr><th style="width:20%">로그인 타입</th><th style="width:14%">팀</th><th>2-1 노출 범위</th></tr>
+            <tr><td><b>아웃바운드매니저</b> <span class="pill tag-new">변경</span></td><td>자기 팀</td><td><b>자기 팀에 속한 상담원(아웃바운드)의 DB만</b> — 다른 팀 DB는 조회·검색·다운로드 모두 불가</td></tr>
+            <tr><td>아웃바운드(상담원)</td><td>자기 팀</td><td>현행 유지 — 본인 배정 DB</td></tr>
+            <tr><td>관리자<span class="exp">관리 · 관리자</span></td><td>관리</td><td><b>전체 노출</b> — 현행 유지(<a href="#s-perm">11번</a> 최상위 권한 원칙)</td></tr>
+          </table>
+
+          <h3 style="font-size:14px">판정 기준 · 적용 범위</h3>
+          <table>
+            <tr><th style="width:22%">구분</th><th>내용</th></tr>
+            <tr><td><b>판정 키</b></td><td>DB 행의 <code>OB명</code>(담당 상담원) → 그 상담원의 <b>1-3 팀</b>이 <b>로그인 매니저의 팀과 같을 때만</b> 노출</td></tr>
+            <tr><td><b>적용 대상</b></td><td>목록 · <b>검색 결과</b> · <b>건수/카운트</b> · <b>[화면다운로드] 엑셀</b> 전부 동일 기준. 검색으로도 다른 팀 DB가 나오면 안 됨</td></tr>
+            <tr><td>상담창 진입</td><td>노출 범위 밖 DB는 <b>상담창(OB CALL 관리)도 열리지 않아야 함</b> — URL 직접 접근 포함</td></tr>
+          </table>
+          <div class="note new"><b>예외 없음 <span class="pill tag-new">확정</span></b> 모든 DB는 <b>분배 시점에 담당 OB가 반드시 배정</b>되므로 <b>OB명이 비어 있는 DB는 존재하지 않음</b>. 따라서 위 판정에 예외 케이스를 두지 않음 — <code>OB명 → 상담원의 팀</code> 한 가지 기준으로 전부 판정됨.</div>
+          <div class="note"><b>권한 매핑 반영</b> 확정 시 <a href="#s-perm">11번 권한 매핑</a>의 화면 요소별 노출 조건 표에 <code>2-1 OB CALL 목록 — 데이터 노출 범위</code> 행으로 함께 기재.</div>
+        </div>
+      </div>
+
     </section>
 
   </main>

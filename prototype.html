@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>베트남 WM-CMS 프로토타입 — 구매승인 · 배송 · 취소 · 해지 인터랙션</title>
+<title>베트남 WM-CMS 프로토타입 — 계약승인 · 배송 · 취소 · 해지 인터랙션</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <style>
@@ -69,6 +69,8 @@
   .s-work{background:#f3ecff;color:#7a4dd0}
   .s-end{background:#3a3f47;color:#fff}
   .cons{background:#eef1f5;color:#555}
+  tr.dateDiv td{background:#e6e8ec;color:#6b7380;font-size:12px;padding:5px 10px;text-align:left;border-top:1px solid #d3d7de;border-bottom:1px solid #d3d7de}
+  tr.dateDiv .dd-note{margin-left:12px;color:#9aa1ab;font-weight:400}
 
   /* buttons */
   button{font-family:inherit;cursor:pointer;border-radius:5px;font-weight:700;font-size:12px;padding:5px 10px;
@@ -211,6 +213,22 @@
     <p class="pdesc">고객 행의 <b>기능</b> 버튼을 클릭해 보세요. 상단 <b>로그인 권한</b>을 바꾸면 노출되는 버튼이 달라집니다(권한별 노출).</p>
 
     <div class="hint" id="listHint"></div>
+    <div class="hint"><b>2-1 개선 요청 3건 (요건서 21번)</b><br>
+      ① 분배일이 바뀌는 지점의 <b>회색 구분 행</b>은 화면에만 남고, <b>[DB 리스트 엑셀]에는 빈 행 없이</b> 데이터만 연속으로 나갑니다.<br>
+      ② 상담상태 옆 <b>(n) = 담당자가 남긴 상담이력 건수</b>. 아래 <b>상담이력 건수</b>로 거르고, <b>상담상태 헤더</b>를 눌러 건수순 정렬합니다. [상담]에서 이력을 저장하면 n이 1 올라갑니다.<br>
+      ③ 로그인 권한을 <b>매니저</b>로 바꾸면 <b>내 팀</b> 상담원의 DB만 보입니다(검색 · 건수 · 엑셀 모두 동일). 관리자는 전체.</div>
+    <div class="frm" style="margin-bottom:8px"><table>
+      <tr><th style="width:90px">상담상태</th>
+          <td><select id="fCons" onchange="renderList()"><option value="">-- 전체 --</option></select></td>
+          <th style="width:120px">상담이력 건수</th>
+          <td><input type="number" id="fNMin" min="0" placeholder="최소" style="width:70px" oninput="renderList()"> ~
+              <input type="number" id="fNMax" min="0" placeholder="최대" style="width:70px" oninput="renderList()">
+              <span class="muted">한쪽만 넣으면 이상 / 이하</span></td>
+          <td style="white-space:nowrap"><button class="b-ghost" onclick="resetListFilter()">검색 초기화</button></td></tr>
+      <tr id="teamRow"><th>내 팀</th>
+          <td colspan="4"><select id="fTeam" onchange="renderList()"><option value="1팀">1팀</option><option value="2팀">2팀</option></select>
+              <span class="muted">아웃바운드매니저는 <b>자기 팀 상담원</b>의 DB만 봅니다 — 판정: OB명 → 그 상담원의 1-3 팀</span></td></tr>
+    </table></div>
     <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <button class="b-ghost" id="colToggle" onclick="toggleListCols()">전체 컬럼 보기 (21)</button>
       <span class="muted">실운영 1-2는 컬럼이 21개입니다. 기본은 <b>핵심 컬럼</b>만 보여줍니다.</span>
@@ -225,25 +243,26 @@
       <tbody id="rows"></tbody>
     </table>
     </div>
+    <div class="muted" id="listCount" style="margin:6px 2px 0"></div>
     <div class="legend">
-      <span>배송/판매</span><span>해지 진행</span><span>구매요청/취소</span><span>종결</span>
+      <span>배송/판매</span><span>해지 진행</span><span>계약요청/취소</span><span>종결</span>
       <span style="margin-left:auto">※ 샘플 데이터 — 실제 동작 시연용</span>
     </div>
   </div>
 
-  <!-- ===== Screen: 3-1 결제 (구매승인) ===== -->
+  <!-- ===== Screen: 3-1 결제 (계약승인) ===== -->
   <div class="page reqscreen" id="screen-approve" style="display:none">
-    <h2 class="ptitle">3-1 결제 <span class="b s-canc">신규 화면</span> <span class="muted" style="font-size:13px">구매승인</span></h2>
-    <p class="pdesc">상담원이 접수한 <b>구매요청</b> 건을 확인하고 <b>구매승인</b> 처리합니다. 승인되어야 <b>배송대기</b>로 넘어갑니다. 권한: <b>관리자 / 매니저 / 재무담당자</b>.</p>
-    <div class="hint">베트남은 COD(대금상환)라 이 시점에 실제 결제가 일어나지 않으므로 <b>구매요청 · 구매승인</b>이라고 부릅니다. 이 화면(3-1 결제)이 <b>구매승인 처리 페이지</b>이며, 승인 전에는 3-4 배송 목록에 나타나지 않습니다.</div>
+    <h2 class="ptitle">3-1 결제 <span class="b s-canc">신규 화면</span> <span class="muted" style="font-size:13px">계약승인</span></h2>
+    <p class="pdesc">상담원이 접수한 <b>계약요청</b> 건을 확인하고 <b>계약승인</b> 처리합니다. 승인되어야 <b>배송대기</b>로 넘어갑니다. 권한: <b>관리자 / 매니저 / 재무담당자</b>.</p>
+    <div class="hint">베트남은 COD(대금상환)라 이 시점에 실제 결제가 일어나지 않으므로 <b>계약요청 · 계약승인</b>이라고 부릅니다. 이 화면(3-1 결제)이 <b>계약승인 처리 페이지</b>이며, 승인 전에는 3-4 배송 목록에 나타나지 않습니다.</div>
     <table class="list" id="approveTable"></table>
-    <div style="margin:10px 0 4px"><button class="b-pri" onclick="doApprove()">선택 건 구매승인</button></div>
+    <div style="margin:10px 0 4px"><button class="b-pri" onclick="doApprove()">선택 건 계약승인</button></div>
   </div>
 
   <!-- ===== Screen: 3-4 배송 ===== -->
   <div class="page reqscreen" id="screen-deliver" style="display:none">
     <h2 class="ptitle">3-4 배송 <span class="b s-canc">개선 요청</span> <span class="muted" style="font-size:13px">배송처리 · 계약서 출력</span></h2>
-    <p class="pdesc">구매승인된 <b>배송대기</b> 건을 <b>배송처리</b>합니다. 배송처리 시 해당 고객의 <b>계약서가 ZIP으로 일괄 다운로드</b>되며, 행별 [계약서]로 <b>개별 출력</b>도 가능합니다. 권한: <b>물류 / 관리자 / 매니저</b>.</p>
+    <p class="pdesc">계약승인된 <b>배송대기</b> 건을 <b>배송처리</b>합니다. 배송처리 시 해당 고객의 <b>계약서가 ZIP으로 일괄 다운로드</b>되며, 행별 [계약서]로 <b>개별 출력</b>도 가능합니다. 권한: <b>물류 / 관리자 / 매니저</b>.</p>
     <div class="hint">① 행별 <b>[계약서]</b> = 그 고객 계약서 1건 개별 출력(PDF 인쇄). ② <b>[선택 건 배송처리]</b> = 선택한 고객의 계약서를 <b>전체 ZIP 파일</b>로 내려받고 고객상태를 <b>배송중</b>으로 전환. 이후 4-6에서 시리얼번호를 등록합니다.</div>
     <table class="list" id="deliverTable"></table>
     <div style="margin:10px 0 4px">
@@ -256,7 +275,7 @@
   <div class="page reqscreen" id="screen-ship" style="display:none">
     <h2 class="ptitle">4-6 시리얼번호 업로드 <span class="muted" style="font-size:13px">단말기 시리얼 등록</span></h2>
     <p class="pdesc">출고 단말기의 <b>시리얼번호를 입력/업로드</b>합니다. 업로드 양식은 <b>주문키 · 시리얼 2열</b>뿐입니다. 권한: <b>물류 / 관리자</b>.</p>
-    <div class="hint">시리얼번호가 등록되면 1-2 고객관리의 해당 건 <b>시리얼 </b> + <b>상담창(OB CALL 관리)에 시리얼번호</b>가 표시됩니다. <b>선납금 입금(3-9) + 시리얼 등록</b>이 모두 완료되면 자동 <b>구매완료(3-10)</b> 처리됩니다. 등록된 시리얼은 <b>기기 PW 발송</b>과 <b>3-6 해지대기의 기기반납 확인</b>에 그대로 사용됩니다.</div>
+    <div class="hint">시리얼번호가 등록되면 1-2 고객관리의 해당 건 <b>시리얼 </b> + <b>상담창(OB CALL 관리)에 시리얼번호</b>가 표시됩니다. <b>선납금 입금(3-9) + 시리얼 등록</b>이 모두 완료되면 자동 <b>계약완료(3-10)</b> 처리됩니다. 등록된 시리얼은 <b>기기 PW 발송</b>과 <b>3-6 해지대기의 기기반납 확인</b>에 그대로 사용됩니다.</div>
 
     <div class="sec" style="margin-top:0">시리얼번호 등록 <span class="muted">(수기 · 국내 CMS 방식)</span></div>
     <div class="dm-panel">
@@ -270,7 +289,7 @@
     </div>
     <div class="dm-tpl"><button onclick="downloadShipTemplate()">양식 다운로드</button></div>
 
-    <div class="hint">시리얼번호는 <b>마지막 등록만 유효</b>합니다. 이미 다른 고객에게 등록된 시리얼을 다시 등록하면 <b>직전 고객의 시리얼이 자동 해제</b>되고(구매완료도 함께 해제) 그 건은 이 목록에 다시 나타납니다. 표기는 <code>S/N:</code> 접두어와 대소문자를 무시하고 비교합니다.</div>
+    <div class="hint">시리얼번호는 <b>마지막 등록만 유효</b>합니다. 이미 다른 고객에게 등록된 시리얼을 다시 등록하면 <b>직전 고객의 시리얼이 자동 해제</b>되고(계약완료도 함께 해제) 그 건은 이 목록에 다시 나타납니다. 표기는 <code>S/N:</code> 접두어와 대소문자를 무시하고 비교합니다.</div>
     <div class="sec" style="margin-top:22px">시리얼 미등록 목록 <span class="muted">(행별 시리얼번호 입력 → [시리얼확인] 개별 처리 또는 체크 후 일괄 처리)</span></div>
     <table class="list" id="shipTable"></table>
     <div style="margin:10px 0 4px"><button class="b-pri" onclick="doShip()">선택 건 시리얼 등록</button></div>
@@ -280,7 +299,7 @@
   <div class="page reqscreen" id="screen-pay" style="display:none">
     <h2 class="ptitle">3-9 선납금 입금 <span class="b s-canc">신규 화면</span></h2>
     <p class="pdesc">선납금 입금 건을 <b>입금액과 함께</b> 확인 처리합니다. 권한: <b>재무담당자 / 관리자</b>.</p>
-    <div class="hint">입금처리되면 1-2 고객관리의 해당 건 <b>입금 </b>로 갱신됩니다. <b>선납금 입금 + 시리얼 등록(4-6)</b>이 모두 완료되면 자동 <b>구매완료(3-10)</b> 처리됩니다.</div>
+    <div class="hint">입금처리되면 1-2 고객관리의 해당 건 <b>입금 </b>로 갱신됩니다. <b>선납금 입금 + 시리얼 등록(4-6)</b>이 모두 완료되면 자동 <b>계약완료(3-10)</b> 처리됩니다.</div>
 
     <div class="sec" style="margin-top:0">선납금 입금 등록 <span class="muted">(수기 · 국내 CMS 방식)</span></div>
     <div class="dm-panel">
@@ -301,13 +320,13 @@
     <div style="margin:10px 0 4px"><button class="b-pri" onclick="doPay()">선택 건 입금처리</button></div>
   </div>
 
-  <!-- ===== Screen: 3-10 구매완료 처리 ===== -->
+  <!-- ===== Screen: 3-10 계약완료 처리 ===== -->
   <div class="page reqscreen" id="screen-complete" style="display:none">
-    <h2 class="ptitle">3-10 구매완료 처리 <span class="b s-canc">신규 화면</span></h2>
-    <p class="pdesc"><b>시리얼 + 입금이 모두 완료된 건</b>을 <b>구매완료</b>로 확정합니다. 구매완료가 되어야 비로소 해지 접수가 가능합니다.</p>
-    <div class="hint"><b>선납금 입금(3-9) + 시리얼 등록(4-6)</b>이 모두 완료되면 <b>자동 구매완료</b> 처리됩니다. 아래 목록은 두 조건이 충족됐으나 아직 구매완료 전인 건으로, <b>임의(수동) 구매완료</b>가 필요할 때 사용합니다. 구매완료가 되어야 1-2 고객관리에서 해지 접수(상담창) 진행이 가능합니다.</div>
+    <h2 class="ptitle">3-10 계약완료 처리 <span class="b s-canc">신규 화면</span></h2>
+    <p class="pdesc"><b>시리얼 + 입금이 모두 완료된 건</b>을 <b>계약완료</b>로 확정합니다. 계약완료가 되어야 비로소 해지 접수가 가능합니다.</p>
+    <div class="hint"><b>선납금 입금(3-9) + 시리얼 등록(4-6)</b>이 모두 완료되면 <b>자동 계약완료</b> 처리됩니다. 아래 목록은 두 조건이 충족됐으나 아직 계약완료 전인 건으로, <b>임의(수동) 계약완료</b>가 필요할 때 사용합니다. 계약완료가 되어야 1-2 고객관리에서 해지 접수(상담창) 진행이 가능합니다.</div>
     <table class="list" id="completeTable"></table>
-    <div style="margin:10px 0 4px"><button class="b-pri" onclick="doComplete()">선택 건 구매완료 처리</button></div>
+    <div style="margin:10px 0 4px"><button class="b-pri" onclick="doComplete()">선택 건 계약완료 처리</button></div>
   </div>
 
   <!-- ===== Screen: 3-6 해지대기 ===== -->
@@ -350,7 +369,7 @@
           <tr><td>할부금</td><td>970422-...-5535</td><td>1,547,000</td><td>2026-06-29</td></tr>
         </tbody>
       </table>
-      <div style="margin-top:10px"><button class="b-pri" onclick="toast('업로드 반영 완료 — 위약금 입금/구매완료 상태에 매칭')">반영하기</button></div>
+      <div style="margin-top:10px"><button class="b-pri" onclick="toast('업로드 반영 완료 — 위약금 입금/계약완료 상태에 매칭')">반영하기</button></div>
     </div>
   </div>
 
@@ -582,9 +601,9 @@ const VI_HTML={
 '패키지 <b>내부코드</b> 컬럼 포함 — 화면에는 표시되지 않습니다.':
  'Bao gồm cột <b>mã nội bộ</b> của gói — không hiển thị trên màn hình.',
 
-/* ── 3-1 결제(구매승인) · 3-4 배송 ─────────────────────────── */
-'3-1 결제 <span class="b s-canc">신규 화면</span> <span class="muted" style="font-size:13px">구매승인</span>':
- '3-1 Thanh toán <span class="b s-canc">Màn hình mới</span> <span class="muted" style="font-size:13px">Duyệt mua hàng</span>',
+/* ── 3-1 결제(계약승인) · 3-4 배송 ─────────────────────────── */
+'3-1 결제 <span class="b s-canc">신규 화면</span> <span class="muted" style="font-size:13px">계약승인</span>':
+ '3-1 Thanh toán <span class="b s-canc">Màn hình mới</span> <span class="muted" style="font-size:13px">Duyệt hợp đồng</span>',
 '3-4 배송 <span class="b s-canc">개선 요청</span> <span class="muted" style="font-size:13px">배송처리 · 계약서 출력</span>':
  '3-4 Giao hàng <span class="b s-canc">Cải tiến</span> <span class="muted" style="font-size:13px">Giao hàng · in hợp đồng</span>',
 
@@ -599,16 +618,16 @@ const VI_HTML={
  'Danh sách chưa đăng ký sê-ri <span class="muted">(nhập số sê-ri từng dòng → xử lý riêng bằng [Xác nhận sê-ri] hoặc chọn rồi xử lý hàng loạt)</span>',
 '시리얼 미등록 건에 <b>시리얼번호를 입력/업로드</b>합니다. 권한: <b>물류 / 관리자</b>.':
  '<b>Nhập/tải lên mã vận đơn</b> cho các đơn chưa đăng ký vận đơn. Quyền: <b>Kho vận / Quản trị viên</b>.',
-'시리얼번호가 등록되면 1-2 고객관리의 해당 건 <b>시리얼 </b> + <b>상담창(OB CALL 관리)에 시리얼번호</b>가 표시됩니다. <b>선납금 입금(3-9) + 시리얼 등록</b>이 모두 완료되면 자동 <b>구매완료(3-10)</b> 처리됩니다. 등록된 시리얼은 <b>기기 PW 발송</b>과 <b>3-6 해지대기의 기기반납 확인</b>에 그대로 사용됩니다.':
- 'Khi số sê-ri được đăng ký, đơn tương ứng tại 1-2 Quản lý khách hàng sẽ hiển thị <b>Sê-ri </b> và <b>số sê-ri trong cửa sổ tư vấn (Quản lý OB CALL)</b>. Khi hoàn tất cả <b>nộp tiền trả trước (3-9) và đăng ký sê-ri</b>, đơn sẽ tự động được xử lý thành <b>hoàn tất mua hàng (3-10)</b>. Số sê-ri đã đăng ký được dùng cho <b>gửi mật khẩu thiết bị</b> và <b>xác nhận trả lại thiết bị tại 3-6</b>.',
+'시리얼번호가 등록되면 1-2 고객관리의 해당 건 <b>시리얼 </b> + <b>상담창(OB CALL 관리)에 시리얼번호</b>가 표시됩니다. <b>선납금 입금(3-9) + 시리얼 등록</b>이 모두 완료되면 자동 <b>계약완료(3-10)</b> 처리됩니다. 등록된 시리얼은 <b>기기 PW 발송</b>과 <b>3-6 해지대기의 기기반납 확인</b>에 그대로 사용됩니다.':
+ 'Khi số sê-ri được đăng ký, đơn tương ứng tại 1-2 Quản lý khách hàng sẽ hiển thị <b>Sê-ri </b> và <b>số sê-ri trong cửa sổ tư vấn (Quản lý OB CALL)</b>. Khi hoàn tất cả <b>nộp tiền trả trước (3-9) và đăng ký sê-ri</b>, đơn sẽ tự động được xử lý thành <b>hoàn tất hợp đồng (3-10)</b>. Số sê-ri đã đăng ký được dùng cho <b>gửi mật khẩu thiết bị</b> và <b>xác nhận trả lại thiết bị tại 3-6</b>.',
 
 /* ── 3-9 선납금 입금 ───────────────────────────────────────── */
 '3-9 선납금 입금 <span class="b s-canc">신규 화면</span>':
  '3-9 Nộp tiền trả trước <span class="b s-canc">Màn hình mới</span>',
 '선납금 입금 건을 <b>입금액과 함께</b> 확인 처리합니다. 권한: <b>재무담당자 / 관리자</b>.':
  'Xác nhận xử lý các đơn nộp tiền trả trước <b>kèm theo số tiền đã nộp</b>. Quyền: <b>Phụ trách tài chính / Quản trị viên</b>.',
-'입금처리되면 1-2 고객관리의 해당 건 <b>입금 </b>로 갱신됩니다. <b>선납금 입금 + 시리얼 등록(4-6)</b>이 모두 완료되면 자동 <b>구매완료(3-10)</b> 처리됩니다.':
- 'Sau khi xử lý nộp tiền, đơn tương ứng tại 1-2 Quản lý khách hàng sẽ được cập nhật thành <b>Nộp tiền </b>. Khi hoàn tất cả <b>nộp tiền trả trước và đăng ký vận đơn (4-6)</b>, đơn sẽ tự động được xử lý thành <b>hoàn tất mua hàng (3-10)</b>.',
+'입금처리되면 1-2 고객관리의 해당 건 <b>입금 </b>로 갱신됩니다. <b>선납금 입금 + 시리얼 등록(4-6)</b>이 모두 완료되면 자동 <b>계약완료(3-10)</b> 처리됩니다.':
+ 'Sau khi xử lý nộp tiền, đơn tương ứng tại 1-2 Quản lý khách hàng sẽ được cập nhật thành <b>Nộp tiền </b>. Khi hoàn tất cả <b>nộp tiền trả trước và đăng ký vận đơn (4-6)</b>, đơn sẽ tự động được xử lý thành <b>hoàn tất hợp đồng (3-10)</b>.',
 '선납금 입금 등록 <span class="muted">(수기 · 국내 CMS 방식)</span>':
  'Đăng ký nộp tiền trả trước <span class="muted">(Nhập thủ công · Theo phương thức CMS nội địa)</span>',
 '파일을 올려주세요 <span class="muted">(구분 | 고객키 | 입금액 3열)</span>':
@@ -616,11 +635,11 @@ const VI_HTML={
 '입금 미확인 목록 <span class="muted">(행별 입금액 입력 → [입금확인] 개별 처리 또는 체크 후 일괄 처리)</span>':
  'Danh sách chưa xác nhận nộp tiền <span class="muted">(nhập số tiền nộp từng dòng → xử lý riêng bằng [Xác nhận nộp tiền] hoặc chọn rồi xử lý hàng loạt)</span>',
 
-/* ── 3-10 구매완료 처리 ────────────────────────────────────── */
-'3-10 구매완료 처리 <span class="b s-canc">신규 화면</span>':
- '3-10 Xử lý hoàn tất mua hàng <span class="b s-canc">Màn hình mới</span>',
-'<b>선납금 입금(3-9) + 시리얼 등록(4-6)</b>이 모두 완료되면 <b>자동 구매완료</b> 처리됩니다. 아래 목록은 두 조건이 충족됐으나 아직 구매완료 전인 건으로, <b>임의(수동) 구매완료</b>가 필요할 때 사용합니다. 구매완료가 되어야 1-2 고객관리에서 해지 접수(상담창) 진행이 가능합니다.':
- 'Khi hoàn tất cả <b>nộp tiền trả trước (3-9) và đăng ký sê-ri (4-6)</b>, đơn sẽ được <b>tự động hoàn tất mua hàng</b>. Danh sách dưới đây là các đơn đã thỏa mãn cả hai điều kiện nhưng chưa hoàn tất mua hàng, dùng khi cần <b>hoàn tất mua hàng thủ công</b>. Chỉ khi đã hoàn tất mua hàng mới có thể tiến hành tiếp nhận chấm dứt (cửa sổ tư vấn) tại 1-2 Quản lý khách hàng.',
+/* ── 3-10 계약완료 처리 ────────────────────────────────────── */
+'3-10 계약완료 처리 <span class="b s-canc">신규 화면</span>':
+ '3-10 Xử lý hoàn tất hợp đồng <span class="b s-canc">Màn hình mới</span>',
+'<b>선납금 입금(3-9) + 시리얼 등록(4-6)</b>이 모두 완료되면 <b>자동 계약완료</b> 처리됩니다. 아래 목록은 두 조건이 충족됐으나 아직 계약완료 전인 건으로, <b>임의(수동) 계약완료</b>가 필요할 때 사용합니다. 계약완료가 되어야 1-2 고객관리에서 해지 접수(상담창) 진행이 가능합니다.':
+ 'Khi hoàn tất cả <b>nộp tiền trả trước (3-9) và đăng ký sê-ri (4-6)</b>, đơn sẽ được <b>tự động hoàn tất hợp đồng</b>. Danh sách dưới đây là các đơn đã thỏa mãn cả hai điều kiện nhưng chưa hoàn tất hợp đồng, dùng khi cần <b>hoàn tất hợp đồng thủ công</b>. Chỉ khi đã hoàn tất hợp đồng mới có thể tiến hành tiếp nhận chấm dứt (cửa sổ tư vấn) tại 1-2 Quản lý khách hàng.',
 
 /* ── 4-3 수동입고처리 ──────────────────────────────────────── */
 '기기반납 건의 <b>입고를 확인</b>합니다. (4-1 입고 / 5-2-1 입고업로드 리스트 / 4-3 수동입고처리에서 동일하게 반영) 권한: <b>물류 / 관리자</b>.':
@@ -749,7 +768,7 @@ const VI_TEXT={
 '3-5 배송 내역 확인':'3-5 Kiểm tra lịch sử giao hàng','3-6 환불':'3-6 Hoàn tiền',
 '3-6 해지대기':'3-6 Chờ chấm dứt HĐ','4-6 시리얼번호업로드':'4-6 Tải lên số sê-ri',
 '3-7 환불 내역 확인':'3-7 Kiểm tra lịch sử hoàn tiền','3-8 결제고객리스트':'3-8 Danh sách khách hàng thanh toán',
-'3-9 선납금 입금':'3-9 Nộp tiền trả trước','3-10 구매완료':'3-10 Hoàn tất mua hàng',
+'3-9 선납금 입금':'3-9 Nộp tiền trả trước','3-10 계약완료':'3-10 Hoàn tất hợp đồng',
 '3-11 가상계좌 업로드':'3-11 Tải lên tài khoản ảo','4-1 입고':'4-1 Nhập kho',
 '4-2-1 입고업로드 리스트':'4-2-1 Danh sách tải lên nhập kho',
 '4-3 수동입고처리리스트':'4-3 Danh sách xử lý nhập kho thủ công',
@@ -773,25 +792,25 @@ const VI_TEXT={
 '오토콜':'auto call','고객상태':'trạng thái khách hàng',
 '관리콜1차':'quản lý cuộc gọi lần 1','관리콜2차':'quản lý cuộc gọi lần 2','기능':'chức năng',
 '배송/판매':'Giao hàng/Bán hàng','해지 진행':'Đang xử lý chấm dứt',
-'구매요청/취소':'Yêu cầu mua hàng/Hủy','종결':'Kết thúc',
+'계약요청/취소':'Yêu cầu hợp đồng/Hủy','종결':'Kết thúc',
 '※ 샘플 데이터 — 실제 동작 시연용':'※ Dữ liệu mẫu — dùng để minh họa thao tác thực tế',
 '접수 전 · [상담]에서 접수':'Trước khi tiếp nhận · tiếp nhận tại [Tư vấn]',
 '송장':'Vận đơn','시리얼':'Sê-ri','입금':'Nộp tiền',
 
 /* ── 상태값 · 데이터값 ─────────────────────────────────────── */
-'상담대기':'Đang chờ tư vấn','구매요청':'Yêu cầu mua hàng',
+'상담대기':'Đang chờ tư vấn','계약요청':'Yêu cầu hợp đồng',
 '배송대기':'Đang chờ giao hàng','배송중':'Đang giao hàng',
 '해지대기':'Chờ chấm dứt HĐ',
 '해지(위약금)':'Chấm dứt (phí phạt)','해지(기기반납)':'Chấm dứt (trả thiết bị)',
-'구매완료':'Hoàn tất mua hàng','취소접수':'Tiếp nhận hủy','환불요청':'Yêu cầu hoàn tiền',
+'계약완료':'Hoàn tất hợp đồng','취소접수':'Tiếp nhận hủy','환불요청':'Yêu cầu hoàn tiền',
 '취소':'Hủy','중도해지':'Chấm dứt trước hạn','입고대기':'Chờ nhập kho','반품입고':'Đã nhập kho hàng trả',
 '위약금미입금':'Chưa nộp phí phạt','위약금협의':'Thỏa thuận phí phạt','위약금 협의':'Thỏa thuận phí phạt',
 '위약금입금':'Đã nộp phí phạt','중도해지(기기반납)':'Chấm dứt trước hạn (trả thiết bị)',
 '중도해지(위약금)':'Chấm dứt trước hạn (phí phạt)',
 '기기반납':'Trả lại thiết bị','위약금':'Phí phạt','할부':'Trả góp','구매':'Trả thẳng',
 '할부금':'Tiền trả góp','선납금':'Tiền trả trước',
-'통화(1)':'Cuộc gọi (1)','구매_현금(COD)':'Trả thẳng_tiền mặt (COD)','할부_현금(COD)':'Trả góp_tiền mặt (COD)',
-'상담/구매확정':'Tư vấn/Xác nhận mua','없음':'Không có','렌탈':'Thuê','말일':'ngày cuối tháng','10일':'ngày 10',
+'통화(1)':'Cuộc gọi (1)','통화':'Cuộc gọi','부재':'Vắng mặt','상담이력 건수':'Số lịch sử tư vấn','상담이력수':'Số lịch sử tư vấn','내 팀':'Nhóm của tôi','검색 초기화':'Đặt lại tìm kiếm','한쪽만 넣으면 이상 / 이하':'Nhập một đầu = từ / đến','최소':'Tối thiểu','최대':'Tối đa','1팀':'Nhóm 1','2팀':'Nhóm 2','OB명':'Tên OB','구매_현금(COD)':'Trả thẳng_tiền mặt (COD)','할부_현금(COD)':'Trả góp_tiền mặt (COD)',
+'상담/계약확정':'Tư vấn/Xác nhận hợp đồng','없음':'Không có','렌탈':'Thuê','말일':'ngày cuối tháng','10일':'ngày 10',
 '계약중':'Đang hiệu lực','계약종료':'Đã kết thúc','일시정지':'Tạm dừng','미납':'Nợ quá hạn',
 '가상계좌':'Tài khoản ảo','계좌이체':'Chuyển khoản','보임':'Hiển thị','숨김':'Ẩn',
 '남':'Nam','여':'Nữ','등록':'Đăng ký','미등록':'Chưa đăng ký','삭제':'Xóa',
@@ -809,11 +828,11 @@ const VI_TEXT={
 /* ── 기능 버튼 · 공통 ──────────────────────────────────────── */
 '상담':'Tư vấn','계약서':'Hợp đồng','고객 관리':'Quản lý KH',
 '해지 승인':'Duyệt chấm dứt','취소 승인':'Duyệt hủy','해지취소':'Hủy chấm dứt HĐ','해지':'Chấm dứt',
-'선택 건 구매승인':'Duyệt mua hàng cho mục đã chọn',
+'선택 건 계약승인':'Duyệt hợp đồng cho mục đã chọn',
 '선택 건 배송처리 (계약서 ZIP 다운로드)':'Xử lý giao hàng cho mục đã chọn (tải ZIP hợp đồng)',
 '선택 건 계약서 ZIP만 받기':'Chỉ tải ZIP hợp đồng của mục đã chọn',
 '선택 건 시리얼 등록':'Đăng ký sê-ri cho mục đã chọn','시리얼확인':'Xác nhận sê-ri',
-'구매승인 대기 건이 없습니다':'Không có đơn nào chờ duyệt mua hàng',
+'계약승인 대기 건이 없습니다':'Không có đơn nào chờ duyệt hợp đồng',
 '배송처리 대상이 없습니다':'Không có đơn nào cần xử lý giao hàng',
 '시리얼 미등록 건이 없습니다':'Không có đơn nào chưa đăng ký sê-ri',
 '해지대기 건이 없습니다':'Không có đơn nào chờ chấm dứt',
@@ -842,7 +861,7 @@ const VI_TEXT={
 '주문키(고객키) :':'Mã đơn hàng (mã khách hàng) :',
 '구분 :':'Phân loại :','고객키 :':'Mã khách hàng :','입금액 :':'Số tiền nộp :',
 '선택 건 입금처리':'Xử lý nộp tiền cho mục đã chọn','입금확인':'Xác nhận nộp tiền',
-'선택 건 구매완료 처리':'Xử lý hoàn tất mua hàng cho mục đã chọn',
+'선택 건 계약완료 처리':'Xử lý hoàn tất hợp đồng cho mục đã chọn',
 '위약금 산정내역 다운로드 (CSV)':'Tải bảng tính phí phạt (CSV)',
 '최초 산정 위약금 · 할인 금액 · 최종 위약금 컬럼 포함':
  'Bao gồm các cột phí phạt tính ban đầu · số tiền giảm · phí phạt cuối cùng',
@@ -1043,8 +1062,8 @@ const VI_TEXT={
 '반품접수':'Tiếp nhận trả hàng','반품방식':'hình thức trả hàng','최초':'ban đầu','할인':'giảm giá','최종':'cuối cùng',
 '고객이 “그냥 사용하겠다”고 한 경우 사용합니다.':'Sử dụng khi khách hàng cho biết sẽ tiếp tục sử dụng sản phẩm',
 '사유 (이력)':'Lý do (lịch sử)','예: 고객 변심, 계속 사용 의사 확인':'VD: khách hàng đổi ý, đã xác nhận ý định tiếp tục sử dụng',
-'반품 철회 → 구매완료 복귀':'Rút lại trả hàng → quay về hoàn tất mua hàng',
-'해지 철회 → 구매완료 복귀':'Rút lại chấm dứt → quay về hoàn tất mua hàng',
+'반품 철회 → 계약완료 복귀':'Rút lại trả hàng → quay về hoàn tất hợp đồng',
+'해지 철회 → 계약완료 복귀':'Rút lại chấm dứt → quay về hoàn tất hợp đồng',
 '해지취소 확정':'Xác nhận hủy chấm dứt',
 '계약정보 수정':'Chỉnh sửa thông tin hợp đồng','미입력':'Chưa nhập',
 
@@ -1103,7 +1122,7 @@ const VI_TEXT={
 '해당 고객키/주문키를 찾을 수 없습니다':'Không tìm thấy mã khách hàng/mã đơn hàng tương ứng',
 '이미 판매 종료/해지 진행 건입니다':'Đơn này đã kết thúc bán hàng hoặc đang xử lý chấm dứt',
 '시리얼번호 업로드 양식 다운로드 (주문키·시리얼)':'Đã tải biểu mẫu tải lên số sê-ri (mã đơn hàng · số sê-ri)',
-'구매승인 권한이 없습니다 (관리자/매니저/재무담당자)':'Không có quyền duyệt mua hàng (Quản trị viên/Quản lý/Phụ trách tài chính)',
+'계약승인 권한이 없습니다 (관리자/매니저/재무담당자)':'Không có quyền duyệt hợp đồng (Quản trị viên/Quản lý/Phụ trách tài chính)',
 '해지 처리 권한이 없습니다 (관리자/매니저/재무담당자)':'Không có quyền xử lý chấm dứt (Quản trị viên/Quản lý/Phụ trách tài chính)',
 'ZIP 모듈을 불러오지 못했습니다 (오프라인)':'Không tải được mô-đun ZIP (ngoại tuyến)',
 '고객키와 입금액을 입력하세요':'Vui lòng nhập mã khách hàng và số tiền nộp',
@@ -1114,8 +1133,8 @@ const VI_TEXT={
 '파일 파싱 완료 — 2건 미리보기':'Phân tích tệp hoàn tất — xem trước 2 dòng',
 '양식(.xlsx) 다운로드 — 컬럼: 구분(위약금/할부금)·가상계좌·금액·입금일':
  'Đã tải biểu mẫu (.xlsx) — cột: phân loại (phí phạt/tiền trả góp) · tài khoản ảo · số tiền · ngày nộp tiền',
-'업로드 반영 완료 — 위약금 입금/구매완료 상태에 매칭':
- 'Đã áp dụng dữ liệu tải lên — khớp với trạng thái nộp phí phạt/hoàn tất mua hàng',
+'업로드 반영 완료 — 위약금 입금/계약완료 상태에 매칭':
+ 'Đã áp dụng dữ liệu tải lên — khớp với trạng thái nộp phí phạt/hoàn tất hợp đồng',
 '대상 데이터가 없습니다':'Không có dữ liệu đối tượng',
 '패키지명을 입력하세요':'Vui lòng nhập tên gói','내부코드를 입력하세요':'Vui lòng nhập mã nội bộ',
 '기본 컨텐츠(SW)를 1개 이상 선택하세요':'Vui lòng chọn ít nhất 1 nội dung cơ bản (SW)',
@@ -1153,7 +1172,7 @@ const VI_TEXT={
 '단계':'Bước','발송/연락일':'Ngày gửi/liên hệ','1차 (Zalo ZNS)':'Lần 1 (Zalo ZNS)','2차 (SMS)':'Lần 2 (SMS)','3차 (연락)':'Lần 3 (Gọi điện)',
 '미납 안내 Zalo 발송':'Gửi Zalo nhắc nợ','미납 안내 문자 발송':'Gửi SMS nhắc nợ','미납콜 통화 (18-2 연동)':'Gọi thu nợ (liên kết 18-2)',
 '반려':'Từ chối','반려 처리':'Xử lý từ chối','반려 사유':'Lý do từ chối','상세 내용':'Nội dung chi tiết',
-'구매반려':'Từ chối mua hàng','구매 반려':'Từ chối mua hàng','미발송':'Chưa gửi',
+'계약반려':'Từ chối hợp đồng','계약 반려':'Từ chối hợp đồng','미발송':'Chưa gửi',
 '납부중':'Đang thanh toán','(위약금 기준일)':'(ngày căn cứ tính phí phạt)',
 '(미도래할부금)':'(tiền trả góp chưa đến kỳ)','입금 내역':'Lịch sử nộp tiền','(정정 · 취소 가능 — 재무담당자 / 관리자)':'(có thể sửa · hủy — Phụ trách tài chính / Quản trị viên)',
 '정정':'Sửa','정상':'Bình thường','취소됨':'Đã hủy','정정됨':'Đã sửa','충당 회차':'Kỳ được bù','충당 없음':'Không bù kỳ nào',
@@ -1311,7 +1330,7 @@ function setLang(v){
   document.documentElement.setAttribute('data-lang',v);
   document.title = v==='vi'
     ? 'Nguyên mẫu WM-CMS Việt Nam — Tương tác duyệt mua · giao hàng · hủy · chấm dứt'
-    : '베트남 WM-CMS 프로토타입 — 구매승인 · 배송 · 취소 · 해지 인터랙션';
+    : '베트남 WM-CMS 프로토타입 — 계약승인 · 배송 · 취소 · 해지 인터랙션';
   restoreTree(document.body);
   /* 어순이 다른 조합 문자열은 재렌더로 다시 만든다 */
   renderNav(); showScreen(curScreen); renderList(); updateHint();
@@ -1322,35 +1341,42 @@ function setLang(v){
 /* ================= data ================= */
 let role='관리자';
 let rows=[
+  /* 상담대기 DB — 부재 누적(상담이력 건수) 검색 · 날짜 구분 행 시연용. 분배일이 같은 묶음 */
+  {no:104,name:'Nguyễn Thị Lan (40)',phone:'0987112233',product:'-',pay:'-',cons:'부재',consN:6,approved:false,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,intake:false,
+    stars:0,dbidx:20371,dbpoint:'1.0',ob:'Hoàng Văn Nam',distDate:'2026-07-27',inDate:'2026-07-26',callType:'IN',dbInfo:'없음',lastCall:'2026-07-27 16:05',resvCall:'-',orderDate:'-',autocall:'없음',care1:'-',care2:'-'},
+  {no:103,name:'Bùi Minh Châu (30)',phone:'0903445566',product:'-',pay:'-',cons:'부재',consN:3,approved:false,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,intake:false,
+    stars:0,dbidx:20368,dbpoint:'1.0',ob:'Phạm Thu Hà',distDate:'2026-07-27',inDate:'2026-07-26',callType:'IN',dbInfo:'렌탈',lastCall:'2026-07-27 15:40',resvCall:'-',orderDate:'-',autocall:'없음',care1:'-',care2:'-'},
+  {no:102,name:'Lý Thanh Tâm (20)',phone:'0938778899',product:'-',pay:'-',cons:'통화예약',consN:2,approved:false,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,intake:false,
+    stars:0,dbidx:20365,dbpoint:'1.0',ob:'Lê Minh Tuấn',distDate:'2026-07-27',inDate:'2026-07-26',callType:'IN',dbInfo:'없음',lastCall:'2026-07-27 11:10',resvCall:'2026-07-29 10:00',orderDate:'-',autocall:'없음',care1:'-',care2:'-'},
   /* 접수 전(상담대기) — [상담] 버튼으로 2-1 접수창 진입 가능한 유일한 상태 */
-  {no:101,name:'Đỗ Thị Kim Ngân (20)',phone:'0912345678',product:'-',pay:'-',cons:'통화(1)',approved:false,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,intake:false,
+  {no:101,name:'Đỗ Thị Kim Ngân (20)',phone:'0912345678',product:'-',pay:'-',cons:'통화',consN:1,approved:false,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,intake:false,
     stars:0,dbidx:20361,dbpoint:'1.0',ob:'Phạm Thu Hà',distDate:'2026-07-27',inDate:'2026-07-26',callType:'IN',dbInfo:'렌탈',lastCall:'2026-07-27 14:20',resvCall:'2026-07-28 10:00',orderDate:'-',autocall:'없음',care1:'-',care2:'-'},
-  /* 구매요청 — 접수 완료, 3-1 결제에서 구매승인 대기 */
-  {no:100,name:'Võ Thị Thuỳ Trang (30)',phone:'0971699968',product:'BrainKey TAB',pay:'할부',cons:'할부_현금(COD)',approved:false,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,
-    stars:3,dbidx:20358,dbpoint:'1.0',ob:'Phạm Thu Hà',distDate:'2026-07-25',inDate:'2026-07-24',callType:'IN',dbInfo:'없음',lastCall:'2026-07-26 11:05',resvCall:'2026-07-28 15:00',orderDate:'2026-07-26',autocall:'없음',care1:'-',care2:'-'},
-  /* 배송대기 — 구매승인 완료, 3-4 배송에서 배송처리 대기 */
-  {no:99 ,name:'Nguyễn Hương Quỳnh Trâm (10)',phone:'0979356817',product:'BrainKey TAB',pay:'구매',cons:'구매_현금(COD)',approved:true,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,
+  /* 계약요청 — 접수 완료, 3-1 결제에서 계약승인 대기 */
+  {no:100,name:'Võ Thị Thuỳ Trang (30)',phone:'0971699968',product:'BrainKey TAB',pay:'할부',cons:'할부_현금(COD)',consN:4,approved:false,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,
+    stars:3,dbidx:20358,dbpoint:'1.0',ob:'Phạm Thu Hà',distDate:'2026-07-20',inDate:'2026-07-24',callType:'IN',dbInfo:'없음',lastCall:'2026-07-26 11:05',resvCall:'2026-07-28 15:00',orderDate:'2026-07-26',autocall:'없음',care1:'-',care2:'-'},
+  /* 배송대기 — 계약승인 완료, 3-4 배송에서 배송처리 대기 */
+  {no:99 ,name:'Nguyễn Hương Quỳnh Trâm (10)',phone:'0979356817',product:'BrainKey TAB',pay:'구매',cons:'구매_현금(COD)',consN:2,approved:true,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,
     stars:5,dbidx:20340,dbpoint:'1.0',ob:'Lê Minh Tuấn',distDate:'2026-07-20',inDate:'2026-07-19',callType:'IN',dbInfo:'없음',lastCall:'2026-07-22 16:40',resvCall:'-',orderDate:'2026-07-22',autocall:'없음',care1:'-',care2:'-'},
   /* 배송중 — 시리얼 미등록(4-6 대상) */
-  {no:98 ,name:'Nguyễn Nguyên Phương (20)',phone:'0364125978',product:'W84-AD5000',pay:'할부',cons:'상담/구매확정',approved:true,delivered:true,serial:'',paid:true,completed:false,locked:false,cust:'',path:null,
+  {no:98 ,name:'Nguyễn Nguyên Phương (20)',phone:'0364125978',product:'W84-AD5000',pay:'할부',cons:'상담/계약확정',consN:5,approved:true,delivered:true,serial:'',paid:true,completed:false,locked:false,cust:'',path:null,
     stars:5,dbidx:20322,dbpoint:'1.0',ob:'Lê Minh Tuấn',distDate:'2026-07-15',inDate:'2026-07-14',callType:'IN',dbInfo:'렌탈',lastCall:'2026-07-18 10:12',resvCall:'-',orderDate:'2026-07-18',autocall:'없음',care1:'2026-07-25',care2:'-'},
-  /* 구매완료 — 시리얼 + 입금 완료 → 해지 접수 가능 */
-  {no:97 ,name:'Lê Thúy Anh (50)',phone:'0353493272',product:'BrainKey TAB',pay:'구매',cons:'상담/구매확정',approved:true,delivered:true,serial:'A11VN26030003',serialDate:'2026-07-14',paid:true,completed:true,locked:false,cust:'',path:null,
-    stars:5,dbidx:20301,dbpoint:'1.0',ob:'Trần Thị Ngọc',distDate:'2026-07-10',inDate:'2026-07-09',callType:'IN',dbInfo:'없음',lastCall:'2026-07-12 13:30',resvCall:'-',orderDate:'2026-07-12',autocall:'없음',care1:'2026-07-20',care2:'2026-07-27'},
+  /* 계약완료 — 시리얼 + 입금 완료 → 해지 접수 가능 */
+  {no:97 ,name:'Lê Thúy Anh (50)',phone:'0353493272',product:'BrainKey TAB',pay:'구매',cons:'상담/계약확정',consN:3,approved:true,delivered:true,serial:'A11VN26030003',serialDate:'2026-07-14',paid:true,completed:true,locked:false,cust:'',path:null,
+    stars:5,dbidx:20301,dbpoint:'1.0',ob:'Trần Thị Ngọc',distDate:'2026-07-05',inDate:'2026-07-09',callType:'IN',dbInfo:'없음',lastCall:'2026-07-12 13:30',resvCall:'-',orderDate:'2026-07-12',autocall:'없음',care1:'2026-07-20',care2:'2026-07-27'},
   /* 해지대기 — 해지 승인 완료, 3-6 해지대기에서 위약금/시리얼 입력 대기 */
-  {no:96 ,name:'Cao Thị Hương (50)',phone:'0839010143',product:'W84-AD5000',pay:'할부',cons:'상담/구매확정',approved:true,delivered:true,serial:'A11VN26030002',serialDate:'2026-07-10',paid:true,completed:true,locked:true,cust:'해지대기',path:null,
+  {no:96 ,name:'Cao Thị Hương (50)',phone:'0839010143',product:'W84-AD5000',pay:'할부',cons:'상담/계약확정',consN:7,approved:true,delivered:true,serial:'A11VN26030002',serialDate:'2026-07-10',paid:true,completed:true,locked:true,cust:'해지대기',path:null,
     stars:4,dbidx:20288,dbpoint:'1.0',ob:'Trần Thị Ngọc',distDate:'2026-07-05',inDate:'2026-07-04',callType:'IN',dbInfo:'렌탈',lastCall:'2026-07-08 09:50',resvCall:'-',orderDate:'2026-07-08',autocall:'없음',care1:'2026-07-18',care2:'-'},
   /* 해지대기 — 3-6에서 해지 승인 대기 (위약금 협의 진행 중) */
-  {no:95 ,name:'Trần Thị Đáng (40)',phone:'0377339705',product:'BrainKey TAB',pay:'할부',cons:'상담/구매확정',approved:true,delivered:true,serial:'A11VN26030001',serialDate:'2026-06-20',paid:true,completed:true,locked:true,cust:'해지대기',path:null,
-    stars:4,dbidx:20270,dbpoint:'1.0',ob:'Trần Thị Ngọc',distDate:'2026-07-01',inDate:'2026-06-30',callType:'IN',dbInfo:'없음',lastCall:'2026-07-03 15:15',resvCall:'-',orderDate:'2026-07-03',autocall:'없음',care1:'2026-07-15',care2:'-'},
+  {no:95 ,name:'Trần Thị Đáng (40)',phone:'0377339705',product:'BrainKey TAB',pay:'할부',cons:'상담/계약확정',consN:4,approved:true,delivered:true,serial:'A11VN26030001',serialDate:'2026-06-20',paid:true,completed:true,locked:true,cust:'해지대기',path:null,
+    stars:4,dbidx:20270,dbpoint:'1.0',ob:'Trần Thị Ngọc',distDate:'2026-07-05',inDate:'2026-06-30',callType:'IN',dbInfo:'없음',lastCall:'2026-07-03 15:15',resvCall:'-',orderDate:'2026-07-03',autocall:'없음',care1:'2026-07-15',care2:'-'},
 ];
-/* 판매 고객상태: 상담대기 → 구매요청 → (3-1 구매승인) → 배송대기 → (3-4 배송처리) → 배송중 → 구매완료.
+/* 판매 고객상태: 상담대기 → 계약요청 → (3-1 계약승인) → 배송대기 → (3-4 배송처리) → 배송중 → 계약완료.
    입금(paid)·시리얼(serial)은 고객상태가 아니라 플래그로만 표시.
-   구매완료(3-10)는 시리얼+입금 둘 다 완료된 건을 처리 */
+   계약완료(3-10)는 시리얼+입금 둘 다 완료된 건을 처리 */
 function sellLabel(r){
-  if(r.intake===false) return '상담대기'; // 접수 전 — 2-1 접수창 저장 시 구매요청으로 전환
-  if(r.completed) return '구매완료';
-  if(!r.approved) return '구매요청';      // 3-1 결제에서 구매승인 대기
+  if(r.intake===false) return '상담대기'; // 접수 전 — 2-1 접수창 저장 시 계약요청으로 전환
+  if(r.completed) return '계약완료';
+  if(!r.approved) return '계약요청';      // 3-1 결제에서 계약승인 대기
   if(!r.delivered) return '배송대기';     // 3-4 배송에서 배송처리 대기
   return '배송중';                        // 배송처리 완료
 }
@@ -1358,7 +1384,7 @@ function displayState(r){return r.locked? r.cust : sellLabel(r);}
 
 /* status → badge class */
 function badge(s){
-  const m={'상담대기':'cons','구매요청':'s-canc','배송대기':'s-ship','배송중':'s-ship','구매완료':'s-done',
+  const m={'상담대기':'cons','계약요청':'s-canc','배송대기':'s-ship','배송중':'s-ship','계약완료':'s-done',
     '취소접수':'s-canc','취소':'s-end',
     '취소접수':'s-canc','해지대기':'s-work',
     '해지(기기반납)':'s-end','해지(위약금)':'s-end'};
@@ -1389,8 +1415,8 @@ function todayISO(){return new Date().toISOString().slice(0,10);}
 function setRole(v){role=v;renderList();updateHint();}
 function updateHint(){
   const tips={
-    '상담원':'배송대기/배송중 건 [상담] → 취소 접수, 구매완료 건 [상담] → 해지 접수.',
-    '관리자':'모든 버튼 노출. 구매승인 · 배송처리 · 해지 승인 · 해지 처리까지 가능.',
+    '상담원':'배송대기/배송중 건 [상담] → 취소 접수, 계약완료 건 [상담] → 해지 접수.',
+    '관리자':'모든 버튼 노출. 계약승인 · 배송처리 · 해지 승인 · 해지 처리까지 가능.',
     '매니저':'[해지 승인], [해지취소] 권한. (해지 접수 후 승인 게이트)',
     '미납담당자':'해지대기 건의 [위약금 협의·수정]만 처리.',
     '재무담당자':'3-9 선납금 입금 · 3-6 해지대기의 위약금 입금 해지 처리.',
@@ -1421,7 +1447,7 @@ function actionsFor(r){
   const s=r.cust;
   A.push([L('상담','Tư vấn'),'b1',()=>openConsult(r)]);
   if(s==='취소접수'&&can('매니저','관리자')) A.push([L('취소 승인','Duyệt hủy'),'b-red',()=>approveCancel(r)]);
-  /* [해지취소] = 해지 철회 → 구매완료 복귀 (해지대기 구간, 권한별) */
+  /* [해지취소] = 해지 철회 → 계약완료 복귀 (해지대기 구간, 권한별) */
   if(s==='해지대기' && can('관리자','매니저'))
     A.push([L('해지취소','Hủy chấm dứt HĐ'),'b-red',()=>cancelReturn(r)]);
   A.push([L('고객 관리','Quản lý KH'),'b-ghost',()=>toast(L('고객 관리 화면(기존 기능)','Màn hình quản lý khách hàng (chức năng hiện có)'))]);
@@ -1430,11 +1456,13 @@ function actionsFor(r){
 
 /* 1-2 고객관리 DB 리스트 엑셀 — 관리자/매니저만. 내부코드 컬럼 포함 */
 function downloadDbExcel(){
-  const header=['번호','주문키','고객명','전화번호','접수제품','내부코드','결제방식','상담상태','고객상태'].map(X);
-  const data=rows.map(r=>[r.no,orderKeyOf(r),r.name,r.phone,X(r.product),pkgCodeOf(r),X(r.pay),X(r.cons),X(displayState(r))]);
+  /* 화면과 같은 행 집합(권한 범위 + 검색 + 정렬). 분배일 구분 행은 데이터가 아니므로 애초에 없다 */
+  const vis=visibleRows();
+  const header=['번호','주문키','OB명','분배일','고객명','전화번호','접수제품','내부코드','결제방식','상담상태','상담이력수','고객상태'].map(X);
+  const data=vis.map(r=>[r.no,orderKeyOf(r),r.ob,r.distDate,r.name,r.phone,X(r.product),pkgCodeOf(r),X(r.pay),X(r.cons),consN(r),X(displayState(r))]);
   buildAndDownloadXlsx(L('DB리스트_베트남_','DanhSachDB_VietNam_')+stamp()+'.xlsx',L('DB리스트','DanhSachDB'),header,data);
-  toast(L('DB 리스트 엑셀 다운로드 — '+rows.length+'건 (내부코드 컬럼 포함)',
-          'Đã tải Excel danh sách DB — '+rows.length+' dòng (bao gồm cột mã nội bộ)'));
+  toast(L('DB 리스트 엑셀 다운로드 — '+vis.length+'건 · 날짜 구분 공란 행 없음 · 상담이력수 컬럼 포함',
+          'Đã tải Excel danh sách DB — '+vis.length+' dòng · không có dòng trống phân cách ngày · có cột số lịch sử tư vấn'));
 }
 
 /* ================= render list =================
@@ -1457,7 +1485,7 @@ const LIST_COLS=[
   {h:'통화예약시간', core:false, cell:r=>r.resvCall||'-'},
   {h:'오더일',   core:true,  cell:r=>r.orderDate||'-'},
   {h:'접수 제품', core:true, cell:r=>r.product},
-  {h:'상담상태', core:true,  cell:r=>`<span class="b cons">${r.cons}</span>`},
+  {h:'상담상태', core:true,  sort:true, cell:r=>`<span class="b cons">${r.cons}</span><b style="margin-left:3px">(${consN(r)})</b>`},
   {h:'오토콜',   core:false, cell:r=>r.autocall||'없음'},
   {h:'고객상태', core:true,  cell:r=>stateCell(r)},
   {h:'관리콜1차', core:false, cell:r=>r.care1||'-'},
@@ -1470,6 +1498,44 @@ function stateCell(r){
   else if(r.path)      s+='<div class="muted">'+r.path+'</div>';
   return s;
 }
+/* ── 2-1 개선 ③ — 상담원(OB) ↔ 1-3 팀. 매니저는 자기 팀 상담원 DB만 본다 ──
+   모든 DB는 분배 시점에 담당 OB가 배정되므로 OB명이 빈 DB는 없다(예외 처리 없음). */
+const OB_TEAM={'Phạm Thu Hà':'1팀','Lê Minh Tuấn':'1팀','Trần Thị Ngọc':'2팀','Hoàng Văn Nam':'2팀'};
+const teamOf=r=>OB_TEAM[r.ob]||'';
+function myTeam(){ const el=document.getElementById('fTeam'); return el?el.value:'1팀'; }
+/* 권한에 따른 데이터 노출 범위 — 목록 · 건수 · 엑셀이 모두 이 함수를 거친다 */
+function scopedRows(){
+  if(role==='매니저') return rows.filter(r=>teamOf(r)===myTeam());
+  return rows;
+}
+/* ── 2-1 개선 ② — 상담이력 건수(n) 검색 + 정렬 ──
+   (n) = 담당자가 그 DB에 남긴 상담이력 건수. 상담상태 이름은 최근 이력의 상태. */
+let consSort=0;   // 0: 기본(분배일순) · 1: 건수 오름차순 · -1: 건수 내림차순
+const consN=r=>+r.consN||0;
+function toggleConsSort(){ consSort = consSort===0?-1 : consSort===-1?1 : 0; renderList(); }
+function resetListFilter(){
+  ['fCons','fNMin','fNMax'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  consSort=0; renderList();
+}
+function visibleRows(){
+  const g=id=>{const el=document.getElementById(id); return el?el.value:'';};
+  const cs=g('fCons'), mn=g('fNMin'), mx=g('fNMax');
+  let v=scopedRows().filter(r=>
+    (!cs || r.cons===cs) &&
+    (mn==='' || consN(r)>=+mn) &&
+    (mx==='' || consN(r)<=+mx));
+  if(consSort) v=[...v].sort((a,b)=>(consN(a)-consN(b))*consSort || b.no-a.no);
+  return v;
+}
+/* 상담상태 드롭다운 — 현재 노출 범위 안의 상태값으로 채운다 (선택값 유지) */
+function fillConsOptions(){
+  const sel=document.getElementById('fCons'); if(!sel) return;
+  const cur=sel.value;
+  const vals=[...new Set(scopedRows().map(r=>r.cons))];
+  sel.innerHTML='<option value="">'+L('-- 전체 --','-- Tất cả --')+'</option>'
+    + vals.map(v=>'<option value="'+v+'"'+(v===cur?' selected':'')+'>'+X(v)+'</option>').join('');
+  if(cur && !vals.includes(cur)) sel.value='';
+}
 let listAll=false;
 function toggleListCols(){ listAll=!listAll; renderList(); }
 function renderList(){
@@ -1481,9 +1547,24 @@ function renderList(){
   const btn=document.getElementById('colToggle');
   if(btn) btn.textContent=listAll?L('핵심 컬럼만 보기','Chỉ xem cột chính'):L('전체 컬럼 보기 (21)','Xem toàn bộ cột (21)');
   document.getElementById('listHead').innerHTML=
-    '<tr>'+cols.map(c=>`<th>${c.h}</th>`).join('')+'<th class="stick" style="width:150px">기능</th></tr>';
+    '<tr>'+cols.map(c=>c.sort
+      ? `<th style="cursor:pointer;white-space:nowrap" title="상담이력 건수로 정렬" onclick="toggleConsSort()">${c.h} ${consSort===1?'▲':consSort===-1?'▼':'↕'}</th>`
+      : `<th>${c.h}</th>`).join('')+'<th class="stick" style="width:150px">기능</th></tr>';
   const tb=document.getElementById('rows'); tb.innerHTML='';
-  rows.forEach(r=>{
+  const tRow=document.getElementById('teamRow'); if(tRow) tRow.style.display=role==='매니저'?'':'none';
+  fillConsOptions();
+  const vis=visibleRows(), scope=scopedRows();
+  /* 2-1 개선 ① — 분배일이 바뀌는 지점에 회색 구분 행(화면 전용). 엑셀에는 넣지 않는다.
+     건수 정렬 중에는 날짜 묶음이 깨지므로 구분 행을 그리지 않는다. */
+  let prevDate=null;
+  if(!vis.length){ tb.innerHTML='<tr><td colspan="'+(cols.length+1)+'" class="muted">'+L('조건에 맞는 DB가 없습니다','Không có DB phù hợp điều kiện')+'</td></tr>'; }
+  vis.forEach(r=>{
+    if(!consSort && prevDate!==null && r.distDate!==prevDate){
+      const d=document.createElement('tr'); d.className='dateDiv';
+      d.innerHTML='<td colspan="'+(cols.length+1)+'"><span>'+L('분배일','Ngày phân loại')+' '+(r.distDate||'-')+' ↓</span><span class="dd-note">'+L('화면 전용 구분 행 — 엑셀에는 포함되지 않음','Dòng phân cách chỉ trên màn hình — không có trong Excel')+'</span></td>';
+      tb.appendChild(d);
+    }
+    prevDate=r.distDate;
     const tr=document.createElement('tr');
     tr.innerHTML=cols.map(c=>`<td${c.cls?' class="'+c.cls+'"':''}>${c.cell(r)}</td>`).join('')
       +'<td class="stick"><div class="acts"></div></td>';
@@ -1492,6 +1573,10 @@ function renderList(){
       const b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=fn;box.appendChild(b);});
     tb.appendChild(tr);
   });
+  const cnt=document.getElementById('listCount');
+  if(cnt) cnt.innerHTML=L('표시 <b>'+vis.length+'건</b>','Hiển thị <b>'+vis.length+' dòng</b>')
+    +(vis.length!==scope.length?L(' / 조회 범위 '+scope.length+'건',' / phạm vi '+scope.length+' dòng'):'')
+    +(role==='매니저'?L(' · <b>'+myTeam()+'</b> 상담원 DB만 (전체 '+rows.length+'건 중)',' · chỉ DB của tư vấn viên <b>'+myTeam()+'</b> (trên tổng '+rows.length+')'):'');
 }
 
 /* ================= transitions ================= */
@@ -1523,11 +1608,11 @@ function openConsult(r){
   const sub=[];
   if(isIntake) sub.push({val:'cod',label:'COD (구매_현금) — 접수 진행',intake:true});
   /* 취소 접수 — 접수 후 매니저 [취소 승인]을 거쳐 종결. COD라 환불 단계는 없다 */
-  if(!r.locked && !isIntake && st!=='구매완료'){
+  if(!r.locked && !isIntake && st!=='계약완료'){
     sub.push({val:'c1',label:'취소 접수 - 배송전취소',msg:L('취소 접수(배송전) → 고객상태 <b>취소접수</b> · 다음: 매니저 <b>취소 승인</b>','Tiếp nhận hủy (trước khi giao hàng) → <b>취소접수</b> · tiếp theo: quản lý <b>duyệt hủy</b>'),apply:()=>{r.locked=true;r.cust='취소접수';r.path='취소';}});
     sub.push({val:'c2',label:'취소 접수 - 배송후 수취거절',msg:L('취소 접수(수취거절) → 고객상태 <b>취소접수</b> · 다음: 매니저 <b>취소 승인</b>','Tiếp nhận hủy (từ chối nhận hàng) → <b>취소접수</b> · tiếp theo: quản lý <b>duyệt hủy</b>'),apply:()=>{r.locked=true;r.cust='취소접수';r.path='취소';}});
   }
-  if(!r.locked && !isIntake && st==='구매완료' && can('상담원','관리자','매니저')){
+  if(!r.locked && !isIntake && st==='계약완료' && can('상담원','관리자','매니저')){
     sub.push({val:'term',label:'해지 접수',launch:true});
   }
   if(r.locked){
@@ -1696,7 +1781,7 @@ function renderIntakeInline(){
   const pk=PKG.filter(p=>p.show);
   cr.style.display='block';
   cr.innerHTML=`
-  <div class="hint"><b>접수 단계</b> — 고객상태 <b>상담대기</b> 건만 접수 가능. [저장하기] 시 상담상태 <b>구매_현금(COD)</b> · 고객상태 <b>구매요청</b>으로 전환되고, 그때부터 <b>[계약서]</b> 버튼이 노출됩니다. 이후 <b>3-1 결제</b>에서 <b>구매승인</b>을 받아야 배송대기로 넘어갑니다.</div>
+  <div class="hint"><b>접수 단계</b> — 고객상태 <b>상담대기</b> 건만 접수 가능. [저장하기] 시 상담상태 <b>구매_현금(COD)</b> · 고객상태 <b>계약요청</b>으로 전환되고, 그때부터 <b>[계약서]</b> 버튼이 노출됩니다. 이후 <b>3-1 결제</b>에서 <b>계약승인</b>을 받아야 배송대기로 넘어갑니다.</div>
   <div class="sec">접수 정보 <span class="muted">(= 이번 개발요청 신규 항목)</span></div>
   <div class="frm"><table>
     <tr><th>통화예약일</th><td><input type="date" id="ikResv"></td>
@@ -1851,9 +1936,10 @@ function saveIntake(r,memo,stamp){
     sw, price, prepaid:pre, principal:prin, disc, months:months||1,
     contractDate:new Date().toISOString().slice(0,10) };
   /* 결제방식(할부/구매)이 상담상태·리스트 결제 컬럼에 그대로 구분되어 남음 */
-  /* 접수 저장 = 구매요청. 배송대기로 넘어가려면 3-1 결제에서 구매승인을 받아야 한다 */
+  /* 접수 저장 = 계약요청. 배송대기로 넘어가려면 3-1 결제에서 계약승인을 받아야 한다 */
   r.intake=true; r.approved=false; r.product=p.name; r.pay=isI?'할부':'구매'; r.cons=(isI?'할부':'구매')+'_현금(COD)';
   r.history=r.history||[];
+  r.consN=consN(r)+1;
   r.history.push({meta:`[${stamp} · <span>${role}</span> · <span>결제</span> > <span>COD 접수</span>]`,
     text:`<span>${memo||'COD 접수'}</span> · <span>${p.name}</span> / <span>${isI?'할부':'구매'}</span> · <span>컨텐츠</span> ${sw.join('·')}`+
       (isI?` · <span>선납금</span> ${won(pre)} · <span>할부원금</span> ${won(prin)} · <span>할부</span> ${months} <span>개월</span> · <span>월 납부금</span> ${won(monthly)}`:'')+
@@ -1861,9 +1947,9 @@ function saveIntake(r,memo,stamp){
   renderList(); closeModal();
   const lack=[!r._ct.idNo&&'번호',!iss&&'발행일',!r._ct.issuer&&'발급처'].filter(Boolean);
   const lackHtml=lack.map(x=>`<span>${x}</span>`).join(' · ');
-  toast(L('접수 저장 완료 → 상담상태 <b>'+r.cons+'</b> · 고객상태 <b>구매요청</b> · 다음: 3-1 결제에서 구매승인'
+  toast(L('접수 저장 완료 → 상담상태 <b>'+r.cons+'</b> · 고객상태 <b>계약요청</b> · 다음: 3-1 결제에서 계약승인'
             +(lack.length?`<br>신분증 ${lackHtml} 미입력 — [계약서] 화면에서 추가 입력 필요`:''),
-          'Đã lưu tiếp nhận → trạng thái tư vấn <b>'+r.cons+'</b> · trạng thái khách hàng <b>구매요청</b> · tiếp theo: duyệt mua hàng tại 3-1'
+          'Đã lưu tiếp nhận → trạng thái tư vấn <b>'+r.cons+'</b> · trạng thái khách hàng <b>계약요청</b> · tiếp theo: duyệt hợp đồng tại 3-1'
             +(lack.length?`<br>Chưa nhập ${lackHtml} của CCCD — cần bổ sung tại màn hình [Hợp đồng]`:'')));
   return true;
 }
@@ -1907,19 +1993,22 @@ function saveConsult(){
   }
   r.history.push({meta:`[${stamp} · <span>${role}</span> · <span>${big}</span> > <span>${subt}</span>]`,
     text: `<span>${memo||'(내용 없음)'}</span>`+penTxt});
+  /* 2-1 개선 ② — 상담이력 1건 추가 → 목록 상담상태 (n) +1. 접수 전 DB는 상담상태도 최근 이력으로 */
+  r.consN=consN(r)+1;
+  if(r.intake===false && !act && subt) r.cons=subt;
   let msg=L('상담 이력 저장 완료','Đã lưu lịch sử tư vấn');
   if(act){ act.apply(); msg=act.msg; }
   renderList(); toast(msg);
   openConsult(r);   // 갱신된 이력 + 다음 단계 상담상태로 재렌더
 }
 
-/* ===== [해지취소] = 진행 중 해지 철회 → 구매완료 복귀 ===== */
+/* ===== [해지취소] = 진행 중 해지 철회 → 계약완료 복귀 ===== */
 function cancelReturn(r){
   const cur=`<b>${r.cust}</b>`;
   openModal(L('해지취소 (해지 철회) · No.','Hủy chấm dứt HĐ (rút lại yêu cầu) · No.')+r.no,
     `<div class="frm">
-       <p>${L(`진행 중인 ${cur} 해지를 <b>철회</b>하고 <b>구매완료</b>로 되돌립니다.`,
-              `Rút lại yêu cầu chấm dứt đang ở trạng thái ${cur} và đưa về <b>구매완료</b>.`)}</p>
+       <p>${L(`진행 중인 ${cur} 해지를 <b>철회</b>하고 <b>계약완료</b>로 되돌립니다.`,
+              `Rút lại yêu cầu chấm dứt đang ở trạng thái ${cur} và đưa về <b>계약완료</b>.`)}</p>
        <p class="muted">고객이 “그냥 사용하겠다”고 한 경우 사용합니다.</p>
        <div style="font-weight:700;margin:10px 0 4px">사유 (이력)</div>
        <textarea id="crMemo" style="width:100%;height:56px;border:1px solid var(--line);border-radius:6px;padding:8px" placeholder="예: 고객 변심, 계속 사용 의사 확인"></textarea>
@@ -1929,11 +2018,11 @@ function cancelReturn(r){
         const now=new Date();
         r.history=r.history||[];
         r.history.push({meta:`[${now.toISOString().slice(0,16).replace('T',' ')} · <span>${role}</span> · <span>해지취소</span>]`,
-          text:`<span>${memo||'해지 철회 → 구매완료 복귀'}</span>`});
+          text:`<span>${memo||'해지 철회 → 계약완료 복귀'}</span>`});
         r.locked=false; r.completed=true; r.cust=''; r.path=null;
         renderList(); closeModal();
-        toast(L('해지취소 완료 → 고객상태 <b>구매완료</b>로 복귀',
-                'Đã hủy chấm dứt → trạng thái khách hàng quay về <b>구매완료</b>'));
+        toast(L('해지취소 완료 → 고객상태 <b>계약완료</b>로 복귀',
+                'Đã hủy chấm dứt → trạng thái khách hàng quay về <b>계약완료</b>'));
     })], false);
 }
 
@@ -2086,15 +2175,15 @@ function releaseSerialFrom(inv,keepNo){
 }
 /* 고객키(주문키) — 프로토타입 전역 파생 규칙 */
 function orderKeyOf(r){return 'WV'+(17802773991303+r.no)+'OHWS';}
-/* 선납금 입금 + 시리얼 등록 둘 다 완료 시 자동 구매완료(3-10) */
+/* 선납금 입금 + 시리얼 등록 둘 다 완료 시 자동 계약완료(3-10) */
 function autoComplete(r){ if(r.paid && r.serial && !r.locked && !r.completed){ r.completed=true; return true; } return false; }
 
-/* ===== 3-1 결제 — 구매승인 (구매요청 → 배송대기) ===== */
+/* ===== 3-1 결제 — 계약승인 (계약요청 → 배송대기) ===== */
 function renderApprove(){
   const list=rows.filter(r=>!r.locked&&r.intake!==false&&!r.approved);
   let h=`<thead><tr><th style="width:38px"><input type="checkbox" onclick="document.querySelectorAll('.apchk').forEach(x=>x.checked=this.checked)"></th>
     <th>번호</th><th>주문키</th><th>고객명</th><th>제품</th><th>결제</th><th>결제금액(VND)</th><th>현재 상태</th><th style="width:90px">반려</th></tr></thead><tbody>`;
-  if(!list.length) h+=`<tr><td colspan="9" class="muted">구매승인 대기 건이 없습니다</td></tr>`;
+  if(!list.length) h+=`<tr><td colspan="9" class="muted">계약승인 대기 건이 없습니다</td></tr>`;
   list.forEach(r=>{
     const ct=r._ct;
     const amt=ct?(ct.payType==='할부'?ct.prepaid:totalOfCt(ct)):0;
@@ -2107,14 +2196,14 @@ function renderApprove(){
 }
 /* 고객키 — DB 고유번호. 주문키(WV…)는 DB 생성 시점에 이미 발급되어 있다 */
 function custKeyOf(r){ return 'BK'+String(300000+r.no); }
-/* ── 구매승인 반려 ──────────────────────────────────────────
-   반려하면 접수 이전(상담대기)으로 되돌리고 상담상태에 '구매반려'를 남긴다.
+/* ── 계약승인 반려 ──────────────────────────────────────────
+   반려하면 접수 이전(상담대기)으로 되돌리고 상담상태에 '계약반려'를 남긴다.
    고객상태를 새로 만들지 않고(상태값 최소화 원칙) 이력과 상담상태로 구분한다. */
 const REJECT_REASONS=['고객 변심 · 재확인 필요','결제금액/할부조건 오류','주소 · 연락처 불명확','신분증 정보 미비','중복 접수','기타'];
 function openReject(no){
-  if(!['관리자','매니저','재무담당자'].includes(role)){toast('구매승인 권한이 없습니다 (관리자/매니저/재무담당자)');return;}
+  if(!['관리자','매니저','재무담당자'].includes(role)){toast('계약승인 권한이 없습니다 (관리자/매니저/재무담당자)');return;}
   const r=rows.find(x=>x.no==no); if(!r)return;
-  openModal(L('구매 반려 · ','Từ chối mua hàng · ')+r.name,
+  openModal(L('계약 반려 · ','Từ chối hợp đồng · ')+r.name,
     `<div class="frm">
       <table>
         <tr><th style="width:120px">고객명</th><td>${r.name}</td><th style="width:110px">고객키</th><td>${custKeyOf(r)}</td></tr>
@@ -2125,7 +2214,7 @@ function openReject(no){
         <tr><th style="width:120px">사유</th><td><select id="rjReason">${REJECT_REASONS.map(x=>'<option>'+x+'</option>').join('')}</select></td></tr>
         <tr><th>상세 내용</th><td><textarea id="rjMemo" style="width:100%;height:58px;border:1px solid var(--line);border-radius:6px;padding:8px" placeholder="반려 사유를 구체적으로 적어주세요"></textarea></td></tr>
       </table>
-      <div class="hint">반려하면 고객상태가 <b>상담대기</b>로 되돌아가고 상담상태에 <b>구매반려</b>가 기록됩니다. 상담원이 내용을 보완해 <b>다시 접수</b>할 수 있습니다. 별도의 <code>구매반려</code> 고객상태는 두지 않습니다.</div>
+      <div class="hint">반려하면 고객상태가 <b>상담대기</b>로 되돌아가고 상담상태에 <b>계약반려</b>가 기록됩니다. 상담원이 내용을 보완해 <b>다시 접수</b>할 수 있습니다. 별도의 <code>계약반려</code> 고객상태는 두지 않습니다.</div>
     </div>`,
     [btn(L('닫기','Đóng'),'b-ghost',closeModal), btn(L('반려 처리','Từ chối'),'b-red',()=>doReject(no))], true);
 }
@@ -2133,20 +2222,20 @@ function doReject(no){
   const r=rows.find(x=>x.no==no); if(!r)return;
   const reason=document.getElementById('rjReason').value;
   const memo=(document.getElementById('rjMemo').value||'').trim();
-  r.intake=false; r.approved=false; r.cons='구매반려';
+  r.intake=false; r.approved=false; r.cons='계약반려';
   r.history=r.history||[];
-  r.history.push({meta:'['+nowStamp()+' · <span>'+role+'</span> · <span>구매 반려</span>]',
+  r.history.push({meta:'['+nowStamp()+' · <span>'+role+'</span> · <span>계약 반려</span>]',
     text:'<span>'+reason+'</span>'+(memo?' — '+memo:'')});
   closeModal(); renderList(); renderApprove();
-  toast(L('<b>'+r.name+'</b> 구매 반려 — '+reason+' → 고객상태 <b>상담대기</b>로 복귀 · 상담상태 <b>구매반려</b>',
-          '<b>'+r.name+'</b> đã từ chối mua hàng — '+reason+' → trạng thái <b>상담대기</b> · trạng thái tư vấn <b>구매반려</b>'));
+  toast(L('<b>'+r.name+'</b> 계약 반려 — '+reason+' → 고객상태 <b>상담대기</b>로 복귀 · 상담상태 <b>계약반려</b>',
+          '<b>'+r.name+'</b> đã từ chối hợp đồng — '+reason+' → trạng thái <b>상담대기</b> · trạng thái tư vấn <b>계약반려</b>'));
 }
 function doApprove(){
-  if(!['관리자','매니저','재무담당자'].includes(role)){toast('구매승인 권한이 없습니다 (관리자/매니저/재무담당자)');return;}
+  if(!['관리자','매니저','재무담당자'].includes(role)){toast('계약승인 권한이 없습니다 (관리자/매니저/재무담당자)');return;}
   const n=applySel('apchk',r=>r.approved=true);
   if(n){renderApprove();
-    toast(L('<b>'+n+'건</b> 구매승인 완료 → 고객상태 <b>배송대기</b> (다음: 3-4 배송처리) — 3-1',
-            'Đã duyệt mua hàng <b>'+n+' đơn</b> → trạng thái <b>배송대기</b> (tiếp theo: xử lý giao hàng 3-4) — 3-1'));}
+    toast(L('<b>'+n+'건</b> 계약승인 완료 → 고객상태 <b>배송대기</b> (다음: 3-4 배송처리) — 3-1',
+            'Đã duyệt hợp đồng <b>'+n+' đơn</b> → trạng thái <b>배송대기</b> (tiếp theo: xử lý giao hàng 3-4) — 3-1'));}
 }
 
 /* ===== 3-4 배송 — 배송처리 + 계약서 개별 출력 / ZIP 일괄 다운로드 ===== */
@@ -2244,8 +2333,8 @@ function doShipOne(no){
   renderList();renderShip();
   if(taken.length) toast(L('동일 시리얼이 <b>'+taken.map(x=>x.name).join(', ')+'</b>에 등록돼 있어 <b>자동 해제</b>했습니다 — 마지막 등록만 유효',
                            'Số sê-ri này đã đăng ký cho <b>'+taken.map(x=>x.name).join(', ')+'</b> nên đã <b>tự động gỡ</b> — chỉ đăng ký cuối cùng có hiệu lực'));
-  toast(L(r.name+' 시리얼 등록 완료 — '+inv+' (시리얼)'+(auto?' · 시리얼+입금 완료 → <b>자동 구매완료</b>':'')+' — 4-6',
-          'Đã đăng ký số sê-ri cho '+r.name+' — '+inv+' (Sê-ri)'+(auto?' · đủ sê-ri + nộp tiền → <b>tự động hoàn tất mua hàng</b>':'')+' — 4-6'));
+  toast(L(r.name+' 시리얼 등록 완료 — '+inv+' (시리얼)'+(auto?' · 시리얼+입금 완료 → <b>자동 계약완료</b>':'')+' — 4-6',
+          'Đã đăng ký số sê-ri cho '+r.name+' — '+inv+' (Sê-ri)'+(auto?' · đủ sê-ri + nộp tiền → <b>tự động hoàn tất hợp đồng</b>':'')+' — 4-6'));
 }
 function doShip(){
   const sel=[...document.querySelectorAll('.shipchk:checked')];
@@ -2261,8 +2350,8 @@ function doShip(){
   });
   renderList();renderShip();
   if(!n){toast('시리얼번호를 입력한 행만 등록됩니다');return;}
-  toast(L('<b>'+n+'건</b> 시리얼 등록 완료 (시리얼)'+(auto?' · 시리얼+입금 완료 <b>'+auto+'건</b> 자동 구매완료':'')+(noInv?' · 시리얼번호 미입력 '+noInv+'건 제외':'')+(taken?' · <b>중복 '+taken+'건</b> 직전 등록 자동 해제':'')+' — 4-6',
-          'Đã đăng ký số sê-ri cho <b>'+n+' đơn</b> (Sê-ri)'+(auto?' · <b>'+auto+' đơn</b> đủ sê-ri + nộp tiền nên tự động hoàn tất mua hàng':'')+(noInv?' · loại trừ '+noInv+' đơn chưa nhập số sê-ri':'')+(taken?' · <b>'+taken+' đơn trùng</b> đã tự động gỡ đăng ký cũ':'')+' — 4-6'));
+  toast(L('<b>'+n+'건</b> 시리얼 등록 완료 (시리얼)'+(auto?' · 시리얼+입금 완료 <b>'+auto+'건</b> 자동 계약완료':'')+(noInv?' · 시리얼번호 미입력 '+noInv+'건 제외':'')+(taken?' · <b>중복 '+taken+'건</b> 직전 등록 자동 해제':'')+' — 4-6',
+          'Đã đăng ký số sê-ri cho <b>'+n+' đơn</b> (Sê-ri)'+(auto?' · <b>'+auto+' đơn</b> đủ sê-ri + nộp tiền nên tự động hoàn tất hợp đồng':'')+(noInv?' · loại trừ '+noInv+' đơn chưa nhập số sê-ri':'')+(taken?' · <b>'+taken+' đơn trùng</b> đã tự động gỡ đăng ký cũ':'')+' — 4-6'));
 }
 function addShipManual(){
   const key=document.getElementById('shipKey').value.trim();
@@ -2274,8 +2363,8 @@ function addShipManual(){
   const taken2=releaseSerialFrom(inv,r.no);
   r.serial=inv; r.serialDate=r.serialDate||todayISO();
   const done=autoComplete(r);
-  let msg=L(r.name+' 시리얼 등록 → 상담창에 표시'+(done?' · 자동 구매완료':'')+(taken2.length?' · 중복 '+taken2.length+'건 직전 등록 해제':''),
-            'Đã đăng ký số sê-ri cho '+r.name+' → hiển thị ở cửa sổ tư vấn'+(done?' · tự động hoàn tất mua hàng':'')+(taken2.length?' · đã gỡ '+taken2.length+' đăng ký cũ trùng':''));
+  let msg=L(r.name+' 시리얼 등록 → 상담창에 표시'+(done?' · 자동 계약완료':'')+(taken2.length?' · 중복 '+taken2.length+'건 직전 등록 해제':''),
+            'Đã đăng ký số sê-ri cho '+r.name+' → hiển thị ở cửa sổ tư vấn'+(done?' · tự động hoàn tất hợp đồng':'')+(taken2.length?' · đã gỡ '+taken2.length+' đăng ký cũ trùng':''));
   document.getElementById('shipKey').value='';document.getElementById('shipInv').value='';
   renderList();renderShip();
   toast(''+msg);
@@ -2324,8 +2413,8 @@ function doPayOne(no){
   r.paid=true; r.paidAmt=amt;
   const auto=autoComplete(r);
   renderList();renderPay();
-  toast(L(r.name+' 입금처리 완료 — '+won(amt)+' VND (입금)'+(auto?' · 시리얼+입금 완료 → <b>자동 구매완료</b>':'')+' — 3-9',
-          'Đã xử lý nộp tiền cho '+r.name+' — '+won(amt)+' VND (Nộp tiền)'+(auto?' · đủ sê-ri + nộp tiền → <b>tự động hoàn tất mua hàng</b>':'')+' — 3-9'));
+  toast(L(r.name+' 입금처리 완료 — '+won(amt)+' VND (입금)'+(auto?' · 시리얼+입금 완료 → <b>자동 계약완료</b>':'')+' — 3-9',
+          'Đã xử lý nộp tiền cho '+r.name+' — '+won(amt)+' VND (Nộp tiền)'+(auto?' · đủ sê-ri + nộp tiền → <b>tự động hoàn tất hợp đồng</b>':'')+' — 3-9'));
 }
 function doPay(){
   const sel=[...document.querySelectorAll('.paychk:checked')];
@@ -2338,8 +2427,8 @@ function doPay(){
     if(autoComplete(r))auto++;
   });
   renderList();renderPay();
-  toast(L('<b>'+n+'건</b> 입금처리 완료 (입금)'+(auto?' · 시리얼+입금 완료 <b>'+auto+'건</b> 자동 구매완료':'')+' — 3-9',
-          'Đã xử lý nộp tiền cho <b>'+n+' đơn</b> (Nộp tiền)'+(auto?' · <b>'+auto+' đơn</b> đủ sê-ri + nộp tiền nên tự động hoàn tất mua hàng':'')+' — 3-9'));
+  toast(L('<b>'+n+'건</b> 입금처리 완료 (입금)'+(auto?' · 시리얼+입금 완료 <b>'+auto+'건</b> 자동 계약완료':'')+' — 3-9',
+          'Đã xử lý nộp tiền cho <b>'+n+' đơn</b> (Nộp tiền)'+(auto?' · <b>'+auto+' đơn</b> đủ sê-ri + nộp tiền nên tự động hoàn tất hợp đồng':'')+' — 3-9'));
 }
 let payManualRows=[];
 function renderPayManual(){
@@ -2366,8 +2455,8 @@ function addPayManual(){
   const {r,matched,auto}=payMatch(type,key,amt);
   document.getElementById('payKey').value='';document.getElementById('payAmt').value='';
   renderPayManual();renderPay();renderList();
-  toast(L('<b>'+type+'</b> 입금처리 — '+won(amt)+' VND'+(matched?' · '+r.name+' 매칭'+(auto?' → 자동 구매완료':''):' · 미매칭'),
-          'Xử lý nộp tiền <b>'+type+'</b> — '+won(amt)+' VND'+(matched?' · khớp với '+r.name+(auto?' → tự động hoàn tất mua hàng':''):' · không khớp')));
+  toast(L('<b>'+type+'</b> 입금처리 — '+won(amt)+' VND'+(matched?' · '+r.name+' 매칭'+(auto?' → 자동 계약완료':''):' · 미매칭'),
+          'Xử lý nộp tiền <b>'+type+'</b> — '+won(amt)+' VND'+(matched?' · khớp với '+r.name+(auto?' → tự động hoàn tất hợp đồng':''):' · không khớp')));
 }
 function downloadPayTemplate(){
   buildAndDownloadXlsx(L('선납금_입금양식.xlsx','BieuMau_TienTraTruoc.xlsx'),L('선납금입금','TienTraTruoc'),
@@ -2388,7 +2477,7 @@ function payFileUpload(){
   });
 }
 
-/* ===== 3-10 구매완료 (수동 리스트 — 자동완료 백업) ===== */
+/* ===== 3-10 계약완료 (수동 리스트 — 자동완료 백업) ===== */
 function renderComplete(){document.getElementById('completeTable').innerHTML=procTable(rows.filter(r=>!r.locked&&r.serial&&r.paid&&!r.completed),'cpchk');}
 function applySel(cls,fn){
   const sel=[...document.querySelectorAll('.'+cls+':checked')];
@@ -2397,8 +2486,8 @@ function applySel(cls,fn){
   renderList();return sel.length;
 }
 function doComplete(){const n=applySel('cpchk',r=>r.completed=true);if(n){renderComplete();
-  toast(L('<b>'+n+'건</b> 구매완료 처리 → 이제 [해지 접수] 가능 — 3-10',
-          'Đã xử lý hoàn tất mua hàng cho <b>'+n+' đơn</b> → nay có thể [Tiếp nhận chấm dứt] — 3-10'));}}
+  toast(L('<b>'+n+'건</b> 계약완료 처리 → 이제 [해지 접수] 가능 — 3-10',
+          'Đã xử lý hoàn tất hợp đồng cho <b>'+n+' đơn</b> → nay có thể [Tiếp nhận chấm dứt] — 3-10'));}}
 
 /* ===== 공통: xlsx 파일 선택 파서 / 빌더 ===== */
 function pickXlsx(cb){
@@ -2757,13 +2846,14 @@ function setCycleDate(c,i,val,shift){
   }
   return moved;
 }
-/* 회차 건너뛰기 — 그 회차를 걸러내고 뒤로 한 회차를 더 붙인다.
-   예) 전체 24회차 · 2회차(21/02)를 건너뛰면 3회차가 31/03으로 밀리고 전체는 25회차가 된다.
-   건너뛴 회차는 청구·미납 집계에서 빠지고, 계약만료일도 1개월 순연된다. */
+/* 회차 건너뛰기 — 그 회차만 청구에서 빼고, 맨 뒤에 회차 1개를 더 붙인다.
+   이후 회차의 약정일자는 건드리지 않는다.
+   예) 전체 10회차 · 5회차(10/10)를 건너뛰면 5회차는 10/10 그대로 건너뜀 처리되고,
+       6회차도 11/10 그대로 유지된다. 맨 뒤에 11회차가 새로 붙어 전체 11회차.
+   건너뛴 회차는 청구·미납 집계에서 빠지고, 계약만료일만 1개월 연장된다. */
 function skipCycle(c,i){
   ensureCycles(c);
   c.cycles[i-1].skipped=true;
-  for(let k=i;k<c.cycles.length;k++) c.cycles[k].date=addMonths(c.cycles[k].date,1);
   const last=c.cycles[c.cycles.length-1];
   c.cycles.push({paid:0,exempt:0,date:addMonths(last.date,1),skipped:false});
   c.months=c.cycles.length;
@@ -2779,7 +2869,6 @@ function unskipCycle(c,i){
   cy.skipped=false;
   const last=c.cycles[c.cycles.length-1];
   if(c.cycles.length>1 && !last.skipped && cycCovered(last)===0) c.cycles.pop();
-  for(let k=i;k<c.cycles.length;k++) c.cycles[k].date=addMonths(c.cycles[k].date,-1);
   c.months=c.cycles.length;
   if(c.expireDate) c.expireDate=addMonths(c.expireDate,-1);
   recalcElapsed(c); syncColCounts(c);
@@ -2954,7 +3043,7 @@ function openDepositModal(){
       <div id="dpPrev" class="hint"></div>
       <div class="sec">회차 관리 <span class="muted">(약정일자 조정 · 회차 건너뛰기)</span></div>
       <div style="margin:-2px 0 6px"><label class="muted"><input type="checkbox" id="cyShift"> 일자 변경 시 이후 회차도 함께 이동</label>
-        <span class="muted" style="margin-left:10px">건너뛰기는 <b>항상</b> 이후 회차를 1개월 순연하고 맨 뒤에 회차 1개를 추가합니다 (계약만료일도 함께 연장)</span></div>
+        <span class="muted" style="margin-left:10px">건너뛰기는 <b>이후 회차의 약정일자를 바꾸지 않고</b> 맨 뒤에 회차 1개를 추가합니다 (계약만료일만 1개월 연장)</span></div>
       <div id="cyAdminBox"></div>
     </div>`,
     [btn(L('닫기','Đóng'),'b-ghost',closeModal), btn(L('입금 반영','Ghi nhận'),'b-pri',saveDeposit)], true);
@@ -2979,7 +3068,7 @@ function openCycleDeposit(i){
             <th style="width:110px">상태</th><td>${cycBadge(stat)}</td></tr>
         <tr><th>약정일자</th><td><input type="date" id="cyDateOne" value="${cy.date}">
             <label class="muted" style="margin-left:6px"><input type="checkbox" id="cyShift"> 이후 회차도 함께 이동</label>
-            <span class="muted">— 건너뛰기는 항상 순연</span></td>
+            <span class="muted">— 건너뛰기는 이후 회차 일자를 바꾸지 않음</span></td>
             <th>월 납부금</th><td>${won(c.monthly)} VND</td></tr>
         <tr><th>이미 충당</th><td>${won(cov)} VND${cy.exempt?' <span class="muted">(감면 '+won(cy.exempt)+')</span>':''}</td>
             <th>부족액</th><td><b style="color:var(--red)">${won(lack)}</b> VND</td></tr>
@@ -3039,8 +3128,8 @@ function onCycleDateChange(i,v){
 function onSkip(i){
   const c=window.__col; const m=skipCycle(c,i);
   afterCycChange();
-  toast(L(ordCycle(i)+' 건너뛰기 — 이후 회차 1개월씩 순연 · 전체 <b>'+m+'회차</b>로 늘어남 · 계약만료일 '+D(c.expireDate),
-          'Bỏ qua '+ordCycle(i)+' — dời các kỳ sau 1 tháng · tổng còn <b>'+m+' kỳ</b> · ngày hết hạn '+D(c.expireDate)));
+  toast(L(ordCycle(i)+' 건너뛰기 — 이후 회차 일자는 그대로 · 맨 뒤 회차 1개 추가로 전체 <b>'+m+'회차</b> · 계약만료일 '+D(c.expireDate),
+          'Bỏ qua '+ordCycle(i)+' — giữ nguyên ngày các kỳ sau · thêm 1 kỳ ở cuối, tổng <b>'+m+' kỳ</b> · ngày hết hạn '+D(c.expireDate)));
 }
 function onUnskip(i){
   const c=window.__col; const m=unskipCycle(c,i);
@@ -3908,7 +3997,7 @@ const MENUS=[
     {n:'3-1 결제', s:'approve', badge:'신규'},{n:'3-2 결제 변경'},{n:'3-3 결제 내역 확인'},
     {n:'3-4 배송', s:'deliver', badge:'개선'},{n:'3-5 배송 내역 확인'},
     {n:'3-6 해지대기', s:'refund', badge:'신규'},{n:'3-7 환불 내역 확인'},
-    {n:'3-8 결제고객리스트'},{n:'3-9 선납금 입금', s:'pay', badge:'신규'},{n:'3-10 구매완료', s:'complete', badge:'신규'},
+    {n:'3-8 결제고객리스트'},{n:'3-9 선납금 입금', s:'pay', badge:'신규'},{n:'3-10 계약완료', s:'complete', badge:'신규'},
     {n:'3-11 가상계좌 업로드', s:'upload', badge:'후속'},
   ]},
   {t:'4 출고/입고관리', subs:[
