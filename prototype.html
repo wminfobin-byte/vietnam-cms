@@ -77,8 +77,6 @@
   .obsrch .btns{display:inline-flex;gap:4px;align-items:center;flex-wrap:wrap}
   .b-green{background:#e6f6ee;color:var(--green);border-color:#a9dcc2;font-weight:700}
   .demo{border:1px dashed #b9a6dc;background:#faf7ff;border-radius:6px;padding:7px 12px;margin-bottom:8px;font-size:12.5px}
-  tr.dateDiv td{background:#e6e8ec;color:#6b7380;font-size:12px;padding:5px 10px;text-align:left;border-top:1px solid #d3d7de;border-bottom:1px solid #d3d7de}
-  tr.dateDiv .dd-note{margin-left:12px;color:#9aa1ab;font-weight:400}
 
   /* buttons */
   button{font-family:inherit;cursor:pointer;border-radius:5px;font-weight:700;font-size:12px;padding:5px 10px;
@@ -245,12 +243,13 @@
   <!-- ===== Screen: 2-1 고객상담 (OB CALL 목록) ===== -->
   <div class="page" id="screen-oblist" style="display:none">
     <h2 class="ptitle">2-1 고객상담 — OB CALL 목록 <span class="b s-canc">개선 요청</span></h2>
-    <p class="pdesc">상담원 · 매니저가 매일 보는 <b>OB CALL 목록</b>입니다. 요건서 <b>21번 개선 요청 3건</b>을 반영했습니다. 상단 <b>로그인 권한</b>을 <b>매니저</b>로 바꿔 보세요.</p>
+    <p class="pdesc">상담원 · 매니저가 매일 보는 <b>OB CALL 목록</b>입니다. 요건서 <b>21번 개선 요청 4건</b>을 반영했습니다. 상단 <b>로그인 권한</b>을 <b>매니저</b>로 바꿔 보세요.</p>
     <div class="hint" id="obRoleHint"></div>
-    <div class="hint"><b>개선 요청 3건 (요건서 21번)</b><br>
-      ① 분배일이 바뀌는 지점의 <b>회색 구분 행</b>은 화면에만 남고, <b>[화면다운로드] 엑셀에는 빈 행 없이</b> 데이터만 연속으로 나갑니다.<br>
+    <div class="hint"><b>개선 요청 4건 (요건서 21번)</b><br>
+      ① 분배일이 바뀌는 지점의 <b>날짜 구분 행(회색 행)을 삭제</b>했습니다 — <b>화면 · [화면다운로드] 엑셀 모두</b> 빈 행 없이 데이터만 연속으로 나갑니다. 날짜는 <code>분배일</code> 컬럼으로 구분합니다.<br>
       ② 상담상태 옆 <b>(n) = 담당자가 남긴 상담이력 건수</b>. 아래 <b>상담이력 건수</b>로 거르고, <b>상담상태 헤더</b>를 눌러 건수순 정렬합니다. [상담]에서 이력을 저장하면 n이 1 올라갑니다.<br>
-      ③ 로그인 권한이 <b>매니저</b>(아웃바운드매니저)면 <b>내 팀</b> 상담원(아웃바운드)의 DB만 보입니다 — 목록 · 건수 · 검색 · 엑셀 모두 동일. 관리자는 전체.</div>
+      ③ 로그인 권한이 <b>매니저</b>(아웃바운드매니저)면 <b>내 팀</b> 상담원(아웃바운드)의 DB만 보입니다 — 목록 · 건수 · 검색 · 엑셀 모두 동일. 관리자는 전체.<br>
+      ④ 한 페이지 표시 개수 드롭다운에 <b>3000 · 5000</b>을 추가했습니다 (기존 1000 · 500 · 100).</div>
     <!-- 실운영 2-1 검색 영역 배치 그대로. 신규 항목만 주황 테두리 -->
     <div class="obsrch">
       <label class="f">분배일 : <input type="date" id="sDistFrom"> ~ <input type="date" id="sDistTo"></label>
@@ -279,11 +278,11 @@
         <button class="b-red" onclick="renderObList()">검색</button>
         <button class="b-red" onclick="searchAllOb()">전체 검색</button>
         <button class="b-red" onclick="toast(L('DB 추가 (기존 기능)','Thêm DB (chức năng hiện có)'))">DB 추가</button>
-        <select id="sPageSize"><option>1000</option><option>500</option><option>100</option></select>
+        <select id="sPageSize" title="한 페이지 표시 개수 — 3000 · 5000 신규"><option>5000</option><option>3000</option><option selected>1000</option><option>500</option><option>100</option></select>
         <button class="b-green" onclick="downloadObExcel()">화면다운로드</button>
       </span>
     </div>
-    <div class="muted" style="margin:2px 2px 8px;font-size:12px">조건 입력 후 <b>[검색]</b>(또는 Enter)으로 적용 · <b>[화면다운로드]</b>는 화면 조건 그대로, <b>날짜 구분 공란 행 없이</b>, 상담이력수 컬럼 포함. 환불일 · 꼬리표 · 코드 · 매체그룹 · 회수재콜 · 임시저장은 시연 데이터에 값이 없어 <b>배치만</b> 표시.</div>
+    <div class="muted" style="margin:2px 2px 8px;font-size:12px">조건 입력 후 <b>[검색]</b>(또는 Enter)으로 적용 · <b>[화면다운로드]</b>는 화면 조건 그대로, <b>날짜 구분 행 없이</b>(화면도 동일), 상담이력수 컬럼 포함. 환불일 · 꼬리표 · 코드 · 매체그룹 · 회수재콜 · 임시저장은 시연 데이터에 값이 없어 <b>배치만</b> 표시.</div>
     <div class="demo" id="teamRow"><b>프로토타입 시연용</b> — 실제 화면에는 없음. 매니저의 팀은 <b>로그인 계정의 1-3 팀</b>으로 자동 결정.
       &nbsp; 내 팀 <select id="fTeam" onchange="renderObList()"><option value="1팀">1팀</option><option value="2팀">2팀</option></select>
       <span class="muted">판정: OB명 → 그 상담원의 1-3 팀</span></div>
@@ -1404,7 +1403,7 @@ function setLang(v){
 /* ================= data ================= */
 let role='관리자';
 let rows=[
-  /* 상담대기 DB — 부재 누적(상담이력 건수) 검색 · 날짜 구분 행 시연용. 분배일이 같은 묶음 */
+  /* 상담대기 DB — 부재 누적(상담이력 건수) 검색 시연용. 분배일이 같은 묶음 */
   {no:104,name:'Nguyễn Thị Lan (40)',phone:'0987112233',product:'-',pay:'-',cons:'부재',consN:6,approved:false,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,intake:false,
     stars:0,dbidx:20371,dbpoint:'1.0',ob:'Hoàng Văn Nam',distDate:'2026-07-27',inDate:'2026-07-26',callType:'IN',dbInfo:'없음',lastCall:'2026-07-27 16:05',resvCall:'-',orderDate:'-',autocall:'없음',care1:'-',care2:'-'},
   {no:103,name:'Bùi Minh Châu (30)',phone:'0903445566',product:'-',pay:'-',cons:'부재',consN:3,approved:false,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,intake:false,
@@ -1528,7 +1527,7 @@ function downloadDbExcel(){
           'Đã tải Excel danh sách DB — '+rows.length+' dòng (bao gồm cột mã nội bộ)'));
 }
 /* 2-1 OB CALL 목록 [화면다운로드] — 화면과 같은 행 집합(권한 범위 + 검색 + 정렬).
-   분배일 구분 행은 화면 장식일 뿐 데이터가 아니므로 엑셀에 넣지 않는다 */
+   날짜 구분 행은 화면 · 엑셀 모두 두지 않는다(분배일 컬럼으로 구분) */
 function obExcelData(){
   const vis=visibleRows();
   const header=['No','OB명','분배일','유입일','고객명','고객전화번호','오더일','접수 제품','상담상태','상담이력수','고객상태'].map(X);
@@ -1538,8 +1537,8 @@ function obExcelData(){
 function downloadObExcel(){
   const {header,data}=obExcelData();
   buildAndDownloadXlsx(L('OBCALL목록_베트남_','DanhSachOBCALL_VietNam_')+stamp()+'.xlsx',L('OB CALL 목록','DanhSachOBCALL'),header,data);
-  toast(L('화면다운로드 — '+data.length+'건 · 날짜 구분 공란 행 없음 · 상담이력수 컬럼 포함',
-          'Tải màn hình — '+data.length+' dòng · không có dòng trống phân cách ngày · có cột số lịch sử tư vấn'));
+  toast(L('화면다운로드 — '+data.length+'건 · 날짜 구분 행 없음 · 상담이력수 컬럼 포함',
+          'Tải màn hình — '+data.length+' dòng · không có dòng phân cách ngày · có cột số lịch sử tư vấn'));
 }
 
 /* ================= render list =================
@@ -1678,17 +1677,9 @@ function renderObList(){
   const tRow=document.getElementById('teamRow'); if(tRow) tRow.style.display=role==='매니저'?'':'none';
   fillConsOptions();
   const vis=visibleRows(), scope=scopedRows();
-  /* ① 분배일이 바뀌는 지점에 회색 구분 행(화면 전용). 엑셀에는 넣지 않는다.
-     건수 정렬 중에는 날짜 묶음이 깨지므로 구분 행을 그리지 않는다. */
-  let prevDate=null;
+  /* ① 날짜 구분 행 삭제 — 화면에도 두지 않는다. 날짜는 분배일 컬럼으로 구분 */
   if(!vis.length){ tb.innerHTML='<tr><td colspan="'+(cols.length+1)+'" class="muted">'+L('조건에 맞는 DB가 없습니다','Không có DB phù hợp điều kiện')+'</td></tr>'; }
   vis.forEach(r=>{
-    if(!consSort && prevDate!==null && r.distDate!==prevDate){
-      const d=document.createElement('tr'); d.className='dateDiv';
-      d.innerHTML='<td colspan="'+(cols.length+1)+'"><span>'+L('분배일','Ngày phân loại')+' '+(r.distDate||'-')+' ↓</span><span class="dd-note">'+L('화면 전용 구분 행 — 엑셀에는 포함되지 않음','Dòng phân cách chỉ trên màn hình — không có trong Excel')+'</span></td>';
-      tb.appendChild(d);
-    }
-    prevDate=r.distDate;
     tb.appendChild(listRow(cols,r));
   });
   const cnt=document.getElementById('listCount');
