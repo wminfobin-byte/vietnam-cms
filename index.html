@@ -124,6 +124,17 @@
   .branch{flex:1;min-width:250px}
   .branch .bt{text-align:center;font-weight:700;margin-bottom:9px;font-size:13.5px}
 
+  /* 업데이트 기록 — 행 클릭 시 해당 섹션으로 이동 */
+  table.uplog tr[data-go]{cursor:pointer}
+  table.uplog tr[data-go]:hover td{background:var(--blue-bg)}
+  table.uplog td.d{white-space:nowrap;color:var(--sub);font-variant-numeric:tabular-nums}
+  table.uplog td.m{white-space:nowrap;font-weight:600}
+  table.uplog td.go{color:var(--blue);text-align:center;width:40px}
+  section.hl{animation:hl 1.6s ease-out}
+  .spec.hl{animation:hl 1.6s ease-out}
+  .spec[id]{scroll-margin-top:20px}
+  @keyframes hl{0%{box-shadow:0 0 0 4px rgba(44,111,219,.45)}100%{box-shadow:0 0 0 4px rgba(44,111,219,0)}}
+
   .toolbar{position:fixed;right:22px;bottom:22px;z-index:50}
   .toolbar button{border:1px solid var(--line);background:#fff;color:var(--ink);
     padding:9px 15px;border-radius:22px;font-size:13px;font-weight:600;cursor:pointer;
@@ -145,6 +156,7 @@
   <nav class="toc" id="toc">
     <h1>베트남 WM-CMS 화면설명서</h1>
     <div class="meta">계약승인·배송 + 취소·해지 + 수금·미납 + 개선요청</div>
+    <a href="#updates">업데이트 기록</a>
     <div class="grp">개요</div>
     <a href="#scope">0. 개발 범위</a>
     <a href="#flow">1. 전체 흐름</a>
@@ -194,6 +206,19 @@
       <a class="protobtn" href="prototype.html">클릭형 프로토타입 보기 →</a>
     </header>
 
+    <!-- 업데이트 기록 — 최신 날짜가 위. 행 클릭 시 해당 메뉴(섹션)로 이동 -->
+    <section id="updates">
+      <h2>업데이트 기록</h2>
+      <p class="lead">문서 변경 내역(2026-09-28부터 기록). <b>행을 클릭하면 해당 메뉴로 이동</b>합니다.</p>
+      <div class="card">
+        <table class="uplog">
+          <tr><th style="width:110px">날짜</th><th style="width:220px">메뉴</th><th>내용</th><th style="width:40px"></th></tr>
+          <tr data-go="s-oblist-1"><td class="d">2026-09-28</td><td class="m">21. 2-1 OB CALL 목록</td><td>날짜 구분 행 — 엑셀뿐 아니라 <b>CMS 화면에서도 삭제</b></td><td class="go">→</td></tr>
+          <tr data-go="s-oblist-4"><td class="d">2026-09-28</td><td class="m">21. 2-1 OB CALL 목록</td><td>한 페이지 표시 개수 드롭다운에 <b>3000 · 5000</b> 추가 (현재 최대 1000)</td><td class="go">→</td></tr>
+        </table>
+      </div>
+    </section>
+
     <!-- 0. 범위 -->
     <section id="scope">
       <h2><span class="num">0</span> 개발 범위</h2>
@@ -211,7 +236,7 @@
           <tr><td>⑧ 접수 개선</td><td>1-2 접수창 주소 검색형 드롭다운, 접수 항목 추가(계약자명·결제방식·신분증·생년월일), COD 접수창 할부 금액행 전환</td><td>개선</td></tr>
           <tr><td>⑨ 계약서</td><td>1-2 [계약서 출력] 버튼 + 계약서 PDF 자동 생성(구매/할부 2종) · 접수 입력값 매핑</td><td><span class="pill tag-new">신규</span></td></tr>
           <tr><td>⑩ 회차 반영</td><td>17-1 입금 팝업(<b>입금금액 · 감면 금액</b>) → 1회차부터 순서대로 충당 · 부분납부는 미납으로 집계하지 않음</td><td><span class="pill tag-new">신규</span></td></tr>
-          <tr><td>⑪ DB 리스트</td><td>2-1 OB CALL 목록 — <b>엑셀 공란 행 제거</b> · <b>상담상태 횟수(n) 검색 조건</b> 신설 · <b>아웃바운드매니저 자기 팀 DB만 노출</b></td><td>개선</td></tr>
+          <tr><td>⑪ DB 리스트</td><td>2-1 OB CALL 목록 — <b>날짜 구분 행 삭제(화면 · 엑셀)</b> · <b>상담상태 횟수(n) 검색 조건</b> 신설 · <b>아웃바운드매니저 자기 팀 DB만 노출</b> · <b>페이지 표시 개수 3000 · 5000 추가</b></td><td>개선</td></tr>
           <tr><td class="muted">제외</td><td class="muted"><b>가상계좌 전체</b>(발급 · 양식 업로드 · 자동 입금 반영)는 <b>후속 개발</b>. 1차는 계좌이체 + 수기 입금 확인으로 운영</td><td class="muted">후속</td></tr>
         </table>
         <div class="note">⑧ · ⑨는 <b>「베트남 CMS 개발요청 — 계약서 및 재콜」(2026-03-30)</b> 요청분을 본 문서에 통합한 것. ⑦의 1-34 · 15-2-2도 동일 문서 건.</div>
@@ -1416,12 +1441,12 @@
     <!-- 21. 2-1 OB CALL 목록 개선 -->
     <section id="s-oblist">
       <h2><span class="num">21</span> 2-1 OB CALL 목록 개선 <span class="pill p-role" style="font-size:12px">개선</span></h2>
-      <p class="lead">상담원·매니저가 하루 종일 보는 <b>2-1 고객상담 — OB CALL 목록</b>에 대한 개선 요청 3건(<b>1-2 고객관리 DB 리스트와는 별개 화면</b>). ① 엑셀 공란 행 제거 ② 상담상태 <b>횟수(n)</b> 검색 조건 신설 ③ 아웃바운드매니저의 <b>자기 팀 DB만</b> 노출.</p>
+      <p class="lead">상담원·매니저가 하루 종일 보는 <b>2-1 고객상담 — OB CALL 목록</b>에 대한 개선 요청 4건(<b>1-2 고객관리 DB 리스트와는 별개 화면</b>). ① 날짜 구분 행 삭제(화면 · 엑셀) ② 상담상태 <b>횟수(n)</b> 검색 조건 신설 ③ 아웃바운드매니저의 <b>자기 팀 DB만</b> 노출 ④ 한 페이지 표시 개수 <b>3000 · 5000</b> 추가.</p>
 
-      <div class="spec reqbox">
-        <div class="sphead"><span class="pg">2-1</span><h3>① 날짜 구분 행이 엑셀에 공란으로 내려옴 <span class="pill p-role" style="font-size:12px">개선</span></h3></div>
+      <div class="spec reqbox" id="s-oblist-1">
+        <div class="sphead"><span class="pg">2-1</span><h3>① 날짜 구분 행 삭제 — 화면 · 엑셀 모두 <span class="pill p-role" style="font-size:12px">개선</span></h3></div>
         <div class="spbody">
-          <p class="purpose">목록은 <b>분배일이 바뀌는 지점에 회색 구분 행</b>을 한 줄 넣어 날짜 그룹을 구분함. 화면에서는 유용하지만, <b>[화면다운로드] 엑셀에 이 구분 행이 값 없는 빈 행으로 그대로 포함</b>됨.</p>
+          <p class="purpose">목록은 <b>분배일이 바뀌는 지점에 회색 구분 행</b>을 한 줄 넣어 날짜 그룹을 구분함. 이 구분 행이 <b>[화면다운로드] 엑셀에 값 없는 빈 행으로 그대로 포함</b>되고, 화면에서도 행 사이를 끊어 목록을 읽고 선택하는 데 방해가 됨.</p>
           <div class="fig">
             <img src="2-1%20OB%20CALL%20%EB%AA%A9%EB%A1%9D%20%EB%82%A0%EC%A7%9C%20%EA%B5%AC%EB%B6%84%ED%96%89.png" alt="2-1 OB CALL 목록 — 날짜 구분 행" />
             <figcaption><b>현재 2-1 OB CALL 목록</b> — 분배일 <code>2026-09-22</code> 그룹과 <code>2026-09-21</code> 그룹 사이에 <b>회색 구분 행</b>이 삽입됨. 이 행이 엑셀에도 <b>공란 행</b>으로 그대로 내려옴.</figcaption>
@@ -1433,16 +1458,16 @@
             <tr><td>빈 행이 섞여 내려옴</td><td>엑셀에서 <b>자동 필터 · 정렬 범위가 빈 행에서 끊김</b>. 범위를 매번 수동으로 다시 잡아야 함</td></tr>
             <tr><td>행 수 ≠ DB 건수</td><td>행 개수로 건수를 세면 구분 행만큼 더 잡힘. <b>피벗 · 집계 시 오차</b></td></tr>
             <tr><td>날짜가 여러 날이면 반복</td><td>조회 기간이 길수록 빈 행이 계속 늘어남(날짜 수 − 1개)</td></tr>
+            <tr><td>화면에서도 불필요</td><td>이미 <code>분배일</code> 컬럼이 있어 구분 행 없이도 날짜 구분이 가능. 구분 행은 <b>한 페이지 표시 건수</b>와 실제 행 수도 어긋나게 함</td></tr>
           </table>
 
           <h3 style="font-size:14px">요청</h3>
           <table>
             <tr><th style="width:24%">구분</th><th>처리</th></tr>
-            <tr><td><b>화면</b></td><td><b>현행 유지</b> — 날짜 구분 행은 화면에서 계속 보여야 함(가독성 목적)</td></tr>
-            <tr><td><b>엑셀</b> <span class="pill tag-new">변경</span></td><td><b>[화면다운로드] 산출물에서만 구분 행 제외.</b> 헤더 1행 + 데이터 행만 <b>연속</b>으로 출력</td></tr>
-            <tr><td>대안(선택)</td><td>날짜 구분이 엑셀에도 필요하다면, 빈 행 대신 <b>분배일 컬럼 값</b>으로 구분되게 두면 됨 — 이미 <code>분배일</code> 컬럼이 있으므로 <b>빈 행은 불필요</b></td></tr>
+            <tr><td><b>화면</b> <span class="pill tag-new">변경</span></td><td><b>날짜 구분 행 삭제.</b> 데이터 행만 연속으로 표시 — 날짜는 <code>분배일</code> 컬럼으로 구분</td></tr>
+            <tr><td><b>엑셀</b> <span class="pill tag-new">변경</span></td><td><b>[화면다운로드] 산출물에서도 구분 행 제외.</b> 헤더 1행 + 데이터 행만 <b>연속</b>으로 출력</td></tr>
           </table>
-          <div class="note q"><b>확인 기준</b> 다운로드한 xlsx를 열었을 때 <b>완전 공란 행 0건</b>, <code>Ctrl+Shift+↓</code>로 마지막 데이터 행까지 한 번에 선택될 것.</div>
+          <div class="note q"><b>확인 기준</b> ① 화면 목록에 <b>회색 구분 행이 나오지 않을 것</b>. ② 다운로드한 xlsx를 열었을 때 <b>완전 공란 행 0건</b>, <code>Ctrl+Shift+↓</code>로 마지막 데이터 행까지 한 번에 선택될 것.</div>
         </div>
       </div>
 
@@ -1499,6 +1524,20 @@
         </div>
       </div>
 
+      <div class="spec reqbox" id="s-oblist-4">
+        <div class="sphead"><span class="pg">2-1</span><h3>④ 한 페이지 표시 개수 3000 · 5000 추가 <span class="pill p-role" style="font-size:12px">개선</span></h3></div>
+        <div class="spbody">
+          <p class="purpose">검색 버튼 옆 <b>한 페이지 표시 개수</b> 드롭다운은 현재 <code>1000</code> · <code>500</code> · <code>100</code>이 전부라 <b>최대 1000건</b>까지만 한 화면에 볼 수 있음.</p>
+          <table>
+            <tr><th style="width:24%">구분</th><th>처리</th></tr>
+            <tr><td><b>드롭다운 옵션</b> <span class="pill tag-new">변경</span></td><td><code>5000</code> · <code>3000</code> · <code>1000</code> · <code>500</code> · <code>100</code> — <b>3000 · 5000 추가</b></td></tr>
+            <tr><td>기본값</td><td>현행 유지 (<code>1000</code>)</td></tr>
+            <tr><td>[화면다운로드]</td><td>현행과 동일하게 <b>선택한 표시 개수 기준</b>으로 화면에 보이는 행을 그대로 출력</td></tr>
+          </table>
+          <div class="note q"><b>확인필요</b> 5000건 한 번에 조회 시 <b>응답 속도 · 브라우저 렌더링</b>에 문제가 없는지 개발 측 확인 요망.</div>
+        </div>
+      </div>
+
     </section>
 
   </main>
@@ -1518,6 +1557,15 @@
     }});
   },{rootMargin:'-20% 0px -70% 0px'});
   document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+  /* 업데이트 기록 행 클릭 → 해당 메뉴로 이동 + 잠깐 강조 */
+  document.querySelectorAll('table.uplog tr[data-go]').forEach(tr=>{
+    tr.addEventListener('click',()=>{
+      const t=document.getElementById(tr.dataset.go); if(!t) return;
+      history.replaceState(null,'','#'+t.id);
+      t.scrollIntoView({behavior:'smooth',block:'start'});
+      t.classList.remove('hl'); void t.offsetWidth; t.classList.add('hl');
+    });
+  });
 </script>
 </body>
 </html>
