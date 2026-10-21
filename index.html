@@ -213,6 +213,11 @@
       <div class="card">
         <table class="uplog">
           <tr><th style="width:110px">날짜</th><th style="width:220px">메뉴</th><th>내용</th><th style="width:40px"></th></tr>
+          <tr data-go="s-menu"><td class="d">2026-10-21</td><td class="m">0. 메뉴 정리</td><td>미사용 메뉴 삭제 — <b>3-2 · 3-8</b>, <b>4-1 · 4-2-1 · 4-3 · 4-4 · 4-5 · 4-6-1</b> (4번 메뉴는 4-6만 남음)</td><td class="go">→</td></tr>
+          <tr data-go="s-termhist"><td class="d">2026-10-21</td><td class="m">8. 3-7 해지 내역 확인</td><td>메뉴명 변경 <code>3-7 환불 내역 확인</code> → <b><code>3-7 해지 내역 확인</code></b></td><td class="go">→</td></tr>
+          <tr data-go="s-payhist"><td class="d">2026-10-21</td><td class="m">3. 3-3 결제 내역 확인</td><td><b>신규</b> — 3-1 결제(계약승인 · 반려) 처리 히스토리 화면</td><td class="go">→</td></tr>
+          <tr data-go="s-dlvhist"><td class="d">2026-10-21</td><td class="m">4. 3-5 배송 내역 확인</td><td><b>신규</b> — 3-4 배송(배송처리) 처리 히스토리 화면</td><td class="go">→</td></tr>
+          <tr data-go="s-termhist"><td class="d">2026-10-21</td><td class="m">8. 3-7 해지 내역 확인</td><td><b>신규</b> — 3-6 해지대기(해지 승인) 처리 히스토리 화면</td><td class="go">→</td></tr>
           <tr data-go="s-oblist-1"><td class="d">2026-09-28</td><td class="m">21. 2-1 OB CALL 목록</td><td>날짜 구분 행 — 엑셀뿐 아니라 <b>CMS 화면에서도 삭제</b></td><td class="go">→</td></tr>
           <tr data-go="s-oblist-4"><td class="d">2026-09-28</td><td class="m">21. 2-1 OB CALL 목록</td><td>한 페이지 표시 개수 드롭다운에 <b>3000 · 5000</b> 추가 (현재 최대 1000)</td><td class="go">→</td></tr>
         </table>
@@ -237,9 +242,26 @@
           <tr><td>⑨ 계약서</td><td>1-2 [계약서 출력] 버튼 + 계약서 PDF 자동 생성(구매/할부 2종) · 접수 입력값 매핑</td><td><span class="pill tag-new">신규</span></td></tr>
           <tr><td>⑩ 회차 반영</td><td>17-1 입금 팝업(<b>입금금액 · 감면 금액</b>) → 1회차부터 순서대로 충당 · 부분납부는 미납으로 집계하지 않음</td><td><span class="pill tag-new">신규</span></td></tr>
           <tr><td>⑪ DB 리스트</td><td>2-1 OB CALL 목록 — <b>날짜 구분 행 삭제(화면 · 엑셀)</b> · <b>상담상태 횟수(n) 검색 조건</b> 신설 · <b>아웃바운드매니저 자기 팀 DB만 노출</b> · <b>페이지 표시 개수 3000 · 5000 추가</b></td><td>개선</td></tr>
+          <tr><td>⑫ 메뉴 정리</td><td><b>3-3 결제 내역 확인 · 3-5 배송 내역 확인 · 3-7 해지 내역 확인</b> 신설(각각 3-1 · 3-4 · 3-6 처리 히스토리). 3-7 메뉴명 <code>환불 내역 확인</code> → <code>해지 내역 확인</code>. <b>사용하지 않는 메뉴 삭제</b> — 아래 표 참조</td><td><span class="pill tag-new">신규</span></td></tr>
           <tr><td class="muted">제외</td><td class="muted"><b>가상계좌 전체</b>(발급 · 양식 업로드 · 자동 입금 반영)는 <b>후속 개발</b>. 1차는 계좌이체 + 수기 입금 확인으로 운영</td><td class="muted">후속</td></tr>
         </table>
         <div class="note">⑧ · ⑨는 <b>「베트남 CMS 개발요청 — 계약서 및 재콜」(2026-03-30)</b> 요청분을 본 문서에 통합한 것. ⑦의 1-34 · 15-2-2도 동일 문서 건.</div>
+      </div>
+      <div class="spec reqbox" id="s-menu">
+        <div class="sphead"><span class="pg">3 결제관리 · 4 출고/입고관리</span><h3>메뉴 정리 — 삭제 · 이름 변경 · 신설</h3></div>
+        <div class="spbody">
+          <p class="purpose">베트남 흐름(COD · 환불 없음 · 시리얼 입력으로 기기 회수 확인)에서 쓰지 않는 메뉴가 남아 있으면 개발 범위가 헷갈리므로 <b>아래 메뉴는 삭제</b>하고, 처리 화면마다 <b>히스토리(내역 확인) 화면</b>을 짝으로 둠.</p>
+          <table>
+            <tr><th style="width:90px">구분</th><th style="width:260px">메뉴</th><th>내용</th></tr>
+            <tr><td><b style="color:var(--red)">삭제</b></td><td>3-2 결제 변경<br>3-8 결제고객리스트</td><td>메뉴에서 제거</td></tr>
+            <tr><td><b style="color:var(--red)">삭제</b></td><td>4-1 입고<br>4-2-1 입고업로드 리스트<br>4-3 수동입고처리리스트<br>4-4 입고처리내역리스트<br>4-5 누락리스트<br>4-6-1 미배송사은품 송장번호업로드</td><td>메뉴에서 제거. 기기반납 회수 확인은 <a href="#s-termwait">3-6 해지대기</a>의 시리얼 입력으로 끝나므로 입고 메뉴가 필요 없음. 4번 메뉴에는 <b>4-6 시리얼번호 업로드만</b> 남음</td></tr>
+            <tr><td>이름 변경</td><td>3-7 환불 내역 확인 → <b>3-7 해지 내역 확인</b></td><td>환불 프로세스가 없으므로 해지 기준으로 이름 변경</td></tr>
+            <tr><td><span class="pill tag-new">신설</span></td><td><a href="#s-payhist">3-3 결제 내역 확인</a></td><td><b>3-1 결제</b>(계약승인 · 반려) 처리 히스토리</td></tr>
+            <tr><td><span class="pill tag-new">신설</span></td><td><a href="#s-dlvhist">3-5 배송 내역 확인</a></td><td><b>3-4 배송</b>(배송처리) 처리 히스토리</td></tr>
+            <tr><td><span class="pill tag-new">신설</span></td><td><a href="#s-termhist">3-7 해지 내역 확인</a></td><td><b>3-6 해지대기</b>(해지 승인) 처리 히스토리</td></tr>
+          </table>
+          <div class="note"><b>정리 후 메뉴</b> 3 결제관리: 3-1 결제 · 3-3 결제 내역 확인 · 3-4 배송 · 3-5 배송 내역 확인 · 3-6 해지대기 · 3-7 해지 내역 확인 · 3-9 선납금 입금 · 3-10 계약완료 · 3-11 가상계좌 업로드(후속) / 4 출고/입고관리: 4-6 시리얼번호 업로드</div>
+        </div>
       </div>
     </section>
 
@@ -404,6 +426,20 @@
           <div class="note"><b>상태전이</b> <code>상담대기</code> → <code>계약요청</code> → <b>(3-1 계약승인)</b> → <code>배송대기</code></div>
         </div>
       </div>
+      <div class="spec reqbox" id="s-payhist">
+        <div class="sphead"><span class="pg">3-3 결제 내역 확인</span><h3>3-1 결제 처리 히스토리 <span class="pill tag-new" style="font-size:12px">신규</span></h3></div>
+        <div class="spbody">
+          <p class="purpose"><b>3-3 결제 내역 확인 = 3-1 결제에서 처리한 내역의 히스토리.</b> 3-1 목록은 <b>계약요청(대기) 건만</b> 보여 주고 승인 · 반려하면 목록에서 사라지므로, 처리된 건은 이 화면에서 다시 확인함.</p>
+          <ol class="req">
+            <li><b>대상</b> — 3-1에서 처리한 <b>[계약승인]</b> · <b>[반려]</b> 전부. 반려 후 재접수 · 재승인된 고객은 <b>처리할 때마다 한 줄씩</b> 따로 남음.</li>
+            <li><b>컬럼</b> — 처리일시 · 처리구분 · 번호 · 주문키 · 고객명 · 제품 · 결제(할부/구매) · 결제금액 · <b>처리 내용</b>(승인 = 배송대기로 전환 / 반려 = 반려 사유 · 상세) · <b>처리자</b>.</li>
+            <li><b>쌓이는 시점</b> — 처리 버튼을 누르는 즉시 <b>1건 = 1줄</b>로 기록. 고객 정보(고객명 · 제품 · 결제 등)는 <b>처리 시점 값으로 함께 저장</b>해, 이후 고객 정보가 바뀌어도 당시 기록은 그대로 남음.</li>
+            <li><b>수정 · 삭제 없음</b> — 조회 전용 화면. 잘못 처리한 건도 지우지 않고, 되돌린 처리가 있으면 그것도 새 줄로 남음.</li>
+            <li><b>검색</b> — 처리일(기간) · 처리구분 · 고객명/주문키. 최신 처리가 위. <b>[화면다운로드]</b>는 화면 조건 그대로 엑셀로 받음.</li>
+            <li><b>권한</b> — 3-1 결제와 동일(관리자 · 매니저 · 재무담당자).</li>
+          </ol>
+        </div>
+      </div>
     </section>
 
     <!-- 4. 배송처리 · 계약서 출력 -->
@@ -426,6 +462,20 @@
           <div class="note new"><b>직인 · 서명은 이미지로 넣지 않음 — 실물 날인이 법적 요건</b> 베트남 법상 계약서에 <b>실물 직인을 직접 날인</b>해야 하므로, 직인 · 서명 이미지를 PDF에 합성하지 않음. 계약서는 <b>직인란 · 서명란을 비운 채</b> 출력하고, <b>출력물에 건건이 실물 도장을 찍은 뒤</b> 배송에 동봉함. 고객(BÊN B) 서명은 현장에서 수기로 받음.<br />
             <span style="color:var(--sub)">※ 따라서 <b>ZIP 일괄 다운로드로 뽑아도 날인은 건수만큼 수작업</b>으로 남음. 시스템이 줄여주는 것은 <b>출력 · 취합 단계</b>까지임.</span></div>
           <div class="note"><b>상태전이</b> <code>배송대기</code> → <b>(3-4 배송처리 + 계약서 ZIP)</b> → <code>배송중</code></div>
+        </div>
+      </div>
+      <div class="spec reqbox" id="s-dlvhist">
+        <div class="sphead"><span class="pg">3-5 배송 내역 확인</span><h3>3-4 배송 처리 히스토리 <span class="pill tag-new" style="font-size:12px">신규</span></h3></div>
+        <div class="spbody">
+          <p class="purpose"><b>3-5 배송 내역 확인 = 3-4 배송에서 처리한 내역의 히스토리.</b> 3-4 목록은 <b>배송대기 건만</b> 보여 주고 배송처리하면 목록에서 사라지므로, 언제 · 누가 배송처리했는지는 이 화면에서 확인함.</p>
+          <ol class="req">
+            <li><b>대상</b> — 3-4에서 <b>[선택 건 배송처리]</b>한 건 전부(1건 = 1줄).</li>
+            <li><b>컬럼</b> — 처리일시 · 처리구분 · 번호 · 주문키 · 고객명 · 제품 · 결제 · <b>계약서 ZIP</b>(다운로드 / 미다운로드 — 물류가 처리하면 ZIP 없이 상태만 전이되므로 구분 필요) · 처리 내용(배송중으로 전환) · <b>처리자</b> · <b>[계약서]</b>(해당 건 계약서 재출력, 관리자 · 매니저만).</li>
+            <li><b>쌓이는 시점</b> — 처리 버튼을 누르는 즉시 <b>1건 = 1줄</b>로 기록. 고객 정보(고객명 · 제품 · 결제 등)는 <b>처리 시점 값으로 함께 저장</b>해, 이후 고객 정보가 바뀌어도 당시 기록은 그대로 남음.</li>
+            <li><b>수정 · 삭제 없음</b> — 조회 전용 화면. 잘못 처리한 건도 지우지 않고, 되돌린 처리가 있으면 그것도 새 줄로 남음.</li>
+            <li><b>검색</b> — 처리일(기간) · 처리구분 · 고객명/주문키. 최신 처리가 위. <b>[화면다운로드]</b>는 화면 조건 그대로 엑셀로 받음.</li>
+            <li><b>권한</b> — 3-4 배송과 동일(물류 · 매니저 · 관리자). [계약서] 재출력은 관리자 · 매니저만.</li>
+          </ol>
         </div>
       </div>
     </section>
@@ -551,9 +601,23 @@
           <div class="note new" style="background:var(--green-bg);border-left-color:var(--green)"><b style="color:var(--green)">컨텐츠 사용중단 — CMS는 "대상 등록"까지만</b> 위약금으로 해지 종결된 건을 <b>컨텐츠 사용중단 대상 목록에 자동으로 올리고</b>, <b>실제 차단은 시스템실에 요청</b>해 처리함(현행과 동일). CMS가 학습 시스템을 직접 제어하지 않음.<br />
             <b>미납으로 인한 학습 차단은 이번 범위가 아님</b> — 지금처럼 건별로 시스템실에 개별 요청함. 따라서 CMS에 <b>미납 n회 자동차단 같은 규칙은 넣지 않음</b>.<br />
             <span style="color:var(--sub)">※ 현재 구글시트 <code>학습차단리스트</code>는 시스템실에 개별 요청한 건을 모아둔 대장이며, 위 규칙에 따라 <b>위약금 해지분만</b> CMS가 자동 생성하고 나머지는 지금 방식 유지.</span></div>
-          <div class="note new"><b>기기 회수 확인은 시리얼 입력 한 번으로</b> 기기반납 건도 <b>4-1 입고 / 4-3 수동입고처리</b> 화면을 거치지 않음. 반납 단말기의 시리얼번호를 이 화면에 입력하는 것으로 회수 확인이 끝나고 그대로 종결됨.</div>
+          <div class="note new"><b>기기 회수 확인은 시리얼 입력 한 번으로</b> 기기반납 건도 <b>별도 입고 처리 화면을 거치지 않음</b>(기존 4-1 · 4-3 등 입고 메뉴는 삭제). 반납 단말기의 시리얼번호를 이 화면에 입력하는 것으로 회수 확인이 끝나고 그대로 종결됨.</div>
           <div class="note">위약금 <b>부분 입금(분할)도 [해지 승인]으로 종결 가능</b>하며, 산정액보다 적으면 <b>확인 문구만 띄우고 진행</b>함(차액은 미회수액으로 기록). 상세는 <a href="#s-penalty">9-1. 위약금 산정 규칙</a>의 "현장 자유도" 참조.</div>
           <div class="note"><b>상태전이</b> <code>해지대기</code> → <b>(해지 승인)</b> → <code>해지(위약금)</code> <b>또는</b> <code>해지(기기반납)</code></div>
+        </div>
+      </div>
+      <div class="spec reqbox" id="s-termhist">
+        <div class="sphead"><span class="pg">3-7 해지 내역 확인</span><h3>3-6 해지대기 처리 히스토리 <span class="pill tag-new" style="font-size:12px">신규</span></h3></div>
+        <div class="spbody">
+          <p class="purpose"><b>3-7 해지 내역 확인 = 3-6 해지대기에서 해지 처리한 내역의 히스토리.</b> 3-6 목록은 <b>해지대기 건만</b> 보여 주고 [해지 승인]하면 목록에서 사라지므로, 종결된 해지 건은 이 화면에서 확인함. <span style="color:var(--sub)">※ 기존 메뉴명 <code>3-7 환불 내역 확인</code> → <b><code>3-7 해지 내역 확인</code></b>으로 변경(환불 프로세스 없음).</span></p>
+          <ol class="req">
+            <li><b>대상</b> — 3-6에서 <b>[해지 승인]</b>한 건 전부. 처리구분 = <code>해지(위약금)</code> / <code>해지(기기반납)</code>.</li>
+            <li><b>컬럼</b> — 처리일시 · 처리구분 · 번호 · 주문키 · 고객명 · 제품 · 배송완료일 · <b>최종 산정 위약금</b> · <b>실제 입금 위약금</b>(위약금 경로) · <b>반납 시리얼번호</b>(기기반납 경로) · 처리 내용(위약금 = 컨텐츠 사용중단 대상 등록 / 기기반납 = 등록 시리얼과 대조 일치) · <b>처리자</b>.</li>
+            <li><b>쌓이는 시점</b> — 처리 버튼을 누르는 즉시 <b>1건 = 1줄</b>로 기록. 고객 정보(고객명 · 제품 · 결제 등)는 <b>처리 시점 값으로 함께 저장</b>해, 이후 고객 정보가 바뀌어도 당시 기록은 그대로 남음.</li>
+            <li><b>수정 · 삭제 없음</b> — 조회 전용 화면. 잘못 처리한 건도 지우지 않고, 되돌린 처리가 있으면 그것도 새 줄로 남음.</li>
+            <li><b>검색</b> — 처리일(기간) · 처리구분 · 고객명/주문키. 최신 처리가 위. <b>[화면다운로드]</b>는 화면 조건 그대로 엑셀로 받음.</li>
+            <li><b>권한</b> — 3-6 해지대기와 동일(관리자 · 매니저 · 재무담당자).</li>
+          </ol>
         </div>
       </div>
     </section>
@@ -731,6 +795,7 @@
             <tr><td rowspan="3"><b>해지 승인 (3-6 해지대기)</b> — 위약금 입금액 / 시리얼 입력 후 [해지 승인]</td><td>관리</td><td>관리자</td><td>관리자</td></tr>
             <tr><td>무관</td><td>아웃바운드매니저</td><td>매니저</td></tr>
             <tr><td>재무</td><td>관리자</td><td>재무담당자</td></tr>
+            <tr><td><b>내역 확인 (3-3 · 3-5 · 3-7)</b> — 조회 전용</td><td colspan="3">각각 처리 화면 <b>3-1 결제 · 3-4 배송 · 3-6 해지대기</b>와 동일</td></tr>
             <tr><td>계약완료 확정(3-10)</td><td>관리</td><td>관리자</td><td>관리자</td></tr>
             <tr><td rowspan="2"><b>시리얼번호 업로드(4-6)</b></td><td>무관</td><td>아웃바운드매니저 <span style="color:var(--sub)">/ 물류 계정</span></td><td>매니저 · 물류</td></tr>
             <tr><td>관리</td><td>관리자</td><td>관리자</td></tr>
