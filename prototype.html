@@ -312,6 +312,21 @@
     <div style="margin:10px 0 4px"><button class="b-pri" onclick="doApprove()">선택 건 계약승인</button></div>
   </div>
 
+  <!-- ===== Screen: 3-3 결제 내역 확인 (3-1 처리 이력) ===== -->
+  <div class="page reqscreen" id="screen-payHist" style="display:none">
+    <h2 class="ptitle">3-3 결제 내역 확인 <span class="b s-canc">신규 화면</span></h2>
+    <p class="pdesc"><b>3-1 결제</b>에서 처리한 <b>계약승인 · 계약 반려</b> 이력을 조회합니다. 처리하는 즉시 한 줄씩 쌓이며 수정 · 삭제는 없습니다. 권한: <b>관리자 / 매니저 / 재무담당자</b>.</p>
+    <div class="hint">3-1 결제 목록은 <b>처리 대기 건만</b> 보여 주고 처리가 끝나면 사라집니다. 처리된 건을 다시 확인할 때 이 화면을 씁니다. 반려 후 재접수 · 재승인된 고객은 <b>처리할 때마다 한 줄씩</b> 따로 남습니다.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px">
+      <label class="f">처리일 : <input type="date" id="payHistFrom"> ~ <input type="date" id="payHistTo"></label>
+      <label class="f">처리구분 : <select id="payHistAct" onchange="renderHist('payHist')"></select></label>
+      <label class="f">고객명/주문키 : <input type="text" id="payHistQ" onkeydown="if(event.key==='Enter')renderHist('payHist')" style="width:170px"></label>
+      <button class="b-pri" onclick="renderHist('payHist')">검색</button>
+      <button class="b-amber" onclick="downloadHist('payHist')">화면다운로드</button>
+    </div>
+    <table class="list" id="payHistTable"></table>
+  </div>
+
   <!-- ===== Screen: 3-4 배송 ===== -->
   <div class="page reqscreen" id="screen-deliver" style="display:none">
     <h2 class="ptitle">3-4 배송 <span class="b s-canc">개선 요청</span> <span class="muted" style="font-size:13px">배송처리 · 계약서 출력</span></h2>
@@ -322,6 +337,21 @@
       <button class="b-pri" onclick="doDeliver()">선택 건 배송처리 (계약서 ZIP 다운로드)</button>
       <button class="b-amber" onclick="downloadContractZip(null)">선택 건 계약서 ZIP만 받기</button>
     </div>
+  </div>
+
+  <!-- ===== Screen: 3-5 배송 내역 확인 (3-4 처리 이력) ===== -->
+  <div class="page reqscreen" id="screen-dlvHist" style="display:none">
+    <h2 class="ptitle">3-5 배송 내역 확인 <span class="b s-canc">신규 화면</span></h2>
+    <p class="pdesc"><b>3-4 배송</b>에서 처리한 <b>배송처리</b> 이력을 조회합니다. 처리하는 즉시 한 줄씩 쌓이며 수정 · 삭제는 없습니다. 권한: <b>물류 / 관리자 / 매니저</b>.</p>
+    <div class="hint">3-4 배송 목록은 <b>배송대기 건만</b> 보여 주고 배송처리하면 사라집니다. 언제 · 누가 배송처리했는지, <b>계약서 ZIP을 함께 받았는지</b>를 이 화면에서 확인합니다. 행별 [계약서]로 해당 건 계약서를 다시 출력할 수 있습니다.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px">
+      <label class="f">처리일 : <input type="date" id="dlvHistFrom"> ~ <input type="date" id="dlvHistTo"></label>
+      <label class="f">처리구분 : <select id="dlvHistAct" onchange="renderHist('dlvHist')"></select></label>
+      <label class="f">고객명/주문키 : <input type="text" id="dlvHistQ" onkeydown="if(event.key==='Enter')renderHist('dlvHist')" style="width:170px"></label>
+      <button class="b-pri" onclick="renderHist('dlvHist')">검색</button>
+      <button class="b-amber" onclick="downloadHist('dlvHist')">화면다운로드</button>
+    </div>
+    <table class="list" id="dlvHistTable"></table>
   </div>
 
   <!-- ===== Screen: 4-6 시리얼번호 업로드 ===== -->
@@ -389,6 +419,21 @@
     <div class="hint">접수 단계에서는 위약금·기기반납을 <b>선택하지 않습니다</b>. 이 화면에서 <b>둘 중 하나만 입력</b>하면 그것이 곧 해지 방식이 됩니다 — 위약금 입금액 입력 → <b>해지(위약금)</b>, 시리얼번호 입력 → <b>해지(기기반납)</b>. 위약금 경로로 종결되면 <b>컨텐츠 사용중단 대상</b>으로 자동 등록됩니다(실제 차단은 시스템실에 요청). <b>미납으로 인한 학습 차단은 CMS 범위가 아니며</b> 지금처럼 건별로 시스템실에 요청합니다.</div>
     <div style="margin-bottom:10px"><button class="b-amber" onclick="downloadPenaltyCSV()">위약금 산정내역 다운로드 (CSV)</button> <span class="muted">최초 산정 위약금 · 할인 금액 · 최종 위약금 컬럼 포함</span></div>
     <table class="list" id="refundTable"></table>
+  </div>
+
+  <!-- ===== Screen: 3-7 해지 내역 확인 (3-6 처리 이력) ===== -->
+  <div class="page reqscreen" id="screen-termHist" style="display:none">
+    <h2 class="ptitle">3-7 해지 내역 확인 <span class="b s-canc">신규 화면</span></h2>
+    <p class="pdesc"><b>3-6 해지대기</b>에서 해지 승인한 이력을 조회합니다. 처리하는 즉시 한 줄씩 쌓이며 수정 · 삭제는 없습니다. 권한: <b>관리자 / 매니저 / 재무담당자</b>.</p>
+    <div class="hint">3-6 해지대기 목록은 <b>해지대기 건만</b> 보여 주고 해지 승인하면 사라집니다. 종결된 건의 <b>해지 방식(위약금 / 기기반납)</b>, 산정 위약금 대비 <b>실제 입금 위약금</b>, <b>반납 시리얼번호</b>를 이 화면에서 확인합니다. 해지(위약금) 건은 컨텐츠 사용중단 대상으로 표시됩니다.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px">
+      <label class="f">처리일 : <input type="date" id="termHistFrom"> ~ <input type="date" id="termHistTo"></label>
+      <label class="f">처리구분 : <select id="termHistAct" onchange="renderHist('termHist')"></select></label>
+      <label class="f">고객명/주문키 : <input type="text" id="termHistQ" onkeydown="if(event.key==='Enter')renderHist('termHist')" style="width:170px"></label>
+      <button class="b-pri" onclick="renderHist('termHist')">검색</button>
+      <button class="b-amber" onclick="downloadHist('termHist')">화면다운로드</button>
+    </div>
+    <table class="list" id="termHistTable"></table>
   </div>
 
   <!-- ===== Screen: Virtual account upload ===== -->
@@ -699,10 +744,6 @@ const VI_HTML={
 '<b>선납금 입금(3-9) + 시리얼 등록(4-6)</b>이 모두 완료되면 <b>자동 계약완료</b> 처리됩니다. 아래 목록은 두 조건이 충족됐으나 아직 계약완료 전인 건으로, <b>임의(수동) 계약완료</b>가 필요할 때 사용합니다. 계약완료가 되어야 1-2 고객관리에서 해지 접수(상담창) 진행이 가능합니다.':
  'Khi hoàn tất cả <b>nộp tiền trả trước (3-9) và đăng ký sê-ri (4-6)</b>, đơn sẽ được <b>tự động hoàn tất hợp đồng</b>. Danh sách dưới đây là các đơn đã thỏa mãn cả hai điều kiện nhưng chưa hoàn tất hợp đồng, dùng khi cần <b>hoàn tất hợp đồng thủ công</b>. Chỉ khi đã hoàn tất hợp đồng mới có thể tiến hành tiếp nhận chấm dứt (cửa sổ tư vấn) tại 1-2 Quản lý khách hàng.',
 
-/* ── 4-3 수동입고처리 ──────────────────────────────────────── */
-'기기반납 건의 <b>입고를 확인</b>합니다. (4-1 입고 / 5-2-1 입고업로드 리스트 / 4-3 수동입고처리에서 동일하게 반영) 권한: <b>물류 / 관리자</b>.':
- '<b>Xác nhận nhập kho</b> cho các đơn trả lại thiết bị. (Được phản ánh như nhau tại 4-1 Nhập kho / 5-2-1 Danh sách tải lên nhập kho / 4-3 Xử lý nhập kho thủ công) Quyền: <b>Kho vận / Quản trị viên</b>.',
-
 /* ── 해지 접수 인라인(상담창) ──────────────────────────────── */
 '<b>해지 방식(위약금 결제 / 기기 반납)은 접수 단계에서 고르지 않습니다.</b> <b>3-6 해지대기</b>에서 실제 입금받은 위약금 또는 반납 단말기 시리얼번호를 입력해 [해지 승인]하는 시점에 결정됩니다.':
  '<b>Hình thức chấm dứt (thanh toán phí phạt / trả lại thiết bị) không được chọn ở bước tiếp nhận.</b> Hình thức được quyết định tại thời điểm nhập phí phạt thực nhận hoặc số sê-ri thiết bị trả lại và [Duyệt chấm dứt] ở <b>3-6 Chờ chấm dứt HĐ</b>.',
@@ -821,17 +862,13 @@ const VI_TEXT={
 '17 수금관리':'17 Quản lý thu tiền','18 미납관리':'18 Quản lý nợ quá hạn',
 '1-2 고객관리':'1-2 Quản lý khách hàng','1-3 사용자관리':'1-3 Quản lý người dùng',
 '1-34 패키지 구성 관리':'1-34 Quản lý cấu hình gói','2-1 고객상담':'2-1 Tư vấn khách hàng',
-'3-1 결제':'3-1 Thanh toán','3-2 결제 변경':'3-2 Thay đổi thanh toán',
+'3-1 결제':'3-1 Thanh toán',
 '3-3 결제 내역 확인':'3-3 Kiểm tra lịch sử thanh toán','3-4 배송':'3-4 Giao hàng',
 '3-5 배송 내역 확인':'3-5 Kiểm tra lịch sử giao hàng','3-6 환불':'3-6 Hoàn tiền',
 '3-6 해지대기':'3-6 Chờ chấm dứt HĐ','4-6 시리얼번호업로드':'4-6 Tải lên số sê-ri',
-'3-7 환불 내역 확인':'3-7 Kiểm tra lịch sử hoàn tiền','3-8 결제고객리스트':'3-8 Danh sách khách hàng thanh toán',
+'3-7 해지 내역 확인':'3-7 Kiểm tra lịch sử chấm dứt HĐ',
 '3-9 선납금 입금':'3-9 Nộp tiền trả trước','3-10 계약완료':'3-10 Hoàn tất hợp đồng',
-'3-11 가상계좌 업로드':'3-11 Tải lên tài khoản ảo','4-1 입고':'4-1 Nhập kho',
-'4-2-1 입고업로드 리스트':'4-2-1 Danh sách tải lên nhập kho',
-'4-3 수동입고처리리스트':'4-3 Danh sách xử lý nhập kho thủ công',
-'4-4 입고처리내역리스트':'4-4 Danh sách lịch sử xử lý nhập kho','4-5 누락리스트':'4-5 Danh sách thiếu sót',
-'4-6-1 미배송사은품 송장번호업로드':'4-6-1 Tải lên mã vận đơn quà tặng chưa giao',
+'3-11 가상계좌 업로드':'3-11 Tải lên tài khoản ảo',
 '15-2-2 DB 재분배 관리':'15-2-2 Quản lý tái phân bổ DB','17-1 회원현황':'17-1 Tình trạng hội viên',
 '17-6.1 리포트(미납자현황)':'17-6.1 Báo cáo (Tình trạng khách chưa nộp phí phạt)',
 '17-6.3 리포트(입금현황)':'17-6.3 Báo cáo (tình trạng nộp tiền)',
@@ -914,8 +951,14 @@ const VI_TEXT={
 '입금액':'Số tiền nộp','SELECT FILES':'CHỌN TỆP',
 '양식 다운로드':'Tải biểu mẫu','WV...OHWS 또는 번호':'WV...OHWS hoặc số',
 
-/* ── 4-6 / 3-9 / 3-10 / 4-3 / 3-6 ──────────────────────────── */
-'4-3 수동입고처리':'4-3 Xử lý nhập kho thủ công',
+/* ── 4-6 / 3-9 / 3-10 / 3-6 ──────────────────────────────── */
+/* ── 3-3 / 3-5 / 3-7 처리 내역 ─────────────────────────────── */
+'3-3 결제 내역 확인':'3-3 Kiểm tra lịch sử thanh toán','3-5 배송 내역 확인':'3-5 Kiểm tra lịch sử giao hàng',
+'처리일시':'Thời gian xử lý','처리구분':'Loại xử lý','처리자':'Người xử lý','처리 내용':'Nội dung xử lý',
+'처리일 :':'Ngày xử lý :','처리구분 :':'Loại xử lý :','고객명/주문키 :':'Tên KH/Mã đơn :',
+'계약승인':'Duyệt hợp đồng','배송처리':'Xử lý giao hàng','계약서 ZIP':'ZIP hợp đồng',
+'배송완료일':'Ngày giao xong','반납 시리얼번호':'Số sê-ri trả lại',
+'처리 내역이 없습니다':'Không có lịch sử xử lý',
 '주문키(고객키) :':'Mã đơn hàng (mã khách hàng) :',
 '구분 :':'Phân loại :','고객키 :':'Mã khách hàng :','입금액 :':'Số tiền nộp :',
 '선택 건 입금처리':'Xử lý nộp tiền cho mục đã chọn','입금확인':'Xác nhận nộp tiền',
@@ -2304,6 +2347,67 @@ function orderKeyOf(r){return 'WV'+(17802773991303+r.no)+'OHWS';}
 /* 선납금 입금 + 시리얼 등록 둘 다 완료 시 자동 계약완료(3-10) */
 function autoComplete(r){ if(r.paid && r.serial && !r.locked && !r.completed){ r.completed=true; return true; } return false; }
 
+/* ===== 처리 이력 (3-3 / 3-5 / 3-7) =====
+   3-1 · 3-4 · 3-6 목록은 대기 건만 보여 주므로, 처리할 때마다 여기에 한 줄씩 쌓고
+   각 내역 화면에서 조회한다. 고객 정보는 처리 시점 값으로 함께 저장 — 수정 · 삭제 없음.
+     kind: 'pay'(3-1 → 3-3) · 'dlv'(3-4 → 3-5) · 'term'(3-6 → 3-7) */
+const PROC_LOG=[];
+function logProc(kind,r,act,extra){
+  const ct=r._ct;
+  PROC_LOG.push(Object.assign({kind,at:nowStamp(),by:role,act,no:r.no,name:r.name,orderKey:orderKeyOf(r),
+    product:r.product,pay:r.pay,amt:ct?(ct.payType==='할부'?ct.prepaid:totalOfCt(ct)):0},extra||{}));
+}
+/* 시연용 — 샘플 고객 중 이미 승인 · 배송처리된 건의 이력을 미리 채운다 */
+function seedProcLog(){
+  const base=r=>({no:r.no,name:r.name,orderKey:orderKeyOf(r),product:r.product,pay:r.pay,amt:0,by:'관리자'});
+  rows.filter(r=>r.approved).forEach(r=>PROC_LOG.push(Object.assign(base(r),{kind:'pay',act:'계약승인',at:r.orderDate+' 17:30'})));
+  rows.filter(r=>r.delivered).forEach(r=>{
+    const d=new Date(r.orderDate); d.setDate(d.getDate()+1);
+    PROC_LOG.push(Object.assign(base(r),{kind:'dlv',act:'배송처리',zip:true,at:d.toISOString().slice(0,10)+' 10:00'}));
+  });
+}
+const HIST_DEF={
+  payHist:{kind:'pay',title:'3-3 결제 내역 확인',acts:['계약승인','계약 반려'],
+    head:['처리일시','처리구분','번호','주문키','고객명','제품','결제','결제금액(VND)','처리 내용','처리자'],
+    row:e=>[e.at,e.act,e.no,e.orderKey,e.name,e.product,e.pay,e.amt?won(e.amt):'-',
+      e.act==='계약 반려'?(e.reason+(e.memo?' — '+e.memo:'')+' → 상담대기 복귀'):'배송대기로 전환',e.by]},
+  dlvHist:{kind:'dlv',title:'3-5 배송 내역 확인',acts:['배송처리'],
+    head:['처리일시','처리구분','번호','주문키','고객명','제품','결제','계약서 ZIP','처리 내용','처리자'],
+    row:e=>[e.at,e.act,e.no,e.orderKey,e.name,e.product,e.pay,e.zip?'다운로드':'미다운로드','배송중으로 전환',e.by]},
+  termHist:{kind:'term',title:'3-7 해지 내역 확인',acts:['해지(위약금)','해지(기기반납)'],
+    head:['처리일시','처리구분','번호','주문키','고객명','제품','배송완료일','최종 산정 위약금(VND)','실제 입금 위약금(VND)','반납 시리얼번호','처리 내용','처리자'],
+    row:e=>[e.at,e.act,e.no,e.orderKey,e.name,e.product,e.delivered||'-',e.penaltyFinal!=null?won(e.penaltyFinal):'-',
+      e.penaltyPaid?won(e.penaltyPaid):'-',e.returnSerial||'-',
+      e.act==='해지(위약금)'?'컨텐츠 사용중단 대상 등록':'등록 시리얼과 대조 일치',e.by]},
+};
+function histList(k){
+  const d=HIST_DEF[k], g=id=>document.getElementById(k+id);
+  const from=g('From').value, to=g('To').value, act=g('Act').value, q=(g('Q').value||'').trim().toLowerCase();
+  return PROC_LOG.filter(e=>e.kind===d.kind)
+    .filter(e=>(!from||e.at.slice(0,10)>=from)&&(!to||e.at.slice(0,10)<=to)&&(!act||e.act===act)
+      &&(!q||e.name.toLowerCase().includes(q)||e.orderKey.toLowerCase().includes(q)||String(e.no)===q))
+    .sort((a,b)=>b.at.localeCompare(a.at));
+}
+function renderHist(k){
+  const d=HIST_DEF[k], sel=document.getElementById(k+'Act');
+  if(!sel.options.length) sel.innerHTML='<option value="">전체</option>'+d.acts.map(a=>'<option>'+a+'</option>').join('');
+  const list=histList(k), dlv=k==='dlvHist';
+  let h='<thead><tr>'+d.head.map(x=>'<th>'+x+'</th>').join('')+(dlv?'<th style="width:90px">계약서</th>':'')+'</tr></thead><tbody>';
+  if(!list.length) h+='<tr><td colspan="'+(d.head.length+(dlv?1:0))+'" class="muted">처리 내역이 없습니다</td></tr>';
+  list.forEach(e=>{
+    h+='<tr>'+d.row(e).map((v,i)=>i===1?'<td>'+badge(v)+'</td>':i===3?'<td class="muted">'+v+'</td>':i===4?'<td class="name">'+v+'</td>':'<td>'+v+'</td>').join('')
+      +(dlv?'<td><button class="b-amber" onclick="printOneContract('+e.no+')">계약서</button></td>':'')+'</tr>';
+  });
+  document.getElementById(k+'Table').innerHTML=h+'</tbody>';
+}
+function downloadHist(k){
+  const d=HIST_DEF[k], list=histList(k);
+  if(!list.length){toast(L('처리 내역이 없습니다','Không có lịch sử xử lý'));return;}
+  buildAndDownloadXlsx(X(d.title).replace(/ /g,'_')+'_'+stamp()+'.xlsx',X(d.title).slice(0,31),
+    d.head.map(X),list.map(e=>d.row(e).map(v=>X(String(v)))));
+  toast(L(d.title+' 다운로드 — '+list.length+'건',X(d.title)+' — '+list.length+' dòng'));
+}
+
 /* ===== 3-1 결제 — 계약승인 (계약요청 → 배송대기) ===== */
 function renderApprove(){
   const list=rows.filter(r=>!r.locked&&r.intake!==false&&!r.approved);
@@ -2352,13 +2456,14 @@ function doReject(no){
   r.history=r.history||[];
   r.history.push({meta:'['+nowStamp()+' · <span>'+role+'</span> · <span>계약 반려</span>]',
     text:'<span>'+reason+'</span>'+(memo?' — '+memo:'')});
+  logProc('pay',r,'계약 반려',{reason,memo});
   closeModal(); renderList(); renderApprove();
   toast(L('<b>'+r.name+'</b> 계약 반려 — '+reason+' → 고객상태 <b>상담대기</b>로 복귀 · 상담상태 <b>계약반려</b>',
           '<b>'+r.name+'</b> đã từ chối hợp đồng — '+reason+' → trạng thái <b>상담대기</b> · trạng thái tư vấn <b>계약반려</b>'));
 }
 function doApprove(){
   if(!['관리자','매니저','재무담당자'].includes(role)){toast('계약승인 권한이 없습니다 (관리자/매니저/재무담당자)');return;}
-  const n=applySel('apchk',r=>r.approved=true);
+  const n=applySel('apchk',r=>{r.approved=true;logProc('pay',r,'계약승인');});
   if(n){renderApprove();
     toast(L('<b>'+n+'건</b> 계약승인 완료 → 고객상태 <b>배송대기</b> (다음: 3-4 배송처리) — 3-1',
             'Đã duyệt hợp đồng <b>'+n+' đơn</b> → trạng thái <b>배송대기</b> (tiếp theo: xử lý giao hàng 3-4) — 3-1'));}
@@ -2427,8 +2532,9 @@ async function downloadContractZip(targets){
 async function doDeliver(){
   const sel=[...document.querySelectorAll('.dlvchk:checked')].map(c=>rows.find(r=>r.no==c.dataset.no)).filter(Boolean);
   if(!sel.length){toast('선택된 건이 없습니다');return;}
+  const zipOk=canPrintContract()&&typeof JSZip!=='undefined';
   await downloadContractZip(sel);
-  sel.forEach(r=>{r.delivered=true;});
+  sel.forEach(r=>{r.delivered=true;logProc('dlv',r,'배송처리',{zip:zipOk});});
   renderList();renderDeliver();
   toast(L('<b>'+sel.length+'건</b> 배송처리 완료 → 고객상태 <b>배송중</b> · 계약서 ZIP 다운로드 — 3-4',
           'Đã xử lý giao hàng <b>'+sel.length+' đơn</b> → trạng thái <b>배송중</b> · đã tải ZIP hợp đồng — 3-4'));
@@ -2680,6 +2786,7 @@ function doTerminate(no){
   if(pen){
     r.penaltyPaid=pen; r.penaltyDate=new Date().toISOString().slice(0,10);
     r.path='위약금'; r.cust='해지(위약금)';
+    logProc('term',r,'해지(위약금)',{penaltyPaid:pen,penaltyFinal:r.penaltyFinal,delivered:deliveredDateOf(r)});
     r.history.push({meta:`[${now} · <span>${role}</span> · <span>해지</span>(<span>위약금</span>)]`,
       text:`<span>실제 입금 위약금</span> ${won(pen)} VND`});
     toast(L('해지 완료 → <b>해지(위약금)</b> · 실제 입금 '+won(pen)+' VND · <b>컨텐츠 사용중단 대상</b>으로 등록(시스템실 요청 목록)',
@@ -2690,6 +2797,7 @@ function doTerminate(no){
               'Khác với số sê-ri đã đăng ký (<b>'+r.serial+'</b>) — vui lòng kiểm tra lại'));return;
     }
     r.returnSerial=ser; r.path='기기반납'; r.cust='해지(기기반납)';
+    logProc('term',r,'해지(기기반납)',{returnSerial:ser,penaltyFinal:r.penaltyFinal,delivered:deliveredDateOf(r)});
     r.history.push({meta:`[${now} · <span>${role}</span> · <span>해지</span>(<span>기기반납</span>)]`,
       text:`<span>반납 시리얼번호</span> ${ser}`});
     toast(L('해지 완료 → <b>해지(기기반납)</b> · 반납 시리얼 '+ser,
@@ -4165,16 +4273,14 @@ const MENUS=[
     {n:'2-1 고객상담', s:'oblist', badge:'개선'},
   ]},
   {t:'3 결제관리', subs:[
-    {n:'3-1 결제', s:'approve', badge:'신규'},{n:'3-2 결제 변경'},{n:'3-3 결제 내역 확인'},
-    {n:'3-4 배송', s:'deliver', badge:'개선'},{n:'3-5 배송 내역 확인'},
-    {n:'3-6 해지대기', s:'refund', badge:'신규'},{n:'3-7 환불 내역 확인'},
-    {n:'3-8 결제고객리스트'},{n:'3-9 선납금 입금', s:'pay', badge:'신규'},{n:'3-10 계약완료', s:'complete', badge:'신규'},
+    {n:'3-1 결제', s:'approve', badge:'신규'},{n:'3-3 결제 내역 확인', s:'payHist', badge:'신규'},
+    {n:'3-4 배송', s:'deliver', badge:'개선'},{n:'3-5 배송 내역 확인', s:'dlvHist', badge:'신규'},
+    {n:'3-6 해지대기', s:'refund', badge:'신규'},{n:'3-7 해지 내역 확인', s:'termHist', badge:'신규'},
+    {n:'3-9 선납금 입금', s:'pay', badge:'신규'},{n:'3-10 계약완료', s:'complete', badge:'신규'},
     {n:'3-11 가상계좌 업로드', s:'upload', badge:'후속'},
   ]},
   {t:'4 출고/입고관리', subs:[
-    {n:'4-1 입고'},{n:'4-2-1 입고업로드 리스트'},
-    {n:'4-3 수동입고처리리스트'},{n:'4-4 입고처리내역리스트'},
-    {n:'4-5 누락리스트'},{n:'4-6 시리얼번호업로드', s:'ship', badge:'신규'},{n:'4-6-1 미배송사은품 송장번호업로드'},
+    {n:'4-6 시리얼번호업로드', s:'ship', badge:'신규'},
   ]},
   {t:'15 DB관리', subs:[
     {n:'15-2-2 DB 재분배 관리', s:'redist', badge:'개선'},
@@ -4205,7 +4311,7 @@ function navTo(i,j){
 }
 /* ================= screens ================= */
 function showScreen(s){
-  ['list','oblist','approve','deliver','ship','pay','complete','refund','upload','members','memberDetail','rptUnpaid','rptDeposit','overdue','pkg','contract','redist'].forEach(x=>document.getElementById('screen-'+x).style.display=(x===s?'block':'none'));
+  ['list','oblist','approve','payHist','deliver','dlvHist','ship','pay','complete','refund','termHist','upload','members','memberDetail','rptUnpaid','rptDeposit','overdue','pkg','contract','redist'].forEach(x=>document.getElementById('screen-'+x).style.display=(x===s?'block':'none'));
   if(s==='oblist')renderObList();
   if(s==='approve')renderApprove();
   if(s==='deliver')renderDeliver();
@@ -4213,6 +4319,7 @@ function showScreen(s){
   if(s==='pay'){renderPay();renderPayManual();}
   if(s==='complete')renderComplete();
   if(s==='refund')renderRefund();
+  if(s==='payHist'||s==='dlvHist'||s==='termHist')renderHist(s);
   if(s==='upload')renderIndiv();
   if(s==='members')renderMembers();
   if(s==='memberDetail')renderDetail();
@@ -4230,7 +4337,7 @@ function toast(html){const t=document.getElementById('toast');t.innerHTML=html;t
 
 /* init */
 document.getElementById('mask').addEventListener('click',e=>{if(e.target.id==='mask')closeModal();});
-seedPenalty();renderNav();renderList();updateHint();
+seedPenalty();seedProcLog();renderNav();renderList();updateHint();
 document.documentElement.setAttribute('data-lang','ko');
 startObs();
 </script>
