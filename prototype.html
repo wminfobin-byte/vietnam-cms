@@ -598,6 +598,8 @@
       <div style="flex:1;min-width:340px">
         <div class="sec" style="margin-top:0">가격 · 내부코드 등록</div>
         <div class="frm"><table>
+          <tr><th>정가(VND)</th><td><input type="number" id="pcList" placeholder="예: 20860000" style="width:180px">
+            <div class="muted" style="margin-top:4px">※ 총액이 매칭되면 접수창 상품가격(정가)에 자동으로 채워지고 계약서 2.1 Giá trị sản phẩm에 출력됩니다.</div></td></tr>
           <tr><th>총액(VND)</th><td><input type="number" id="pcAmt" placeholder="예: 14380000" style="width:180px"></td></tr>
           <tr><th>내부코드</th><td><input type="text" id="pcCode" placeholder="예: WTKB" style="width:180px">
             <div class="muted" style="margin-top:4px">※ 관리자가 정한 표기를 그대로 입력합니다. 비워 두면 <b>WPR</b>으로 저장됩니다.</div></td></tr>
@@ -982,7 +984,7 @@ const VI_TEXT={
 '] · 단위: VND':'] · đơn vị: VND','건] · 입금액 합계':'đơn] · tổng tiền nộp',
 'VND · 단위: VND':'VND · đơn vị: VND',
 '순번':'STT','상담원ID':'ID tư vấn viên','결제시작일':'ngày bắt đầu thanh toán',
-'약정일':'ngày đến hạn','월납부금':'tiền trả hàng tháng','미납횟수':'Số kỳ nợ quá hạn',
+'약정일':'ngày đến hạn','월납부금':'tiền trả hàng tháng','끝수 올림':'làm tròn lên','미납횟수':'Số kỳ nợ quá hạn',
 '누적미납금':'tổng tiền nợ quá hạn','경과차수':'Số kỳ đã qua',
 '문자수신내역':'Lịch sử nhận SMS','미납콜 이동':'Chuyển sang gọi thu nợ',
 '통합이력 조회':'Tra cứu lịch sử tổng hợp','OB 조회':'Tra cứu OB','IB 조회':'Tra cứu IB',
@@ -1108,6 +1110,13 @@ const VI_TEXT={
 '할부 개월':'Số tháng trả góp','할부 원금':'Gốc trả góp',
 '상품가격 − 선납금 − 선납금할인 (수정불가)':'Giá sản phẩm − tiền trả trước − giảm giá tiền trả trước (không sửa được)',
 '월 납부금':'Tiền trả hàng tháng','할부원금 / 할부개월 (수정불가)':'Gốc trả góp / số tháng trả góp (không sửa được)',
+'(할부원금 − 할인금액) / 할부개월 · 끝수 절상 (수정불가)':'(Gốc trả góp − giảm giá) / số tháng trả góp · làm tròn lên (không sửa được)',
+'(할부원금 − 할인금액) / 할부개월 · 끝수 절상 (수정가능)':'(Gốc trả góp − giảm giá) / số tháng trả góp · làm tròn lên (sửa được)',
+'직접 입력 (수정가능) — 월 납부금을 고치면 월 납부금 × 개월 + 할인금액으로 다시 채워짐':'Nhập trực tiếp (sửa được) — khi sửa tiền trả hàng tháng sẽ tự điền lại = tiền tháng × số tháng + giảm giá',
+'₫ / 월':'₫ / tháng',
+'정가(VND)':'Giá niêm yết (VND)',
+'총액 매칭 시 1-34 ② 정가 자동 · 미등록이면 직접 입력':'Tự điền giá niêm yết từ 1-34 ② khi khớp tổng · chưa đăng ký thì nhập tay',
+'※ 총액이 매칭되면 접수창 상품가격(정가)에 자동으로 채워지고 계약서 2.1 Giá trị sản phẩm에 출력됩니다.':'※ Khi khớp tổng số tiền, giá niêm yết được tự điền vào cửa sổ tiếp nhận và in ở mục 2.1 Giá trị sản phẩm của hợp đồng.',
 '주소 SELECT':'Chọn địa chỉ',"← 'ho chi' 처럼 일부만 입력해도 검색됨":"← Chỉ cần nhập một phần như 'ho chi' cũng tìm được",
 '상세주소':'Địa chỉ chi tiết','번지 · 건물명':'Số nhà · tên tòa nhà',
 '배송일':'Ngày giao hàng','배송메모':'Ghi chú giao hàng',
@@ -1501,10 +1510,19 @@ function badge(s){
    통화 : 숫자 + ' ₫'      (1.600.000 ₫)         — 표 안에서는 단위를 헤더에 두고 숫자만 */
 /* 할부 개월 선택지 — 2~40회차. 기존 계약에 26개월 등이 있어 24로 끊지 않는다 */
 const MONTH_OPTS=Array.from({length:39},(_,i)=>i+2);
-/* 월 납부금 — 할부원금 ÷ 할부개월. 나누어떨어지지 않으면 절상(올림).
+/* 월 납부금 — (할부원금 − 할인금액) ÷ 할부개월. 나누어떨어지지 않으면 절상(올림).
+   할인은 할부원금에서 먼저 뺀다 → 선납금 + 월납부금 × 개월이 총액과 맞는다(+올림 차액).
    예) 11.017.000 ÷ 23 = 478.999,9… → 479.000
+   예) (11.880.000 − 500.000) ÷ 12 = 948.333,3… → 948.334
    절상이라 마지막 회차에서 원금보다 몇 동 더 걷힐 수 있고, 그 차액은 선충당 잔액으로 남는다. */
-const monthlyPay=(prin,months)=>months?Math.ceil(prin/months):0;
+const monthlyPay=(prin,months,disc=0)=>months?Math.ceil(Math.max(0,prin-disc)/months):0;
+/* 17-1 금액 기준 — 월납총액 = 월납부금 × 개월(실제 청구), 제품총금액 = 계약총액(선납금 + 할부원금 − 할인).
+   끝수 올림 차액은 청구액의 일부라 선충당 잔액에 넣지 않는다. 할부원금이 없는 이관 건은 차액 0으로 본다. */
+const monthlyTotalOf=c=>c.months*c.monthly;
+const contractTotalOf=c=>c.principal!=null
+  ? Math.max(0,(+c.prepaid||0)+(+c.principal||0)-(+c.voucher||0))
+  : (+c.prepaid||0)+monthlyTotalOf(c);
+const roundDiffOf=c=>Math.max(0,(+c.prepaid||0)+monthlyTotalOf(c)-contractTotalOf(c));
 const MAX_CYCLES=40;
 const won=n=>Number(n||0).toLocaleString('vi-VN');
 const vnd=n=>won(n)+' ₫';
@@ -1985,13 +2003,13 @@ function renderIntakeInline(){
   </table></div>
 
   <div class="frm" id="ikInst"><table>
-    <tr><th>상품가격(정가)</th><td><input type="number" id="ikPriceI" value="20860000" oninput="calcIntake()"></td>
+    <tr><th>상품가격(정가)<br><span class="muted">총액 매칭 시 1-34 ② 정가 자동 · 미등록이면 직접 입력</span></th><td><input type="number" id="ikPriceI" value="" oninput="calcIntake()"></td>
         <th>선납금(동)</th><td><input type="number" id="ikPre" value="0" oninput="calcIntake()"></td></tr>
-    <tr><th>할부원금(동)</th><td><input type="number" id="ikPrinIn" value="0" oninput="calcIntake()"></td>
+    <tr><th>할부원금(동)<br><span class="muted">직접 입력 (수정가능) — 월 납부금을 고치면 월 납부금 × 개월 + 할인금액으로 다시 채워짐</span></th><td><input type="number" id="ikPrinIn" value="0" oninput="ikDriver='prin';calcIntake()"></td>
         <th>할부 개월</th><td><select id="ikMonths" onchange="calcIntake()"><option value="">-선택-</option>${MONTH_OPTS.map(m=>`<option ${m==12?'selected':''}>${m}</option>`).join('')}</select> 개월</td></tr>
     <tr><th>할인금액(동)</th><td><input type="number" id="ikDiscI" value="0" oninput="calcIntake()"></td>
-        <th>월 납부금<br><span class="muted">할부원금 / 할부개월 · 끝수 절상 (수정불가)</span></th>
-        <td><input type="text" id="ikMonthly" readonly style="background:#f3f4f7;font-weight:700;color:var(--purple2)"></td></tr>
+        <th>월 납부금<br><span class="muted">(할부원금 − 할인금액) / 할부개월 · 끝수 절상 (수정가능)</span></th>
+        <td><input type="number" id="ikMonthly" oninput="ikDriver='mon';calcIntake()" style="font-weight:700;color:var(--purple2);width:150px"> <span class="muted">₫ / 월</span></td></tr>
   </table></div>
 
   <div class="frm" id="ikSum"><table>
@@ -2017,6 +2035,7 @@ function renderIntakeInline(){
     <tr><th>배송일</th><td><input type="date" id="ikShipDate" value="${new Date().toISOString().slice(0,10)}"></td>
         <th>배송메모</th><td><input type="text" id="ikMemo" style="width:90%"></td></tr>
   </table></div>`;
+  ikDriver='prin';
   calcIntake();
 }
 /* 패키지는 컨텐츠 조합의 '기본값'만 준다 — 가격은 따라오지 않는다(컨텐츠와 가격은 무관) */
@@ -2026,7 +2045,14 @@ function pickIntakePkg(i){
   calcIntake();
 }
 /* 총액 = (할부) 선납금 + 할부원금 − 할인금액 / (구매) 상품가격 − 할인금액.
-   총액이 1-34 [가격 · 내부코드]에 등록돼 있으면 그 코드가, 없으면 WPR이 붙는다. */
+   총액이 1-34 [가격 · 내부코드]에 등록돼 있으면 그 코드가, 없으면 WPR이 붙는다.
+   할부원금 · 월 납부금은 둘 다 수정 가능하다. 예전에는 '상품가격 − 선납금 − 선납금할인'으로
+   자동계산(수정불가)했지만, 컨텐츠와 가격을 분리하면서 패키지에 고정 가격이 없어졌고
+   영업은 '선납 + 월 납부금 × 개월'로 가격을 먼저 정하므로 상담원이 직접 넣게 바꿨다.
+   마지막으로 고친 칸(ikDriver)이 기준이고 나머지 칸이 따라 계산된다.
+     prin: 월 납부금 = ⌈(할부원금 − 할인) ÷ 개월⌉
+     mon : 할부원금 = 월 납부금 × 개월 + 할인 → monthlyPay()로 다시 계산해도 같은 월 납부금이 나온다 */
+let ikDriver='prin';
 function calcIntake(){
   const g=id=>document.getElementById(id);
   const isI=document.querySelector('input[name=ikPay]:checked').value==='할부';
@@ -2034,11 +2060,19 @@ function calcIntake(){
   g('ikBuy').style.display=isI?'none':'block';
   let total=0, list=0;
   if(isI){
-    list=+g('ikPriceI').value||0;
-    const pre=+g('ikPre').value||0, prin=+g('ikPrinIn').value||0, disc=+g('ikDiscI').value||0;
+    const pre=+g('ikPre').value||0, disc=+g('ikDiscI').value||0;
     const m=+g('ikMonths').value||0;
+    let prin=+g('ikPrinIn').value||0;
+    if(ikDriver==='mon'&&m){
+      prin=(+g('ikMonthly').value||0)*m+disc;
+      g('ikPrinIn').value=prin;
+    }else{
+      g('ikMonthly').value=m?monthlyPay(prin,m,disc):'';
+    }
+    g('ikMonthly').placeholder=m?'':L('할부 개월 선택 필요','Cần chọn số tháng trả góp');
     total=Math.max(0,pre+prin-disc);
-    g('ikMonthly').value=m?(won(monthlyPay(prin,m))+L(' ₫ / 월',' ₫ / tháng')):L('할부 개월 선택 필요','Cần chọn số tháng trả góp');
+    fillListPrice(g('ikPriceI'),total);
+    list=+g('ikPriceI').value||0;
     g('ikTotalDesc').textContent=L('선납금 + 할부원금 − 할인금액','Trả trước + gốc trả góp − giảm giá');
   }else{
     list=+g('ikPriceB').value||0;
@@ -2075,7 +2109,8 @@ function saveIntake(r,memo,stamp){
   const disc=isI?(+g('ikDiscI').value||0):(+g('ikDisc').value||0);
   const total=isI?Math.max(0,pre+prin-disc):Math.max(0,price-disc);
   if(!total){toast(isI?'선납금 · 할부원금을 입력하세요':'상품가격을 입력하세요');return false;}
-  const monthly=isI?monthlyPay(prin,months):0;
+  if(isI&&!price){toast('미등록 총액입니다 — 상품가격(정가)을 입력하세요 (계약서 2.1에 출력)');return false;}
+  const monthly=isI?monthlyPay(prin,months,disc):0;
   const icode=codeOfAmt(total);
   const dob=`${g('ikDobY').value}-${String(g('ikDobM').value).padStart(2,'0')}-${String(g('ikDobD').value).padStart(2,'0')}`;
   const iss=g('ikIssUse').value==='Y'
@@ -2834,13 +2869,13 @@ const COL=[
    dun:{zalo:'2026-08-12',sms:'',call:''}},
   {no:330078,name:'Nguyễn Hương Quỳnh Trâm',phone:'0979356817',dob:'1996-07-20',gender:'여',
    product:'BrainKey TAB (외국어 패키지)',manager:'Lê Thị Hoa',cust:'계약중',
-   payStart:'2026-06-10',dueDay:'10일',monthly:790000,prepaid:3000000,months:24,paidCount:3,unpaidCnt:0,
+   payStart:'2026-06-10',dueDay:'10일',monthly:948334,prepaid:2500000,principal:11880000,months:12,paidCount:3,unpaidCnt:0,
    email:'tram.nguyen@gmail.com',idNo:'079196007202',addr:'45 Lê Lợi, Quận Hải Châu, Đà Nẵng',
    depositMethod:'계좌이체',bankName:'Techcombank',virtualAcct:'-',depositorName:'NGUYEN HUONG QUYNH TRAM',
-   contractDate:'2026-06-01',expireDate:'2028-05-10',lastPayDate:'2026-08-10',adjust:0,
+   contractDate:'2026-06-01',expireDate:'2027-05-10',lastPayDate:'2026-08-10',adjust:0,
    custNo:'BK003078',orderNo:'WV1780277399129OHWS',contractNo:'01.06.2026/HDMB/BRAINKEY– NHQT',
    serial:'A11VN26060012',saleDate:'2026-05-29',shipDate:'2026-06-01',deliveredDate:'2026-06-01',
-   region:'다낭',lang:'Tiếng Hàn',price:21960000,voucher:0,payStatus:'납부중',firstPaid:'Y',
+   region:'다낭',lang:'Tiếng Hàn',price:20860000,voucher:500000,payStatus:'납부중',firstPaid:'Y',
    trackingNo:'VN2606002',contractDoc:'Y',idIssueDate:'2019-08-02',idIssuer:'Cục Cảnh sát QLHC về TTXH',
    shipAddr:'45 Lê Lợi, Phường Hải Châu, Đà Nẵng',adSource:'ZALO_VN_0518',
    dun:{zalo:'',sms:'',call:''}},
@@ -3433,8 +3468,9 @@ function saveDeposit(){
 function renderDetail(){
   const c=window.__col; if(!c)return;
   const months=c.months, monthly=c.monthly;
-  const productTotal=months*monthly;            // 제품총금액
-  const monthlyTotal=months*monthly;            // 월납총액
+  const productTotal=contractTotalOf(c);        // 제품총금액 = 계약총액(선납금 + 할부원금 − 할인)
+  const monthlyTotal=monthlyTotalOf(c);         // 월납총액 = 월납부금 × 개월(실제 청구)
+  const rDiff=roundDiffOf(c);                   // 끝수 올림 차액(선충당 잔액 아님)
   const st0=colStats(c);
   const recv=st0.due*monthly;                   // 받아야할 금액(경과회차×월납금 — 건너뛴 회차 제외)
   const cumPaid=st0.paidSum;                    // 누적납부금액(회차별 납부액 합)
@@ -3520,7 +3556,7 @@ function renderDetail(){
         <th>약정일</th><td>${c.dueDay}</td></tr>
     <tr><th>판매가</th><td>${won(c.price||productTotal)}</td><th>할인/바우처</th><td>${won(c.voucher||0)}</td>
         <th>선납금</th><td>${won(c.prepaid)}</td></tr>
-    <tr><th>월납부금</th><td>${won(monthly)}</td><th>월납총액</th><td>${won(monthlyTotal)}</td>
+    <tr><th>월납부금</th><td>${won(monthly)}</td><th>월납총액</th><td>${won(monthlyTotal)}${rDiff?` <span class="muted">(<span>끝수 올림</span> +${won(rDiff)})</span>`:''}</td>
         <th>제품총금액</th><td>${won(productTotal)}</td></tr>
     <tr><th>최종납부상태</th><td>${payStatBadge(c.payStatus)}</td><th>첫회 납부여부</th><td>${c.firstPaid||'-'}</td>
         <th>광고소재</th><td>${c.adSource||'-'}</td></tr>
@@ -3767,15 +3803,37 @@ let PKG=[
 /* 가격 ↔ 내부코드 매핑 — 1-34에서 등록 · 수정 · 보임/숨김.
    아래 값은 화면 동작 확인용 예시일 뿐, 실제 값은 관리자가 운영하며 등록한다. */
 let PRICECODE=[
-  {amt:14380000, code:'WTKB', note:'12 · 18 · 24개월 공통', show:true},
-  {amt:14080000, code:'WTBS', note:'12개월 할인가', show:true},
-  {amt:11900000, code:'TKBS', note:'일시불', show:true},
+  {list:20860000, amt:14380000, code:'WTKB', note:'12 · 18 · 24개월 공통', show:true},
+  {list:20860000, amt:14080000, code:'WTBS', note:'12개월 할인가', show:true},
+  {list:20860000, amt:11900000, code:'TKBS', note:'일시불', show:true},
 ];
+/* 총액 → 등록 행. 찾는 기준은 총액(고유값)이고, 정가는 그 행에서 따라온다.
+   같은 정가에 총액이 여러 개일 수 있으므로 정가로는 찾지 않는다. */
+function priceRowOf(amt){
+  amt=+amt||0; if(!amt) return null;
+  return PRICECODE.find(p=>p.show&&p.amt===amt)||null;
+}
 /* 총액 → 내부코드. 보임 상태 행과 정확히 일치할 때만 코드 부여, 없으면 WPR */
 function codeOfAmt(amt){
-  amt=+amt||0; if(!amt) return '';
-  const hit=PRICECODE.find(p=>p.show&&p.amt===amt);
+  if(!(+amt)) return '';
+  const hit=priceRowOf(amt);
   return hit?hit.code:'WPR';
+}
+/* 할부 정가 칸 — 총액이 등록돼 있으면 그 정가로 채우고 잠근다(수정불가).
+   미등록 총액(WPR)이면 칸을 열어 상담원이 입력한다. 계약서 2.1에 찍히는 값이라 비워 둘 수 없다.
+   자동으로 채운 값은 data-auto로 표시해 두었다가, 매칭이 풀리면 지워서 엉뚱한 정가가 남지 않게 한다. */
+function fillListPrice(el,total){
+  if(!el) return null;
+  const hit=priceRowOf(total);
+  if(hit){
+    el.value=hit.list; el.readOnly=true; el.dataset.auto='1';
+    el.style.background='#f3f4f7'; el.placeholder='';
+  }else{
+    if(el.dataset.auto==='1'){ el.value=''; el.dataset.auto=''; }
+    el.readOnly=false; el.style.background='';
+    el.placeholder=L('미등록 총액 — 정가 직접 입력','Tổng chưa đăng ký — nhập giá niêm yết');
+  }
+  return hit;
 }
 /* 총액 — 할부: 선납금 + 할부원금 − 할인금액 / 구매: 상품가격 − 할인금액 */
 function totalOfCt(ct){
@@ -3856,9 +3914,9 @@ function addPkg(){
    접수창에서 나온 총액이 여기에 있으면 그 코드가, 없으면 WPR이 붙는다. */
 function renderPriceCode(){
   const el=document.getElementById('pcTable'); if(!el)return;
-  let h=`<thead><tr><th style="width:26%">총액(VND)</th><th>내부코드</th><th>비고</th><th style="width:140px">노출</th><th style="width:70px">관리</th></tr></thead><tbody>`;
-  if(!PRICECODE.length) h+=`<tr><td colspan="5" class="muted">등록된 가격이 없습니다</td></tr>`;
-  PRICECODE.forEach((p,i)=>h+=`<tr><td style="text-align:right"><b>${won(p.amt)}</b></td>
+  let h=`<thead><tr><th style="width:20%">정가(VND)</th><th style="width:20%">총액(VND)</th><th>내부코드</th><th>비고</th><th style="width:140px">노출</th><th style="width:70px">관리</th></tr></thead><tbody>`;
+  if(!PRICECODE.length) h+=`<tr><td colspan="6" class="muted">등록된 가격이 없습니다</td></tr>`;
+  PRICECODE.forEach((p,i)=>h+=`<tr><td style="text-align:right">${p.list?won(p.list):'-'}</td><td style="text-align:right"><b>${won(p.amt)}</b></td>
     <td><b style="color:${p.code==='WPR'?'#c0392b':'var(--purple2)'}">${p.code}</b></td>
     <td class="muted" style="text-align:left">${p.note||'-'}</td>
     <td>${p.show?'<span class="b s-done">보임</span>':'<span class="b cons">숨김</span>'}
@@ -3867,14 +3925,16 @@ function renderPriceCode(){
   el.innerHTML=h+'</tbody>';
 }
 function addPriceCode(){
+  const list=+document.getElementById('pcList').value||0;
   const amt=+document.getElementById('pcAmt').value||0;
+  if(!list){toast('정가(VND)를 입력하세요');return;}
   if(!amt){toast('총액(VND)을 입력하세요');return;}
   if(PRICECODE.some(p=>p.amt===amt)){toast(L('이미 등록된 총액입니다 — <b>'+won(amt)+' ₫</b>','Tổng số tiền này đã được đăng ký — <b>'+won(amt)+' ₫</b>'));return;}
   const code=document.getElementById('pcCode').value.trim()||'WPR';
   const note=document.getElementById('pcNote').value.trim();
   const show=document.querySelector('#screen-pkg input[name=pcShow]').checked;
-  PRICECODE.unshift({amt,code,note,show});
-  document.getElementById('pcAmt').value=''; document.getElementById('pcCode').value=''; document.getElementById('pcNote').value='';
+  PRICECODE.unshift({list,amt,code,note,show});
+  document.getElementById('pcList').value=''; document.getElementById('pcAmt').value=''; document.getElementById('pcCode').value=''; document.getElementById('pcNote').value='';
   renderPriceCode();
   toast(L('<b>'+won(amt)+' ₫</b> → 내부코드 <b>'+code+'</b> 등록',
           '<b>'+won(amt)+' ₫</b> → đã đăng ký mã nội bộ <b>'+code+'</b>'));
@@ -3884,7 +3944,8 @@ function openPcEdit(i){
   window.__pc=i;
   openModal(L('가격 · 내부코드 수정','Sửa giá · mã nội bộ'),
     `<div class="frm"><table>
-      <tr><th style="width:120px">총액(VND)</th><td><input type="number" id="epcAmt" value="${p.amt}" style="width:180px"></td></tr>
+      <tr><th style="width:120px">정가(VND)</th><td><input type="number" id="epcList" value="${p.list||''}" style="width:180px"></td></tr>
+      <tr><th>총액(VND)</th><td><input type="number" id="epcAmt" value="${p.amt}" style="width:180px"></td></tr>
       <tr><th>내부코드</th><td><input type="text" id="epcCode" value="${p.code}" style="width:180px">
         <div class="muted" style="margin-top:4px">※ 내부코드는 <b>관리자 엑셀의 매칭 기준값</b>입니다. 바꾸면 과거 다운로드분과 기준이 달라지므로 저장 전 확인 문구가 뜹니다.</div></td></tr>
       <tr><th>비고</th><td><input type="text" id="epcNote" value="${p.note||''}" style="width:100%"></td></tr>
@@ -3897,14 +3958,16 @@ function openPcEdit(i){
 function savePcEdit(){
   const i=window.__pc, p=PRICECODE[i]; if(!p)return;
   const g=id=>document.getElementById(id);
+  const list=+g('epcList').value||0;
   const amt=+g('epcAmt').value||0;
+  if(!list){toast('정가(VND)를 입력하세요');return;}
   if(!amt){toast('총액(VND)을 입력하세요');return;}
   if(PRICECODE.some((x,k)=>k!==i&&x.amt===amt)){toast(L('이미 등록된 총액입니다 — <b>'+won(amt)+' ₫</b>','Tổng số tiền này đã được đăng ký — <b>'+won(amt)+' ₫</b>'));return;}
   const code=g('epcCode').value.trim();
   if(!code){toast('내부코드를 입력하세요');return;}
-  const changed=(amt!==p.amt||code!==p.code);
-  if(changed && !confirm('가격 · 내부코드를 '+won(p.amt)+' / '+p.code+' → '+won(amt)+' / '+code+' 로 바꿉니다.\n과거 엑셀 집계의 내부코드 매칭 기준이 달라집니다. 계속할까요?')) return;
-  p.amt=amt; p.code=code; p.note=g('epcNote').value.trim();
+  const changed=(list!==p.list||amt!==p.amt||code!==p.code);
+  if(changed && !confirm('정가 · 총액 · 내부코드를 '+won(p.list)+' / '+won(p.amt)+' / '+p.code+' → '+won(list)+' / '+won(amt)+' / '+code+' 로 바꿉니다.\n과거 엑셀 집계의 매칭 기준이 달라집니다(이미 계약된 건의 정가 · 코드는 그대로). 계속할까요?')) return;
+  p.list=list; p.amt=amt; p.code=code; p.note=g('epcNote').value.trim();
   p.show=document.querySelector('input[name=epcShow]:checked').value==='1';
   closeModal(); renderPriceCode();
   toast(L('<b>'+won(amt)+' ₫</b> / <b>'+code+'</b> 수정 완료','Đã sửa <b>'+won(amt)+' ₫</b> / <b>'+code+'</b>'));
@@ -3936,9 +3999,9 @@ function openContract(r){ window.__ct=r; contractInit(r); showScreen('contract')
 /* 할부원금은 상담원이 직접 입력한 값이다(상품가격에서 역산하지 않음).
    총액 = 선납금 + 할부원금 − 할인금액 → 이 총액에 내부코드가 매핑된다. */
 const principal=ct=>Math.max(0,+ct.principal||0);
-const monthlyAmt=ct=>ct.payType==='할부'?monthlyPay(principal(ct),ct.months):0;
+const monthlyAmt=ct=>ct.payType==='할부'?monthlyPay(principal(ct),ct.months,+ct.disc||0):0;
 function renderContract(){
-  const r=window.__ct; const ct=r._ct;
+  const r=window.__ct; const ct=r._ct; ctDriver='prin';
   document.getElementById('contractBody').innerHTML=`
    <div class="hint"><b>접수 단계 입력 항목</b>(계약자명·성별·생년월일·신분증번호·발행일·발급처·주소·결제방식)을 기반으로 계약서가 자동 생성됩니다. [계약서 출력]은 <b>1-3 사용자관리 유저타입 = 관리자</b>인 경우만 노출됩니다.</div>
    ${(!ct.idNo||!ct.issueDate||!ct.issuer)?`<div class="hint" style="background:#fdeaea;border-color:#f3c5c5;color:#a33"><b>신분증 정보 미입력</b> — <span>미입력 항목:</span> ${[!ct.idNo&&'번호',!ct.issueDate&&'발행일',!ct.issuer&&'발급처'].filter(Boolean).map(x=>'<span>'+x+'</span>').join(' · ')}<br><span>접수 시에는 미입력해도 되지만 계약서 출력 전에는 반드시 입력해야 합니다. 아래에서 입력한 뒤 [계약 정보 저장]을 누르세요.</span></div>`:''}
@@ -3968,10 +4031,10 @@ function renderContract(){
      <div class="sec">할부 결제금액 <span class="muted">(선납금 · 할부원금 · 할인금액 · 할부기간 입력 → 총액 자동)</span></div>
      <div class="frm"><table>
        <tr><th>선납금(동)</th><td><input type="number" id="ctPrepaid" value="${ct.prepaid}" oninput="updateContractCalc()"></td>
-           <th>할부원금(동)</th><td><input type="number" id="ctPrincipal" value="${ct.principal||0}" oninput="updateContractCalc()"></td></tr>
+           <th>할부원금(동)</th><td><input type="number" id="ctPrincipal" value="${ct.principal||0}" oninput="ctDriver='prin';updateContractCalc()"></td></tr>
        <tr><th>할인금액(동)</th><td><input type="number" id="ctDisc" value="${ct.disc||0}" oninput="updateContractCalc()"></td>
            <th>할부 개월</th><td><select id="ctMonths" onchange="updateContractCalc()">${MONTH_OPTS.map(m=>`<option ${ct.months==m?'selected':''}>${m}</option>`).join('')}</select> 개월</td></tr>
-       <tr><th>월 납부금<br><span class="muted">할부원금 / 할부개월 · 끝수 절상 (수정불가)</span></th><td colspan="3"><input type="text" id="ctMonthly" readonly style="background:#f3f4f7;font-weight:700;color:var(--purple2)"></td></tr>
+       <tr><th>월 납부금<br><span class="muted">(할부원금 − 할인금액) / 할부개월 · 끝수 절상 (수정가능)</span></th><td colspan="3"><input type="number" id="ctMonthly" oninput="ctDriver='mon';updateContractCalc()" style="font-weight:700;color:var(--purple2);width:150px"> <span class="muted">₫ / 월</span></td></tr>
      </table></div>
    </div>
    <div class="frm"><table>
@@ -4007,20 +4070,31 @@ function saveContractInfo(){
     ? '계약 정보 저장 — 신분증 항목이 아직 비어 있습니다'
     : '계약 정보 저장 완료 — 계약서에 반영되었습니다');
 }
+/* 할부원금 · 월 납부금 연동 — 접수창(calcIntake)과 같은 규칙. 마지막으로 고친 칸이 기준 */
+let ctDriver='prin';
 function updateContractCalc(){
   const ct=window.__ct._ct;
   ct.payType=document.getElementById('ctPay').value;
-  ct.price=+document.getElementById('ctPrice').value||0;
   const isI=ct.payType==='할부';
   document.getElementById('ctInstall').style.display=isI?'block':'none';
   const g=id=>document.getElementById(id);
   if(isI){
     ct.prepaid=+g('ctPrepaid').value||0;
-    ct.principal=+g('ctPrincipal').value||0;
     ct.disc=+g('ctDisc').value||0;
     ct.months=+g('ctMonths').value||1;
-    g('ctMonthly').value=won(monthlyAmt(ct))+L(' VND / 월',' VND / tháng');
+    if(ctDriver==='mon'){
+      ct.principal=(+g('ctMonthly').value||0)*ct.months+ct.disc;
+      g('ctPrincipal').value=ct.principal;
+    }else{
+      ct.principal=+g('ctPrincipal').value||0;
+      g('ctMonthly').value=monthlyAmt(ct);
+    }
+    /* 할부 정가 = 1-34 ② 매칭값(계약서 2.1 출력). 미등록 총액이면 직접 입력 */
+    fillListPrice(g('ctPrice'),totalOfCt(ct));
+  }else{
+    const el=g('ctPrice'); el.readOnly=false; el.style.background=''; el.dataset.auto='';
   }
+  ct.price=+g('ctPrice').value||0;
   g('ctTotalDesc').textContent=isI?L('선납금 + 할부원금 − 할인금액','Trả trước + gốc trả góp − giảm giá')
                                   :L('상품가격 − 할인금액','Giá sản phẩm − giảm giá');
   const total=totalOfCt(ct);
@@ -4225,7 +4299,7 @@ function collectHeaders(){
 function collectRow(c){
   const b=penaltyBits(c);
   const base=[c.no,'BrainKey VN','',c.name,b.el,0,c.phone,c.depositMethod,b.months,c.dueDay,c.payStart,c.expireDate,
-    b.monthly,c.prepaid,b.months*b.monthly,b.months*b.monthly,b.el*b.monthly,c.unpaidCnt?c.lastPayDate:'',c.unpaidCnt,b.remain,b.unpaidPrin,b.total,
+    b.monthly,c.prepaid,monthlyTotalOf(c),contractTotalOf(c),b.el*b.monthly,c.unpaidCnt?c.lastPayDate:'',c.unpaidCnt,b.remain,b.unpaidPrin,b.total,
     c.product,pkgCodeOf(c),'',c.bankName,c.virtualAcct,c.depositorName,'렌탈',c.cust,c.contractDate,c.payStart+'~'+c.expireDate,c.manager,c.paidCount*b.monthly,c.adjust,
     'N','N','N','N','N','','N','N','N','N','N'];
   const cyc=[];for(let i=1;i<=60;i++){ if(i<=c.paidCount)cyc.push(addMonths(c.payStart,i-1),b.monthly); else cyc.push('',''); }
@@ -4242,7 +4316,7 @@ function weeklyHeaders(){
 function weeklyRow(c){
   const b=penaltyBits(c);
   const base=[c.no,c.name,b.el,0,c.phone,c.depositMethod,b.months,c.dueDay,c.payStart,c.expireDate,
-    b.monthly,c.prepaid,c.adjust,b.months*b.monthly,b.months*b.monthly,b.el*b.monthly,c.unpaidCnt?c.lastPayDate:'',c.unpaidCnt,b.remain,b.unpaidPrin,b.late,b.total,
+    b.monthly,c.prepaid,c.adjust,monthlyTotalOf(c),contractTotalOf(c),b.el*b.monthly,c.unpaidCnt?c.lastPayDate:'',c.unpaidCnt,b.remain,b.unpaidPrin,b.total,
     c.product,pkgCodeOf(c),'',c.bankName,c.contractDate,c.virtualAcct,c.depositorName,c.manager,c.paidCount*b.monthly,
     'N','N','N','N','N','','N','N','N','N','N'];
   const amts=[],dates=[];
