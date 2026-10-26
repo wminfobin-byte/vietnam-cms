@@ -381,30 +381,28 @@
   <!-- ===== Screen: 4-9 재고관리 ===== -->
   <div class="page reqscreen" id="screen-stock" style="display:none">
     <h2 class="ptitle">4-9 재고관리 <span class="b s-canc">신규 화면</span> <span class="muted" style="font-size:13px">단말기 S/N · 재고 · 출고 · 회수</span></h2>
-    <p class="pdesc">단말기 <b>S/N · CONTENTS</b>를 등록해 두면 <b>상태(재고 / 출고 / 회수)와 변경일은 CMS가 자동 판정</b>합니다. 기존 구글시트 <code>재고</code> 시트(COUNTIFS · VLOOKUP 수식)를 대체합니다. 권한: 등록 · 수정 <b>물류 / 관리자</b>, 조회 <b>매니저</b>.</p>
+    <p class="pdesc">단말기 <b>S/N</b>을 등록해 두면 <b>상태(재고 / 출고 / 회수)와 변경일은 CMS가 자동 판정</b>합니다. 기존 구글시트 <code>재고</code> 시트(COUNTIFS · VLOOKUP 수식)를 대체합니다. 권한: 등록 · 수정 <b>물류 / 관리자</b>, 조회 <b>매니저</b>.</p>
     <div class="hint"><b>상태 판정</b> ① <b>4-6 시리얼 등록</b> → <b>출고</b> (변경일 = 4-6 등록일 = 배송완료일) ② <b>3-6 해지(기기반납)</b> 또는 <b>시리얼 등록 후 취소 승인</b> → <b>회수</b> (변경일 = 처리일) ③ 기록 없음 → <b>재고</b> (변경일 = 재고 등록일). 회수된 단말기를 4-6에서 다른 고객에게 다시 등록하면 다시 <b>출고</b> — 항상 <b>가장 최근 기록</b> 기준. 해지(위약금)는 단말기가 고객에게 남으므로 <b>출고</b> 유지. 상태를 손으로 고치는 기능은 두지 않습니다.</div>
 
-    <div class="sec" style="margin-top:0">컨텐츠별 현황</div>
-    <table class="list" id="stkSum" style="max-width:640px"></table>
+    <div class="sec" style="margin-top:0">상태별 합계 <span class="muted">(컨텐츠는 어떤 단말기에든 다시 심을 수 있어 구분하지 않음)</span></div>
+    <table class="list" id="stkSum" style="max-width:480px"></table>
 
-    <div class="sec" style="margin-top:22px">단말기 등록 <span class="muted">(수기 · 엑셀 S/N | CONTENTS 2열)</span></div>
+    <div class="sec" style="margin-top:22px">단말기 등록 <span class="muted">(수기 · 엑셀 S/N 1열)</span></div>
     <div class="dm-panel">
       <label>S/N :</label><input type="text" id="stkSn" placeholder="예: A11VN26030011">
-      <label>CONTENTS :</label><select id="stkCtIn"><option value="">--선택하세요--</option><option>English (+ Basic Korean)</option><option>Korean (+ Word)</option><option>All Contents</option></select>
       <button class="dm-btn-reg" onclick="stockAddManual()">등록</button>
     </div>
     <div class="dm-upload">
-      <div class="up-msg">파일을 올려주세요 <span class="muted">(S/N | CONTENTS 2열)</span></div>
+      <div class="up-msg">파일을 올려주세요 <span class="muted">(S/N 1열)</span></div>
       <button class="dm-selectfiles" onclick="stockFileUpload()">SELECT FILES</button>
     </div>
     <div class="dm-tpl"><button onclick="downloadStockTemplate()">양식 다운로드</button></div>
-    <div class="hint">S/N은 4-6과 같이 <code>S/N:</code> 접두어 · 대소문자 · 공백을 무시하고 비교합니다. 이미 있는 S/N은 건너뜁니다(중복 등록 불가). CONTENTS는 목록에서 행별로 바꿀 수 있고 변경 이력이 남습니다.</div>
+    <div class="hint">S/N은 4-6과 같이 <code>S/N:</code> 접두어 · 대소문자 · 공백을 무시하고 비교합니다. 이미 있는 S/N은 건너뜁니다(중복 등록 불가).</div>
 
     <div id="stkWarn"></div>
     <div class="sec" style="margin-top:22px">단말기 목록 <span class="muted" id="stkCount"></span></div>
     <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px">
       <label class="f">상태 : <select id="stkSt" onchange="renderStock()"><option value="">전체</option><option>재고</option><option>출고</option><option>회수</option></select></label>
-      <label class="f">CONTENTS : <select id="stkCt" onchange="renderStock()"><option value="">전체</option><option>English (+ Basic Korean)</option><option>Korean (+ Word)</option><option>All Contents</option><option>미지정</option></select></label>
       <label class="f">S/N : <input type="text" id="stkQ" onkeydown="if(event.key==='Enter')renderStock()" style="width:150px"></label>
       <button class="b-pri" onclick="renderStock()">검색</button>
       <button class="b-amber" onclick="downloadStock()">화면다운로드</button>
@@ -749,10 +747,12 @@ const VI_HTML={
 /* ── 4-9 재고관리 ───────────────────────────────────────── */
 '4-9 재고관리 <span class="b s-canc">신규 화면</span> <span class="muted" style="font-size:13px">단말기 S/N · 재고 · 출고 · 회수</span>':
  '4-9 Quản lý tồn kho <span class="b s-canc">Màn hình mới</span> <span class="muted" style="font-size:13px">S/N thiết bị · tồn kho · xuất · thu hồi</span>',
-'단말기 등록 <span class="muted">(수기 · 엑셀 S/N | CONTENTS 2열)</span>':
- 'Đăng ký thiết bị <span class="muted">(nhập tay · Excel 2 cột S/N | CONTENTS)</span>',
-'파일을 올려주세요 <span class="muted">(S/N | CONTENTS 2열)</span>':
- 'Vui lòng tải tệp lên <span class="muted">(2 cột S/N | CONTENTS)</span>',
+'단말기 등록 <span class="muted">(수기 · 엑셀 S/N 1열)</span>':
+ 'Đăng ký thiết bị <span class="muted">(nhập tay · Excel 1 cột S/N)</span>',
+'파일을 올려주세요 <span class="muted">(S/N 1열)</span>':
+ 'Vui lòng tải tệp lên <span class="muted">(1 cột S/N)</span>',
+'상태별 합계 <span class="muted">(컨텐츠는 어떤 단말기에든 다시 심을 수 있어 구분하지 않음)</span>':
+ 'Tổng theo trạng thái <span class="muted">(không phân theo nội dung vì có thể cài lại nội dung trên bất kỳ thiết bị nào)</span>',
 
 /* ── 4-6 시리얼번호 업로드 ─────────────────────────────────── */
 '4-6 시리얼번호 업로드 <span class="muted" style="font-size:13px">단말기 시리얼 등록</span>':
@@ -2712,25 +2712,25 @@ function shipFileUpload(){
 }
 
 /* ===== 4-9 재고관리 (단말기 S/N 마스터 · 재고 / 출고 / 회수) =====
-   S/N 마스터(S/N · CONTENTS)만 등록하고, 상태는 처리 기록으로 자동 판정한다(수동 수정 없음).
+   S/N 마스터(S/N)만 등록하고, 상태는 처리 기록으로 자동 판정한다(수동 수정 없음).
      · 4-6 시리얼 등록                         → 출고 (변경일 = 4-6 등록일 = 배송완료일)
      · 3-6 해지(기기반납) / 시리얼 등록 후 취소 승인 → 회수 (변경일 = 처리일)
      · 기록 없음                               → 재고 (변경일 = 재고 등록일)
-   상태 = 가장 최근 출고/회수 기록. 회수 후 4-6에서 재등록하면 다시 출고. 해지(위약금)는 출고 유지. */
-const STOCK_CT=['English (+ Basic Korean)','Korean (+ Word)','All Contents'];
-let STOCK=[];         // [{sn, ct, reg}]
-const STOCK_LOG=[];   // [{sn, at, act:'등록'|'출고'|'회수'|'CONTENTS 변경', by, no, name, orderKey, memo}]
+   상태 = 가장 최근 출고/회수 기록. 회수 후 4-6에서 재등록하면 다시 출고. 해지(위약금)는 출고 유지.
+   CONTENTS는 관리하지 않는다 — 어떤 단말기든 컨텐츠를 지우고 다시 심을 수 있어 단말기별 구분이 의미 없다. */
+let STOCK=[];         // [{sn, reg}]
+const STOCK_LOG=[];   // [{sn, at, act:'등록'|'출고'|'회수', by, no, name, orderKey, memo}]
 const snKey=v=>normSerial(v).replace(/\s+/g,'');
 function stockLog(sn,act,r,memo,at){
   STOCK_LOG.push({sn:snKey(sn),at:at||nowStamp(),act,by:role,no:r?r.no:'',name:r?r.name:'',orderKey:r?orderKeyOf(r):'',memo:memo||''});
 }
 function stockOut(r,inv){ stockLog(inv,'출고',r,'4-6 시리얼 등록'); }
 function seedStock(){
-  const reg=[['A11VN26030001',0,'2026-04-20'],['A11VN26030002',1,'2026-04-20'],['A11VN26030003',0,'2026-04-20'],['A11VN26030004',0,'2026-04-20'],
-    ['A11VN26030005',1,'2026-04-20'],['A11VN26030006',0,'2026-04-20'],['A11VN26030007',2,'2026-04-20'],['A11VN26030008',0,'2026-05-15'],
-    ['A11VN26030009',1,'2026-05-15'],['A11VN26030010',0,'2026-05-15']];
-  STOCK=reg.map(([sn,c,d])=>({sn,ct:STOCK_CT[c],reg:d}));
-  STOCK.forEach(s=>STOCK_LOG.push({sn:s.sn,at:s.reg+' 09:00',act:'등록',by:'물류',no:'',name:'',orderKey:'',memo:s.ct}));
+  const reg=[['A11VN26030001','2026-04-20'],['A11VN26030002','2026-04-20'],['A11VN26030003','2026-04-20'],['A11VN26030004','2026-04-20'],
+    ['A11VN26030005','2026-04-20'],['A11VN26030006','2026-04-20'],['A11VN26030007','2026-04-20'],['A11VN26030008','2026-05-15'],
+    ['A11VN26030009','2026-05-15'],['A11VN26030010','2026-05-15']];
+  STOCK=reg.map(([sn,d])=>({sn,reg:d}));
+  STOCK.forEach(s=>STOCK_LOG.push({sn:s.sn,at:s.reg+' 09:00',act:'등록',by:'물류',no:'',name:'',orderKey:'',memo:'재고 등록'}));
   /* 시연용 과거 이력 — 001은 회수 후 재출고(아래 고객 데이터), 004는 회수되어 보관 중 */
   const past=(sn,at,act,no,name,memo)=>STOCK_LOG.push({sn,at,act,by:'관리자',no,name,orderKey:'WV'+(17802773991303+no)+'OHWS',memo});
   past('A11VN26030001','2026-05-02 14:10','출고',61,'Phạm Văn Hùng','4-6 시리얼 등록');
@@ -2746,7 +2746,7 @@ function stockState(){
   ev.forEach(l=>l.sort((a,b)=>a.at.localeCompare(b.at)||a.i-b.i));
   const list=STOCK.map((s,ix)=>{
     const l=ev.get(s.sn)||[], mv=l.filter(e=>e.act==='출고'||e.act==='회수'), last=mv[mv.length-1];
-    return {ix:ix+1,sn:s.sn,ct:s.ct,st:last?last.act:'재고',at:(last?last.at:s.reg).slice(0,10),
+    return {ix:ix+1,sn:s.sn,st:last?last.act:'재고',at:(last?last.at:s.reg).slice(0,10),
       cust:last&&last.act==='출고'?last:null,outN:mv.filter(e=>e.act==='출고').length,ev:l};
   });
   const known=new Set(STOCK.map(s=>s.sn));
@@ -2761,62 +2761,52 @@ function stockAdd(list){
   list.forEach(x=>{
     const sn=snKey(x.sn); if(!sn)return;
     if(known.has(sn)){dup++;return;} known.add(sn);
-    const ct=STOCK_CT.find(c=>c.toLowerCase()===String(x.ct||'').trim().toLowerCase())||'';
-    STOCK.push({sn,ct,reg:todayISO()}); stockLog(sn,'등록',null,ct||'CONTENTS 미지정'); add++;
+    STOCK.push({sn,reg:todayISO()}); stockLog(sn,'등록',null,'재고 등록'); add++;
   });
   return {add,dup};
 }
 function stockAddManual(){
-  const sn=document.getElementById('stkSn').value.trim(), ct=document.getElementById('stkCtIn').value;
-  if(!sn||!ct){toast(L('S/N과 CONTENTS를 입력하세요','Vui lòng nhập S/N và CONTENTS'));return;}
-  const r=stockAdd([{sn,ct}]); if(!r)return;
+  const sn=document.getElementById('stkSn').value.trim();
+  if(!sn){toast(L('S/N을 입력하세요','Vui lòng nhập S/N'));return;}
+  const r=stockAdd([{sn}]); if(!r)return;
   if(r.dup){toast(L('이미 등록된 S/N입니다 — '+snKey(sn),'S/N đã được đăng ký — '+snKey(sn)));return;}
   document.getElementById('stkSn').value=''; renderStock();
-  toast(L('재고 등록 완료 — '+snKey(sn)+' · '+ct,'Đã đăng ký tồn kho — '+snKey(sn)+' · '+ct));
+  toast(L('재고 등록 완료 — '+snKey(sn),'Đã đăng ký tồn kho — '+snKey(sn)));
 }
 function stockFileUpload(){
   pickXlsx(aoa=>{
-    const r=stockAdd(aoa.slice(1).map(x=>({sn:x[0],ct:x[1]}))); if(!r)return;
+    const r=stockAdd(aoa.slice(1).map(x=>({sn:x[0]}))); if(!r)return;
     renderStock();
-    toast(L('엑셀 <b>'+r.add+'건</b> 재고 등록'+(r.dup?' · 이미 있는 S/N '+r.dup+'건 제외':'')+' (S/N · CONTENTS)',
-            'Đã đăng ký tồn kho từ Excel <b>'+r.add+' thiết bị</b>'+(r.dup?' · bỏ qua '+r.dup+' S/N đã có':'')+' (S/N · CONTENTS)'));
+    toast(L('엑셀 <b>'+r.add+'건</b> 재고 등록'+(r.dup?' · 이미 있는 S/N '+r.dup+'건 제외':''),
+            'Đã đăng ký tồn kho từ Excel <b>'+r.add+' thiết bị</b>'+(r.dup?' · bỏ qua '+r.dup+' S/N đã có':'')));
   });
 }
 function downloadStockTemplate(){
-  buildAndDownloadXlsx(L('재고등록_양식.xlsx','BieuMau_TonKho.xlsx'),L('재고등록','TonKho'),['S/N','CONTENTS'],
-    [['A11VN26030011',STOCK_CT[0]],['S/N: A11VN26030012',STOCK_CT[1]]]);
-  toast(L('재고 등록 양식 다운로드 (S/N · CONTENTS)','Đã tải biểu mẫu đăng ký tồn kho (S/N · CONTENTS)'));
+  buildAndDownloadXlsx(L('재고등록_양식.xlsx','BieuMau_TonKho.xlsx'),L('재고등록','TonKho'),['S/N'],
+    [['A11VN26030011'],['S/N: A11VN26030012']]);
+  toast(L('재고 등록 양식 다운로드 (S/N 1열)','Đã tải biểu mẫu đăng ký tồn kho (1 cột S/N)'));
 }
 function stockAddUnreg(){
   const r=stockAdd(stockState().unreg.map(e=>({sn:e.sn}))); if(!r)return;
-  renderStock(); toast(L(r.add+'건 재고 목록에 추가 — CONTENTS를 지정하세요',r.add+' thiết bị đã thêm vào tồn kho — vui lòng chọn CONTENTS'));
-}
-function stockSetCt(sn,ct){
-  const s=STOCK.find(x=>x.sn===sn); if(!s)return;
-  if(!stockCan()){toast(L('재고 등록 · 수정 권한이 없습니다 (물류 / 관리자)','Không có quyền đăng ký · sửa tồn kho (Kho vận / Quản trị viên)'));renderStock();return;}
-  stockLog(sn,'CONTENTS 변경',null,(s.ct||'미지정')+' → '+(ct||'미지정')); s.ct=ct; renderStock();
+  renderStock(); toast(L(r.add+'건 재고 목록에 추가',r.add+' thiết bị đã thêm vào tồn kho'));
 }
 function stockFiltered(list){
-  const g=id=>document.getElementById(id), fs=g('stkSt').value, fc=g('stkCt').value, q=snKey(g('stkQ').value);
-  return list.filter(x=>(!fs||x.st===fs)&&(!fc||(fc==='미지정'?!x.ct:x.ct===fc))&&(!q||x.sn.includes(q)));
+  const g=id=>document.getElementById(id), fs=g('stkSt').value, q=snKey(g('stkQ').value);
+  return list.filter(x=>(!fs||x.st===fs)&&(!q||x.sn.includes(q)));
 }
 function renderStock(){
   const {list,unreg}=stockState(), cnt=(l,s)=>l.filter(x=>x.st===s).length;
-  let sm=`<thead><tr><th>CONTENTS</th><th>재고</th><th>출고</th><th>회수</th><th>합계</th></tr></thead><tbody>`;
-  [...STOCK_CT,''].forEach(c=>{const l=list.filter(x=>x.ct===c); if(!l.length&&!c)return;
-    sm+=`<tr><td class="name">${c||'미지정'}</td><td><b style="color:var(--green)">${cnt(l,'재고')}</b></td><td>${cnt(l,'출고')}</td><td>${cnt(l,'회수')}</td><td>${l.length}</td></tr>`;});
-  sm+=`<tr><td class="name">합계</td><td><b style="color:var(--green)">${cnt(list,'재고')}</b></td><td><b>${cnt(list,'출고')}</b></td><td><b>${cnt(list,'회수')}</b></td><td><b>${list.length}</b></td></tr></tbody>`;
-  document.getElementById('stkSum').innerHTML=sm;
+  document.getElementById('stkSum').innerHTML=`<thead><tr><th>재고</th><th>출고</th><th>회수</th><th>합계</th></tr></thead><tbody>
+    <tr><td><b style="color:var(--green)">${cnt(list,'재고')}</b></td><td><b>${cnt(list,'출고')}</b></td><td><b>${cnt(list,'회수')}</b></td><td><b>${list.length}</b></td></tr></tbody>`;
   document.getElementById('stkWarn').innerHTML=unreg.length?`<div style="margin-top:18px;padding:10px 12px;border:1px solid #f5d0a0;background:#fff6ea;border-radius:6px;font-size:12.5px">
     <b style="color:#b45309">${L('확인 필요 — 재고 목록에 없는 시리얼 '+unreg.length+'건','Cần kiểm tra — '+unreg.length+' số sê-ri không có trong tồn kho')}</b>
     <span class="muted">${L('4-6에서 등록됐지만 재고 목록에 없습니다 (오타 또는 미등록 단말기)','Đã đăng ký ở 4-6 nhưng không có trong tồn kho (sai chính tả hoặc thiết bị chưa đăng ký)')}</span>
     <div style="margin:6px 0">${unreg.map(e=>`<code>${e.sn}</code> ${e.name}`).join(' · ')}</div>
     <button class="b-pri" onclick="stockAddUnreg()">${L('재고 목록에 추가','Thêm vào tồn kho')}</button></div>`:'';
   const vis=stockFiltered(list);
-  let h=`<thead><tr><th>번호</th><th>S/N</th><th>CONTENTS</th><th>상태</th><th>변경일</th><th>현재 고객</th><th>출고 횟수</th><th>이력</th></tr></thead><tbody>`;
-  if(!vis.length) h+=`<tr><td colspan="8" class="muted">조건에 맞는 단말기가 없습니다</td></tr>`;
+  let h=`<thead><tr><th>번호</th><th>S/N</th><th>상태</th><th>변경일</th><th>현재 고객</th><th>출고 횟수</th><th>이력</th></tr></thead><tbody>`;
+  if(!vis.length) h+=`<tr><td colspan="7" class="muted">조건에 맞는 단말기가 없습니다</td></tr>`;
   vis.forEach(x=>{h+=`<tr><td>${x.ix}</td><td><b>${x.sn}</b></td>
-    <td><select onchange="stockSetCt('${x.sn}',this.value)" ${stockCan()?'':'disabled'}>${['',...STOCK_CT].map(c=>`<option value="${c}" ${c===x.ct?'selected':''}>${c||'미지정'}</option>`).join('')}</select></td>
     <td>${stockBadge(x.st)}</td><td>${D(x.at)}</td>
     <td>${x.cust?`<span class="name">${x.cust.name}</span> <span class="muted">${x.cust.orderKey}</span>`:'<span class="muted">-</span>'}</td>
     <td>${x.outN}</td><td><button onclick="stockHist('${x.sn}')">보기</button></td></tr>`;});
@@ -2825,7 +2815,7 @@ function renderStock(){
 }
 function stockHist(sn){
   const x=stockState().list.find(v=>v.sn===sn); if(!x)return;
-  const body=`<div style="margin-bottom:8px"><b>${sn}</b> · ${x.ct||'미지정'} · ${stockBadge(x.st)}</div>
+  const body=`<div style="margin-bottom:8px"><b>${sn}</b> · ${stockBadge(x.st)}</div>
     <table class="list"><thead><tr><th>처리일시</th><th>구분</th><th>고객명</th><th>주문키</th><th>내용</th><th>처리자</th></tr></thead><tbody>
     ${x.ev.slice().reverse().map(e=>`<tr><td>${D(e.at)}</td><td>${e.act==='출고'||e.act==='회수'?stockBadge(e.act):e.act}</td><td class="name">${e.name||'-'}</td>
       <td class="muted">${e.orderKey||'-'}</td><td>${e.memo||''}</td><td>${e.by}</td></tr>`).join('')}</tbody></table>`;
@@ -2834,8 +2824,8 @@ function stockHist(sn){
 function downloadStock(){
   const vis=stockFiltered(stockState().list);
   buildAndDownloadXlsx(L('재고현황_','TonKho_')+stamp()+'.xlsx',L('재고현황','TonKho'),
-    ['번호','S/N','CONTENTS','상태','변경일','현재 고객','주문키','출고 횟수'].map(X),
-    vis.map(x=>[x.ix,x.sn,x.ct||X('미지정'),X(x.st),x.at,x.cust?x.cust.name:'',x.cust?x.cust.orderKey:'',x.outN]));
+    ['번호','S/N','상태','변경일','현재 고객','주문키','출고 횟수'].map(X),
+    vis.map(x=>[x.ix,x.sn,X(x.st),x.at,x.cust?x.cust.name:'',x.cust?x.cust.orderKey:'',x.outN]));
   toast(L('재고현황 다운로드 — '+vis.length+'대','Đã tải tình trạng tồn kho — '+vis.length+' thiết bị'));
 }
 
