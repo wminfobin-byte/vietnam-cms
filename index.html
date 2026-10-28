@@ -222,11 +222,7 @@
       <div class="card">
         <table class="uplog">
           <tr><th style="width:110px">날짜</th><th style="width:220px">메뉴</th><th>내용</th><th style="width:40px"></th></tr>
-          <tr data-go="s-cancel"><td class="d">2026-10-28</td><td class="m">6. 상담창</td><td><b>「상담창 경로」 박스</b> — 상담창과 엮이는 기능마다 <b>조건(고객상태 · 권한) → <code>1-2 &gt; [상담] &gt; 대분류 &gt; 소분류</code> → 입력 → 저장 시 결과</b>를 해당 섹션 안에 표기: 6번 취소 접수 · 7번 해지 접수 · ⑥ 위약금 협의 · 18번 COD 접수 · 19번 ⑤ 선납금 추가 할인 · 21번 부재/통화예약. 6번에 베트남 대분류 구성 · 이력만 남는 소분류(교환 · ACC · 학습케어 등) 정리</td><td class="go">→</td></tr>
           <tr data-go="s-cancel"><td class="d">2026-10-28</td><td class="m">6. 취소 접수</td><td>취소 접수 가능 상태에 <code>계약요청</code> 추가(<code>계약요청 · 배송대기 · 배송중</code>) — 5번 상태표 "계약완료 전까지"와 일치시킴</td><td class="go">→</td></tr>
-          <tr data-go="s-overdue"><td class="d">2026-10-28</td><td class="m">⑥ 위약금 미납 건</td><td>옛 대분류명 <code>반품 &gt; 위약금 협의·수정</code> → <code>취소 · 해지 &gt; 위약금 협의·수정</code>. 1-2 · 18-2 두 진입 경로 명시</td><td class="go">→</td></tr>
-          <tr data-go="s-cod"><td class="d">2026-10-28</td><td class="m">18. COD 접수창</td><td>진입 경로 명시 — 고객상태 <code>상담대기</code> <code>[상담] &gt; 결제 &gt; COD (구매_현금) — 접수 진행</code></td><td class="go">→</td></tr>
-          <tr data-go="s-contract"><td class="d">2026-10-28</td><td class="m">19. 계약서 출력</td><td>⑤ 상담창 경로 박스 — 조건 <code>배송대기 · 배송중</code> + 할부 + 미입금 + 관리자/매니저 → <code>1-2 &gt; [상담] &gt; 결제 &gt; 선납금 추가 할인</code> · 안 보이는 상태 명시 · 프로토타입 시연 안내 추가</td><td class="go">→</td></tr>
           <tr data-go="s-complete"><td class="d">2026-10-28</td><td class="m">5. 3-9 선납금 입금</td><td>입금액 자유 입력 칸 삭제 → <b>선납금 | 선납금 할인 | 실선납금</b> 수정불가 노출(계약 시 값 자동, 계약 후 추가 할인 반영). 엑셀 양식 <b>구분 | 고객키 2열</b></td><td class="go">→</td></tr>
           <tr data-go="s-cod"><td class="d">2026-10-28</td><td class="m">18. COD 접수창</td><td><b>선납금 할인</b> 입력 · <b>실선납금</b>(선납금 − 선납금 할인) 자동 추가. 총액 = <code>실선납금 + 할부원금 − 할인금액</code></td><td class="go">→</td></tr>
           <tr data-go="s-contract"><td class="d">2026-10-28</td><td class="m">19. 계약서 출력</td><td><b>신규</b> — ⑤ 계약 이후 선납금 추가 할인: <b>1-2 [상담] &gt; 결제 &gt; 선납금 추가 할인</b>에서 금액 · 사유 입력 → 상담 이력 기록 · 총액 변경 · 1-2 목록 <b>계약서 재출력</b> 표시. 계약서에는 <b>실선납금만</b> 출력</td><td class="go">→</td></tr>
