@@ -415,7 +415,7 @@
     <h2 class="ptitle">3-9 선납금 입금 <span class="b s-canc">신규 화면</span></h2>
     <p class="pdesc">선납금 입금 건을 확인 처리합니다. 권한: <b>재무담당자 / 관리자</b>.</p>
     <div class="hint">입금처리되면 1-2 고객관리의 해당 건 <b>입금 </b>로 갱신됩니다. <b>선납금 입금 + 시리얼 등록(4-6)</b>이 모두 완료되면 자동 <b>계약완료(3-10)</b> 처리됩니다.</div>
-    <div class="hint"><b>금액은 직접 입력하지 않습니다.</b> <b>선납금 | 선납금 할인 | 실선납금</b>은 계약 당시 입력한 값이 자동으로 들어가며 수정할 수 없습니다. 계약 이후 <b>선납금 할인이 추가</b>된 건은 추가 할인이 반영된 금액이 노출됩니다 (추가 입력: 2-1 [계약서] 화면).</div>
+    <div class="hint"><b>금액은 직접 입력하지 않습니다.</b> <b>선납금 | 선납금 할인 | 실선납금</b>은 계약 당시 입력한 값이 자동으로 들어가며 수정할 수 없습니다. 계약 이후 <b>선납금 할인이 추가</b>된 건은 추가 할인이 반영된 금액이 노출됩니다 (추가 입력: 1-2 [상담] → 결제 → 선납금 추가 할인).</div>
 
     <div class="sec" style="margin-top:0">선납금 입금 등록 <span class="muted">(수기 · 국내 CMS 방식)</span></div>
     <div class="dm-panel">
@@ -776,8 +776,8 @@ const VI_HTML={
  '3-9 Nộp tiền trả trước <span class="b s-canc">Màn hình mới</span>',
 '선납금 입금 건을 확인 처리합니다. 권한: <b>재무담당자 / 관리자</b>.':
  'Xác nhận xử lý các đơn nộp tiền trả trước. Quyền: <b>Phụ trách tài chính / Quản trị viên</b>.',
-'<b>금액은 직접 입력하지 않습니다.</b> <b>선납금 | 선납금 할인 | 실선납금</b>은 계약 당시 입력한 값이 자동으로 들어가며 수정할 수 없습니다. 계약 이후 <b>선납금 할인이 추가</b>된 건은 추가 할인이 반영된 금액이 노출됩니다 (추가 입력: 2-1 [계약서] 화면).':
- '<b>Không nhập số tiền trực tiếp.</b> <b>Tiền trả trước | Giảm giá trả trước | Tiền trả trước thực</b> được tự động lấy từ giá trị nhập khi ký hợp đồng và không thể sửa. Với đơn có <b>giảm giá trả trước bổ sung</b> sau khi ký hợp đồng, số tiền hiển thị đã phản ánh khoản giảm giá đó (nhập bổ sung: màn hình 2-1 [Hợp đồng]).',
+'<b>금액은 직접 입력하지 않습니다.</b> <b>선납금 | 선납금 할인 | 실선납금</b>은 계약 당시 입력한 값이 자동으로 들어가며 수정할 수 없습니다. 계약 이후 <b>선납금 할인이 추가</b>된 건은 추가 할인이 반영된 금액이 노출됩니다 (추가 입력: 1-2 [상담] → 결제 → 선납금 추가 할인).':
+ '<b>Không nhập số tiền trực tiếp.</b> <b>Tiền trả trước | Giảm giá trả trước | Tiền trả trước thực</b> được tự động lấy từ giá trị nhập khi ký hợp đồng và không thể sửa. Với đơn có <b>giảm giá trả trước bổ sung</b> sau khi ký hợp đồng, số tiền hiển thị đã phản ánh khoản giảm giá đó (nhập bổ sung: 1-2 [Tư vấn] → Thanh toán → Giảm giá trả trước bổ sung).',
 '입금처리되면 1-2 고객관리의 해당 건 <b>입금 </b>로 갱신됩니다. <b>선납금 입금 + 시리얼 등록(4-6)</b>이 모두 완료되면 자동 <b>계약완료(3-10)</b> 처리됩니다.':
  'Sau khi xử lý nộp tiền, đơn tương ứng tại 1-2 Quản lý khách hàng sẽ được cập nhật thành <b>Nộp tiền </b>. Khi hoàn tất cả <b>nộp tiền trả trước và đăng ký vận đơn (4-6)</b>, đơn sẽ tự động được xử lý thành <b>hoàn tất hợp đồng (3-10)</b>.',
 '선납금 입금 등록 <span class="muted">(수기 · 국내 CMS 방식)</span>':
@@ -1009,7 +1009,7 @@ const VI_TEXT={
 '실선납금(동)':'Tiền trả trước thực (VND)','선납금 − 선납금 할인':'Tiền trả trước − giảm giá trả trước',
 '실선납금 + 할부원금 − 할인금액':'Trả trước thực + gốc trả góp − giảm giá',
 '선납금 할인 :':'Giảm giá trả trước :','실선납금 :':'Tiền trả trước thực :','선납금 :':'Tiền trả trước :',
-'계약 시 입력값 (수정불가) — 추가 할인은 아래에서':'Giá trị khi ký hợp đồng (không sửa được) — giảm giá bổ sung ở bên dưới',
+'계약 시 입력값 (수정불가) — 추가 할인은 [상담]에서':'Giá trị khi ký hợp đồng (không sửa được) — giảm giá bổ sung tại [Tư vấn]',
 '계약 시 입력값':'Giá trị khi ký hợp đồng',
 '계약 이후 선납금 할인 추가':'Thêm giảm giá trả trước sau khi ký hợp đồng',
 '(총 판매금액 변경 → 계약서 재출력 · 고객 재발송)':'(tổng giá bán thay đổi → in lại hợp đồng · gửi lại cho khách hàng)',
@@ -1021,6 +1021,14 @@ const VI_TEXT={
 '추가 할인 :':'Giảm giá bổ sung :','사유 :':'Lý do :','예: 프로모션 추가 적용':'VD: áp dụng thêm khuyến mãi',
 '(선납금 · 선납금 할인 · 할부원금 · 할인금액 · 할부기간 입력 → 총액 자동)':'(nhập trả trước · giảm giá trả trước · gốc trả góp · giảm giá · kỳ hạn → tổng tự động)',
 '선납금 할인 추가':'Thêm giảm giá trả trước','계약서 재출력 필요':'Cần in lại hợp đồng','계약 후 추가':'Bổ sung sau hợp đồng',
+'선납금추가할인사유':'Lý do giảm giá trả trước bổ sung','선납금추가할인':'Giảm giá trả trước bổ sung','선납금할인':'Giảm giá trả trước',
+'계약서 재출력':'In lại hợp đồng','선납금 추가 할인':'Giảm giá trả trước bổ sung','선납금 할인 내역':'Chi tiết giảm giá trả trước',
+'(CMS 기록용 · 계약서에는 실선납금만 출력)':'(lưu trong CMS · hợp đồng chỉ in tiền trả trước thực)',
+'계약 시 할인':'Giảm giá khi ký HĐ','합계 → 실선납금':'Tổng → tiền trả trước thực','기존 추가':'Đã bổ sung trước đó',
+'현재 실선납금(VND)':'Tiền trả trước thực hiện tại (VND)','할인 후 실선납금(VND)':'Tiền trả trước thực sau giảm (VND)',
+'(저장 시 이력 기록 · 3-9 입금 금액 · 엑셀에 반영 · 계약서 재출력 필요)':'(khi lưu sẽ ghi lịch sử · áp dụng vào 3-9 · Excel · cần in lại hợp đồng)',
+'추가 할인 입력:':'Nhập giảm giá bổ sung:','1-2 고객관리 [상담] → 결제 → 선납금 추가 할인':'1-2 Quản lý KH [Tư vấn] → Thanh toán → Giảm giá trả trước bổ sung',
+'(관리자 / 매니저 · 계약승인 이후 ~ 선납금 입금 전)':'(Quản trị viên / Quản lý · sau khi duyệt HĐ ~ trước khi nộp tiền trả trước)',
 '실선납금':'Tiền trả trước thực','선납금 할인':'Giảm giá trả trước','추가 할인':'Giảm giá bổ sung','할인 추가':'Thêm giảm giá','사유':'Lý do',
 '고객키를 입력하세요':'Vui lòng nhập mã khách hàng',
 '선납금 입금 업로드 양식 다운로드 (구분·고객키)':'Đã tải biểu mẫu nộp tiền trả trước (phân loại · mã khách hàng)',
@@ -1529,6 +1537,11 @@ function setLang(v){
 /* ================= data ================= */
 let role='관리자';
 let rows=[
+  /* 선납금 추가 할인 시연용 — 할부 · 계약승인 완료 · 선납금 미입금(3-9 대기).
+     계약 시 선납금 할인 300.000 입력된 상태 → [상담] > 결제 > 선납금 추가 할인으로 추가 입력 */
+  {no:105,name:'Phan Thị Mai (30)',phone:'0945667788',product:'BrainKey TAB',pay:'할부',cons:'할부_현금(COD)',consN:3,approved:true,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,
+    preset:{preDisc:300000},
+    stars:4,dbidx:20374,dbpoint:'1.0',ob:'Hoàng Văn Nam',distDate:'2026-07-25',inDate:'2026-07-24',callType:'IN',dbInfo:'없음',lastCall:'2026-07-27 17:20',resvCall:'-',orderDate:'2026-07-27',autocall:'없음',care1:'-',care2:'-'},
   /* 상담대기 DB — 부재 누적(상담이력 건수) 검색 시연용. 분배일이 같은 묶음 */
   {no:104,name:'Nguyễn Thị Lan (40)',phone:'0987112233',product:'-',pay:'-',cons:'부재',consN:6,approved:false,delivered:false,serial:'',paid:false,completed:false,locked:false,cust:'',path:null,intake:false,
     stars:0,dbidx:20371,dbpoint:'1.0',ob:'Hoàng Văn Nam',distDate:'2026-07-27',inDate:'2026-07-26',callType:'IN',dbInfo:'없음',lastCall:'2026-07-27 16:05',resvCall:'-',orderDate:'-',autocall:'없음',care1:'-',care2:'-'},
@@ -1590,13 +1603,18 @@ const MONTH_OPTS=Array.from({length:39},(_,i)=>i+2);
    예) (11.880.000 − 500.000) ÷ 12 = 948.333,3… → 948.334
    절상이라 마지막 회차에서 원금보다 몇 동 더 걷힐 수 있고, 그 차액은 선충당 잔액으로 남는다. */
 const monthlyPay=(prin,months,disc=0)=>months?Math.ceil(Math.max(0,prin-disc)/months):0;
-/* 17-1 금액 기준 — 월납총액 = 월납부금 × 개월(실제 청구), 제품총금액 = 계약총액(선납금 + 할부원금 − 할인).
+/* 17-1 회원 선납금 3분할 — 엑셀에서 컬럼으로 구분하기 위해 따로 보관.
+   선납금(할인 전) − 선납금 할인(계약 시) − 선납금 추가할인(계약 후) = 실선납금(실제 입금액) */
+const colPreDisc=c=>+c.preDisc||0;
+const colPreDiscAdd=c=>+c.preDiscAdd||0;
+const colNetPre=c=>Math.max(0,(+c.prepaid||0)-colPreDisc(c)-colPreDiscAdd(c));
+/* 17-1 금액 기준 — 월납총액 = 월납부금 × 개월(실제 청구), 제품총금액 = 계약총액(실선납금 + 할부원금 − 할인).
    끝수 올림 차액은 청구액의 일부라 선충당 잔액에 넣지 않는다. 할부원금이 없는 이관 건은 차액 0으로 본다. */
 const monthlyTotalOf=c=>c.months*c.monthly;
 const contractTotalOf=c=>c.principal!=null
-  ? Math.max(0,(+c.prepaid||0)+(+c.principal||0)-(+c.voucher||0))
-  : (+c.prepaid||0)+monthlyTotalOf(c);
-const roundDiffOf=c=>Math.max(0,(+c.prepaid||0)+monthlyTotalOf(c)-contractTotalOf(c));
+  ? Math.max(0,colNetPre(c)+(+c.principal||0)-(+c.voucher||0))
+  : colNetPre(c)+monthlyTotalOf(c);
+const roundDiffOf=c=>Math.max(0,colNetPre(c)+monthlyTotalOf(c)-contractTotalOf(c));
 const MAX_CYCLES=40;
 const won=n=>Number(n||0).toLocaleString('vi-VN');
 const vnd=n=>won(n)+' ₫';
@@ -1655,11 +1673,20 @@ function actionsFor(r){
 
 /* 1-2 고객관리 DB 리스트 엑셀 — 관리자/매니저만. 내부코드 컬럼 포함 */
 function downloadDbExcel(){
-  const header=['번호','주문키','고객명','전화번호','접수제품','내부코드','결제방식','상담상태','고객상태'].map(X);
-  const data=rows.map(r=>[r.no,orderKeyOf(r),r.name,r.phone,X(r.product),pkgCodeOf(r),X(r.pay),X(r.cons),X(displayState(r))]);
+  /* 선납금 4컬럼 + 사유 — 선납금 − 선납금할인(계약 시) − 선납금추가할인(계약 후) = 실선납금.
+     접수 완료(계약 정보 있음) 건만 채우고, 할부가 아닌 건은 선납금 컬럼을 비운다 */
+  const header=['번호','주문키','고객명','전화번호','접수제품','내부코드','결제방식',
+    '선납금','선납금할인','선납금추가할인','실선납금','선납금추가할인사유','총액','상담상태','고객상태','계약서 재출력'].map(X);
+  const data=rows.map(r=>{
+    const ct=(r.intake!==false&&r.pay!=='-')?contractInit(r):null, isI=ct&&ct.payType==='할부';
+    const reasons=isI?(ct.preDiscAdds||[]).map(a=>a.reason).filter(Boolean).join(' / '):'';
+    return [r.no,orderKeyOf(r),r.name,r.phone,X(r.product),pkgCodeOf(r),X(r.pay),
+      isI?(+ct.prepaid||0):'',isI?(+ct.preDisc||0):'',isI?preDiscAddOf(ct):'',isI?netPreOf(ct):'',reasons,ct?totalOfCt(ct):'',
+      X(r.cons),X(displayState(r)),ct&&ct.reprint?'Y':''];
+  });
   buildAndDownloadXlsx(L('DB리스트_베트남_','DanhSachDB_VietNam_')+stamp()+'.xlsx',L('DB리스트','DanhSachDB'),header,data);
-  toast(L('DB 리스트 엑셀 다운로드 — '+rows.length+'건 (내부코드 컬럼 포함)',
-          'Đã tải Excel danh sách DB — '+rows.length+' dòng (bao gồm cột mã nội bộ)'));
+  toast(L('DB 리스트 엑셀 다운로드 — '+rows.length+'건 (내부코드 · 선납금/선납금할인/선납금추가할인/실선납금 컬럼 포함)',
+          'Đã tải Excel danh sách DB — '+rows.length+' dòng (bao gồm cột mã nội bộ · tiền trả trước/giảm giá/giảm giá bổ sung/trả trước thực)'));
 }
 /* 2-1 OB CALL 목록 [화면다운로드] — 화면과 같은 행 집합(권한 범위 + 검색 + 정렬).
    날짜 구분 행은 화면 · 엑셀 모두 두지 않는다(분배일 컬럼으로 구분) */
@@ -1707,6 +1734,8 @@ function stateCell(r){
   if(r.intake===false) s+=`<div class="muted">접수 전 · [상담]에서 접수</div>`;
   else if(!r.locked)   s+=`<div class="muted"><span>시리얼</span> ${r.serial?'':''} · <span>입금</span> ${r.paid?'':''}</div>`;
   else if(r.path)      s+='<div class="muted">'+r.path+'</div>';
+  /* 선납금 추가 할인 후 계약서 재출력 전 — 출력하면 사라짐 */
+  if(r._ct&&r._ct.reprint) s+='<div><span class="b s-canc">계약서 재출력</span></div>';
   return s;
 }
 /* ── 2-1 개선 ③ — 상담원(OB) ↔ 1-3 팀. 매니저는 자기 팀 상담원 DB만 본다 ──
@@ -1867,6 +1896,10 @@ function openConsult(r){
               'Hoàn tất thỏa thuận phí phạt → trạng thái tư vấn <b>위약금 협의</b> (trạng thái khách hàng vẫn là <b>해지대기</b>) · tiếp theo: nhập số tiền thực nhận tại 3-6 rồi [Chấm dứt]'),
         amt:true,apply:()=>{r.cons='위약금 협의';}});
   }
+  /* 계약 이후 선납금 추가 할인 — 할부 · 계약승인 후 ~ 선납금 입금 전 · 관리자/매니저. [결제] 대분류에 노출 */
+  const pdOk=canPreDiscAdd(r);
+  const cancelSub=sub.slice();
+  if(pdOk) sub.push({val:'pd',label:'선납금 추가 할인',pd:true});
   /* 접수 전(상담대기) — [결제] 대분류에서 COD 선택 시에만 접수 진행. 반품/교환 분류는 접수 후부터 */
   const subMap = isIntake ? {
     '결제':[['cod','COD (구매_현금) — 접수 진행']],
@@ -1874,12 +1907,13 @@ function openConsult(r){
     '부재':[['abs','부재'],['resv','통화예약']]
   } : {
     '일반':[['gen','상담 진행'],['done','상담 완료']],
-    '취소 · 해지': sub.length? sub.map(a=>[a.val,a.label]) : [['ret','취소 · 해지 상담']],
+    ...(pdOk?{'결제':[['pd','선납금 추가 할인']]}:{}),
+    '취소 · 해지': cancelSub.length? cancelSub.map(a=>[a.val,a.label]) : [['ret','취소 · 해지 상담']],
     '교환':[['exc','교환 상담']],
     'ACC & 사은품':[['acc','사은품/ACC 상담']],
     '학습케어(관리콜)':[['care','학습케어(관리콜)']]
   };
-  const defBig = isIntake ? '결제' : (sub.length ? '취소 · 해지' : '일반');
+  const defBig = isIntake ? '결제' : (cancelSub.length ? '취소 · 해지' : '일반');
   window.__sub={list:sub,map:subMap,r};
   r.history=r.history||[];
   const histHtml = r.history.length
@@ -1910,6 +1944,16 @@ function openConsult(r){
         <tr><th>최종 위약금(VND)</th><td><input type="number" id="pFinal" readonly style="background:#f3f4f7;font-weight:700"></td></tr>
       </table>
     </div>
+    ${pdOk?(()=>{const ct=contractInit(r);return `<div id="cPreDisc" style="display:none;margin-top:8px">
+      <div style="font-weight:700;margin:4px 0 4px">선납금 추가 할인 <span class="muted">(저장 시 이력 기록 · 3-9 입금 금액 · 엑셀에 반영 · 계약서 재출력 필요)</span></div>
+      <table>
+        <tr><th>선납금(VND)</th><td>${won(ct.prepaid)}</td><th>선납금 할인(VND)</th><td>${won(+ct.preDisc||0)}${preDiscAddOf(ct)?` + <span>기존 추가</span> ${won(preDiscAddOf(ct))}`:''}</td></tr>
+        <tr><th>현재 실선납금(VND)</th><td colspan="3"><b>${won(netPreOf(ct))}</b></td></tr>
+        <tr><th>추가 할인(VND)</th><td><input type="number" id="pdAmt" oninput="calcPdNet()" style="width:140px"></td>
+            <th>할인 후 실선납금(VND)</th><td><input type="text" id="pdNet" readonly style="background:#fff8e1;font-weight:700;color:#b8860b;width:140px"></td></tr>
+        <tr><th>사유 <span style="color:var(--red)">*</span></th><td colspan="3"><input type="text" id="pdReason" placeholder="예: 프로모션 추가 적용" style="width:90%"></td></tr>
+      </table>
+    </div>`;})():''}
     <div id="cReturn" style="display:none;margin-top:10px"></div>
     <div class="sec">상담 이력</div>
     <div class="hist" id="cHist">${histHtml}</div>
@@ -1933,6 +1977,8 @@ function toggleAmt(){
   const isAmt=a&&a.amt, isReturn=a&&a.launch, isIntake=a&&a.intake;
   document.getElementById('cAmt').style.display=isAmt?'block':'none';
   if(isAmt) calcPenalty();
+  const pdBox=document.getElementById('cPreDisc');
+  if(pdBox){ pdBox.style.display=(a&&a.pd)?'block':'none'; if(a&&a.pd) calcPdNet(); }
   const cr=document.getElementById('cReturn');
   if(isIntake){ renderIntakeInline(); return; }
   if(isReturn){
@@ -1940,6 +1986,11 @@ function toggleAmt(){
     if(!(wiz.inline && wiz.r===window.__sub.r)) wiz={r:window.__sub.r,disc:{},calc:false,inline:true};
     renderReturnInline();
   } else { cr.style.display='none'; cr.innerHTML=''; }
+}
+function calcPdNet(){
+  const ct=contractInit(window.__sub.r);
+  const amt=+document.getElementById('pdAmt').value||0;
+  document.getElementById('pdNet').value=won(Math.max(0,netPreOf(ct)-amt));
 }
 function calcPenalty(){
   const base=+document.getElementById('pBase').value||0;
@@ -2240,6 +2291,20 @@ function saveConsult(){
     penTxt=` · <span>최초 산정 위약금</span> ${won(base)} | <span>할인</span> ${won(disc)} | <span>최종 위약금</span> ${won(base-disc)}`;
   }
   r.history=r.history||[];
+  /* 선납금 추가 할인: 금액 · 사유 필수 → 이력 기록 + 실선납금 · 총액 갱신 */
+  if(act && act.pd){
+    const amt=+document.getElementById('pdAmt').value||0, reason=document.getElementById('pdReason').value.trim();
+    const net=netPreOf(contractInit(r));
+    if(amt<=0){toast(L('추가 할인 금액을 입력하세요','Vui lòng nhập số tiền giảm giá bổ sung'));return;}
+    if(amt>net){toast(L('추가 할인이 실선납금('+won(net)+')보다 클 수 없습니다','Giảm giá bổ sung không được lớn hơn tiền trả trước thực ('+won(net)+')'));return;}
+    if(!reason){toast(L('추가 할인 사유를 입력하세요','Vui lòng nhập lý do giảm giá bổ sung'));return;}
+    const {netBefore,totBefore,ct}=applyPreDiscAdd(r,amt,reason,memo);
+    renderList(); if(typeof renderPay==='function') renderPay();
+    toast(L('선납금 추가 할인 저장 — 실선납금 <b>'+won(netBefore)+' → '+won(netPreOf(ct))+'</b> · 총액 <b>'+won(totBefore)+' → '+won(totalOfCt(ct))+'</b><br>3-9 입금 금액에 반영됨 · <b>계약서를 재출력</b>하여 고객께 발송하세요',
+            'Đã lưu giảm giá trả trước bổ sung — trả trước thực <b>'+won(netBefore)+' → '+won(netPreOf(ct))+'</b> · tổng <b>'+won(totBefore)+' → '+won(totalOfCt(ct))+'</b><br>Đã áp dụng vào 3-9 · vui lòng <b>in lại hợp đồng</b> và gửi cho khách hàng'));
+    openConsult(r);
+    return;
+  }
   /* COD 접수: 인라인 접수폼 값으로 저장 → 배송대기 전환 */
   if(act && act.intake){ saveIntake(r,memo,stamp); return; }
   /* 해지 접수: 인라인 폼 값으로 저장. 반품방식(위약금/기기반납)은 여기서 고르지 않는다 */
@@ -2315,7 +2380,7 @@ function deliveredDateOf(r){ return r.serialDate || (r.orderDate&&r.orderDate!==
 /* 고객이 이미 낸 돈 — 선납금 + 납부한 할부금 (17-1 회원현황과 연동) */
 function paidSoFar(r){
   const c=(typeof COL!=='undefined')?COL.find(x=>x.phone===r.phone):null;
-  if(c){ ensureCycles(c); return (c.prepaid||0)+colStats(c).paidSum; }
+  if(c){ ensureCycles(c); return colNetPre(c)+colStats(c).paidSum; }
   return r.paidAmt||0;
 }
 function penaltyCalc(r,baseDate){
@@ -2607,6 +2672,7 @@ function printOneContract(no){
   if(!w){toast(L('팝업이 차단되어 계약서를 열 수 없습니다','Cửa sổ bật lên bị chặn nên không thể mở hợp đồng'));return;}
   w.document.write(contractFileHTML(ct,r));
   w.document.close(); setTimeout(()=>w.print(),300);
+  if(ct.reprint){ ct.reprint=false; renderList(); }   // 재출력 완료 → 표시 해제
   toast(L('계약서 개별 출력 — '+r.name,'In hợp đồng riêng lẻ — '+r.name));
 }
 /* 계약서 1건을 통짜 HTML 문서로 (인쇄/ZIP 공용) */
@@ -3082,7 +3148,7 @@ const COL=[
    dun:{zalo:'2026-08-12',sms:'',call:''}},
   {no:330078,name:'Nguyễn Hương Quỳnh Trâm',phone:'0979356817',dob:'1996-07-20',gender:'여',
    product:'BrainKey TAB (외국어 패키지)',manager:'Lê Thị Hoa',cust:'계약중',
-   payStart:'2026-06-10',dueDay:'10일',monthly:948334,prepaid:2500000,principal:11880000,months:12,paidCount:3,unpaidCnt:0,
+   payStart:'2026-06-10',dueDay:'10일',monthly:948334,prepaid:2500000,preDisc:300000,preDiscAdd:200000,preDiscAddReason:'프로모션 추가 적용',principal:11880000,months:12,paidCount:3,unpaidCnt:0,
    email:'tram.nguyen@gmail.com',idNo:'079196007202',addr:'45 Lê Lợi, Quận Hải Châu, Đà Nẵng',
    depositMethod:'계좌이체',bankName:'Techcombank',virtualAcct:'-',depositorName:'NGUYEN HUONG QUYNH TRAM',
    contractDate:'2026-06-01',expireDate:'2027-05-10',lastPayDate:'2026-08-10',adjust:0,
@@ -3769,6 +3835,8 @@ function renderDetail(){
         <th>약정일</th><td>${c.dueDay}</td></tr>
     <tr><th>판매가</th><td>${won(c.price||productTotal)}</td><th>할인/바우처</th><td>${won(c.voucher||0)}</td>
         <th>선납금</th><td>${won(c.prepaid)}</td></tr>
+    <tr><th>선납금할인</th><td>${won(colPreDisc(c))}</td><th>선납금추가할인</th><td>${won(colPreDiscAdd(c))}${c.preDiscAddReason?` <span class="muted">(${c.preDiscAddReason})</span>`:''}</td>
+        <th>실선납금</th><td><b>${won(colNetPre(c))}</b></td></tr>
     <tr><th>월납부금</th><td>${won(monthly)}</td><th>월납총액</th><td>${won(monthlyTotal)}${rDiff?` <span class="muted">(<span>끝수 올림</span> +${won(rDiff)})</span>`:''}</td>
         <th>제품총금액</th><td>${won(productTotal)}</td></tr>
     <tr><th>최종납부상태</th><td>${payStatBadge(c.payStatus)}</td><th>첫회 납부여부</th><td>${c.firstPaid||'-'}</td>
@@ -3877,7 +3945,7 @@ function buildDeposits(){
   const list=[];
   COL.forEach(c=>{
     // 선납금: 계약 시 1건
-    if(c.prepaid>0) list.push({type:'선납금',name:c.name,phone:c.phone,product:c.product,manager:c.manager,cust:c.cust,unpaid:c.unpaidCnt>0,amount:c.prepaid,date:c.contractDate});
+    if(colNetPre(c)>0) list.push({type:'선납금',name:c.name,phone:c.phone,product:c.product,manager:c.manager,cust:c.cust,unpaid:c.unpaidCnt>0,amount:colNetPre(c),date:c.contractDate});
     // 할부금: 납부 완료 회차별 1건
     for(let i=0;i<c.paidCount;i++)
       list.push({type:'할부금',name:c.name,phone:c.phone,product:c.product,manager:c.manager,cust:c.cust,unpaid:c.unpaidCnt>0,amount:c.monthly,date:addMonths(c.payStart,i)});
@@ -4224,6 +4292,7 @@ function contractInit(r){
     price:20860000, prepaid:2500000, preDisc:0, preDiscAdds:[], principal:11880000, disc:0, months:12,
     contractDate:'2026-06-30',
   };
+  if(r.preset) Object.assign(r._ct,r.preset);   // 샘플 건의 계약 시 값(예: 선납금 할인)
   return r._ct;
 }
 function openContract(r){ window.__ct=r; contractInit(r); showScreen('contract'); }
@@ -4263,7 +4332,7 @@ function renderContract(){
      <div class="frm"><table>
        <tr><th>선납금(동)</th><td><input type="number" id="ctPrepaid" value="${ct.prepaid}" oninput="updateContractCalc()"></td>
            <th>할부원금(동)</th><td><input type="number" id="ctPrincipal" value="${ct.principal||0}" oninput="ctDriver='prin';updateContractCalc()"></td></tr>
-       <tr><th>선납금 할인(동)<br><span class="muted">${r.approved?'계약 시 입력값 (수정불가) — 추가 할인은 아래에서':'계약 시 입력값'}</span></th>
+       <tr><th>선납금 할인(동)<br><span class="muted">${r.approved?'계약 시 입력값 (수정불가) — 추가 할인은 [상담]에서':'계약 시 입력값'}</span></th>
            <td><input type="number" id="ctPreDisc" value="${+ct.preDisc||0}" oninput="updateContractCalc()" ${r.approved?'readonly style="background:#f3f4f7"':''}>
              ${preDiscAddOf(ct)?`<div class="muted" style="margin-top:3px">+ <span>계약 후 추가</span> <b style="color:#c0392b">${won(preDiscAddOf(ct))}</b></div>`:''}</td>
            <th>실선납금(동)<br><span class="muted">선납금 − 선납금 할인</span></th>
@@ -4308,45 +4377,41 @@ function saveContractInfo(){
     : '계약 정보 저장 완료 — 계약서에 반영되었습니다');
 }
 /* ── 계약 이후 선납금 할인 추가 ──────────────────────────────
-   계약승인 이후 선납금 할인이 더 들어가는 경우. 계약 시 값(preDisc)은 그대로 두고
-   추가분만 preDiscAdds에 쌓는다 → 실선납금 · 총액이 줄고 3-9 입금 금액에 바로 반영.
-   총 판매금액이 바뀌므로 계약서를 재출력해 고객께 다시 보내야 한다(재출력 전까지 경고 표시).
-   선납금 입금(3-9)이 끝난 건은 받을 금액이 이미 확정됐으므로 추가할 수 없다. */
-function preDiscAddHTML(r){
-  const ct=r._ct, adds=ct.preDiscAdds||[];
-  const can=['관리자','매니저'].includes(role);
-  return `
-   <div class="sec" style="margin-top:14px">계약 이후 선납금 할인 추가 <span class="muted">(총 판매금액 변경 → 계약서 재출력 · 고객 재발송)</span></div>
-   ${ct.reprint?`<div class="hint" style="background:#fdeaea;border-color:#f3c5c5;color:#a33"><b>계약 내용 변경됨 — 계약서 재출력 필요</b> · <span>아래 [계약서 출력 (PDF)]로 다시 출력해 고객께 발송하세요.</span></div>`:''}
-   <table class="list" style="margin-bottom:8px"><thead><tr><th>처리일시</th><th>추가 할인(VND)</th><th>사유</th><th>처리자</th></tr></thead><tbody>
-     ${adds.length?adds.map(a=>`<tr><td>${a.at}</td><td>${won(a.amt)}</td><td style="text-align:left">${a.reason||'-'}</td><td>${a.by}</td></tr>`).join('')
-                  :'<tr><td colspan="4" class="muted">추가 할인 내역 없음</td></tr>'}
-   </tbody></table>
-   ${r.paid?'<div class="muted">선납금 입금(3-9)이 완료된 건은 선납금 할인을 추가할 수 없습니다.</div>'
-     :!can?'<div class="muted">선납금 할인 추가는 관리자 / 매니저만 가능합니다.</div>'
-     :`<div class="dm-panel">
-        <label>추가 할인 :</label><input type="number" id="ctAddDisc" placeholder="VND" style="width:140px">
-        <label>사유 :</label><input type="text" id="ctAddReason" placeholder="예: 프로모션 추가 적용" style="width:260px">
-        <button class="dm-btn-reg" onclick="addPreDisc()">할인 추가</button>
-      </div>`}`;
+   입력은 1-2 [상담] > 결제 > '선납금 추가 할인' 한 곳에서만 한다(상담 이력으로 남김).
+   계약 시 값(preDisc)은 그대로 두고 추가분만 preDiscAdds에 쌓는다 → 실선납금 · 총액이 줄고
+   3-9 입금 금액 · 엑셀 컬럼(선납금 할인 / 선납금 추가할인 / 실선납금)에 반영.
+   계약서에는 실선납금만 찍힌다. 총 판매금액이 바뀌므로 재출력 전까지 '계약서 재출력' 표시.
+   계약승인 이후 ~ 선납금 입금(3-9) 전, 할부 건만 가능. */
+function canPreDiscAdd(r){
+  return !!r && !r.locked && r.approved && !r.paid && r.intake!==false
+    && contractInit(r).payType==='할부' && ['관리자','매니저'].includes(role);
 }
-function addPreDisc(){
-  const r=window.__ct, ct=r._ct, g=id=>document.getElementById(id);
-  const amt=+g('ctAddDisc').value||0, reason=g('ctAddReason').value.trim();
-  if(amt<=0){toast(L('추가 할인 금액을 입력하세요','Vui lòng nhập số tiền giảm giá bổ sung'));return;}
-  if(!reason){toast(L('추가 할인 사유를 입력하세요','Vui lòng nhập lý do giảm giá bổ sung'));return;}
+function applyPreDiscAdd(r,amt,reason,memo){
+  const ct=contractInit(r);
   const netBefore=netPreOf(ct), totBefore=totalOfCt(ct);
-  if(amt>netBefore){toast(L('추가 할인이 실선납금('+won(netBefore)+')보다 클 수 없습니다','Giảm giá bổ sung không được lớn hơn tiền trả trước thực ('+won(netBefore)+')'));return;}
   const now=nowStamp();
   ct.preDiscAdds=ct.preDiscAdds||[];
   ct.preDiscAdds.push({amt,reason,at:now,by:role});
   ct.reprint=true;
   r.history=r.history||[];
-  r.history.push({meta:`[${now} · <span>${role}</span> · <span>선납금 할인 추가</span>]`,
-    text:`<span>추가 할인</span> ${won(amt)} (${reason}) · <span>실선납금</span> ${won(netBefore)} → ${won(netPreOf(ct))} · <span>총액</span> ${won(totBefore)} → ${won(totalOfCt(ct))} · <span>계약서 재출력 필요</span>`});
-  renderContract(); renderList();
-  toast(L('선납금 할인 추가 — 실선납금 <b>'+won(netBefore)+' → '+won(netPreOf(ct))+'</b> · 총액 <b>'+won(totBefore)+' → '+won(totalOfCt(ct))+'</b><br>3-9 입금 금액에 반영됨 · 계약서를 재출력하여 고객께 발송하세요',
-          'Đã thêm giảm giá trả trước — trả trước thực <b>'+won(netBefore)+' → '+won(netPreOf(ct))+'</b> · tổng <b>'+won(totBefore)+' → '+won(totalOfCt(ct))+'</b><br>Đã áp dụng vào số tiền tại 3-9 · vui lòng in lại hợp đồng và gửi cho khách hàng'));
+  r.history.push({meta:`[${now} · <span>${role}</span> · <span>결제</span> > <span>선납금 추가 할인</span>]`,
+    text:`<span>추가 할인</span> ${won(amt)} (${reason}) · <span>실선납금</span> ${won(netBefore)} → ${won(netPreOf(ct))} · <span>총액</span> ${won(totBefore)} → ${won(totalOfCt(ct))} · <span>계약서 재출력 필요</span>`
+      +(memo?` · ${memo}`:'')});
+  r.consN=consN(r)+1;
+  return {netBefore,totBefore,ct};
+}
+/* 계약서 화면 — 추가 할인은 보기만(입력은 상담창) */
+function preDiscAddHTML(r){
+  const ct=r._ct, adds=ct.preDiscAdds||[];
+  return `
+   <div class="sec" style="margin-top:14px">선납금 할인 내역 <span class="muted">(CMS 기록용 · 계약서에는 실선납금만 출력)</span></div>
+   ${ct.reprint?`<div class="hint" style="background:#fdeaea;border-color:#f3c5c5;color:#a33"><b>계약 내용 변경됨 — 계약서 재출력 필요</b> · <span>아래 [계약서 출력 (PDF)]로 다시 출력해 고객께 발송하세요.</span></div>`:''}
+   <table class="list" style="margin-bottom:6px"><thead><tr><th>구분</th><th>처리일시</th><th>할인(VND)</th><th>사유</th><th>처리자</th></tr></thead><tbody>
+     <tr><td>계약 시 할인</td><td>${ct.contractDate}</td><td>${won(+ct.preDisc||0)}</td><td>-</td><td>-</td></tr>
+     ${adds.map(a=>`<tr><td><span class="b s-canc">추가 할인</span></td><td>${a.at}</td><td>${won(a.amt)}</td><td style="text-align:left">${a.reason||'-'}</td><td>${a.by}</td></tr>`).join('')}
+     <tr style="font-weight:700"><td colspan="2">합계 → 실선납금</td><td>${won(preDiscOf(ct))}</td><td colspan="2" style="text-align:left">${won(ct.prepaid)} − ${won(preDiscOf(ct))} = <b style="color:#b8860b">${won(netPreOf(ct))}</b></td></tr>
+   </tbody></table>
+   <div class="muted">추가 할인 입력: <b>1-2 고객관리 [상담] → 결제 → 선납금 추가 할인</b> (관리자 / 매니저 · 계약승인 이후 ~ 선납금 입금 전)</div>`;
 }
 /* 할부원금 · 월 납부금 연동 — 접수창(calcIntake)과 같은 규칙. 마지막으로 고친 칸이 기준 */
 let ctDriver='prin';
@@ -4405,7 +4470,7 @@ function contractDocHTML(ct,mode){
        <p style="margin:6px 0">- Kỳ thanh toán tiếp theo áp dụng từ ngày <b>${start}</b> và kết thúc vào ngày <b>${end}</b></p>
        <table class="list" style="margin:8px 0"><thead><tr><th>STT</th><th>Lịch trình thanh toán</th><th>Số tiền/Tháng</th><th>Ghi chú</th></tr></thead>
        <tbody>
-         <tr><td>1</td><td style="text-align:left">Lần thanh toán đầu tiên</td><td>${won(netPreOf(ct))} VND</td><td style="text-align:left">Áp dụng ngay sau kí hợp đồng${preDiscOf(ct)?`<br>(Giá gốc ${won(ct.prepaid)} VND − giảm giá ${won(preDiscOf(ct))} VND)`:''}</td></tr>
+         <tr><td>1</td><td style="text-align:left">Lần thanh toán đầu tiên</td><td>${won(netPreOf(ct))} VND</td><td style="text-align:left">Áp dụng ngay sau kí hợp đồng</td></tr>
          <tr><td>2</td><td style="text-align:left">Các kỳ thanh toán tiếp theo</td><td>${won(monthlyAmt(ct))} VND/tháng</td><td style="text-align:left">1 kỳ thanh toán / tháng</td></tr>
        </tbody></table>`
     : `<p style="margin:6px 0"><b>2.1</b> Giá trị sản phẩm (thanh toán một lần): <b>${won(totalOfCt(ct))} VND</b> / 01 sản phẩm. Đã bao gồm VAT.</p>
@@ -4458,7 +4523,7 @@ function contractDocHTML(ct,mode){
 }
 function printContract(){
   const ct=window.__ct._ct;
-  if(ct.reprint){ ct.reprint=false; setTimeout(renderContract,0); }
+  if(ct.reprint){ ct.reprint=false; setTimeout(()=>{renderContract();renderList();},0); }
   const w=window.open('','_blank');
   if(!w){toast(L('계약서 PDF 생성 — 파일명 ','Tạo PDF hợp đồng — tên tệp ')+'[WM Viet Nam]HỢP ĐỒNG MUA BÁN_'+ct.orderKey+'.pdf');return;}
   w.document.write(`<html><head><title>[WM Viet Nam]HỢP ĐỒNG MUA BÁN_${ct.orderKey}<\/title>
@@ -4572,7 +4637,7 @@ function penaltyBits(c){
 /* 수금현황 (카드 3열 → 입금방식/입금은행/가상계좌·입금자명으로 대체) */
 function collectHeaders(){
   const base=['순번','vendor','효성NO','이름','경과회차','면제회차수','전화번호','입금방식','할부기간','약정일','최초결제일','약정만료일',
-    '월납부금','선납금','월납총금액','제품총금액','경과금액(경과회차*월납금)','최초연체발생일','미납횟수','잔여금','미납원금','미납총액',
+    '월납부금','선납금','선납금할인','선납금추가할인','실선납금','선납금추가할인사유','월납총금액','제품총금액','경과금액(경과회차*월납금)','최초연체발생일','미납횟수','잔여금','미납원금','미납총액',
     '제품명','내부코드','대표사은품','입금은행','가상계좌','입금자명','회원구분','유형','결제등록일','결제기간','계약담당자','누적납부금액','감면조정금액',
     '2회차내용증명','연체등록내용증명','추심등록','연체정보등록','개인회생','최근회수일','시효도과','시효임박','기기반납','사고채권','금지명령'];
   return base.concat(cycHeaders('both'),['브랜드명']);
@@ -4580,7 +4645,7 @@ function collectHeaders(){
 function collectRow(c){
   const b=penaltyBits(c);
   const base=[c.no,'BrainKey VN','',c.name,b.el,0,c.phone,c.depositMethod,b.months,c.dueDay,c.payStart,c.expireDate,
-    b.monthly,c.prepaid,monthlyTotalOf(c),contractTotalOf(c),b.el*b.monthly,c.unpaidCnt?c.lastPayDate:'',c.unpaidCnt,b.remain,b.unpaidPrin,b.total,
+    b.monthly,c.prepaid,colPreDisc(c),colPreDiscAdd(c),colNetPre(c),c.preDiscAddReason||'',monthlyTotalOf(c),contractTotalOf(c),b.el*b.monthly,c.unpaidCnt?c.lastPayDate:'',c.unpaidCnt,b.remain,b.unpaidPrin,b.total,
     c.product,pkgCodeOf(c),'',c.bankName,c.virtualAcct,c.depositorName,'렌탈',c.cust,c.contractDate,c.payStart+'~'+c.expireDate,c.manager,c.paidCount*b.monthly,c.adjust,
     'N','N','N','N','N','','N','N','N','N','N'];
   const cyc=[];for(let i=1;i<=60;i++){ if(i<=c.paidCount)cyc.push(addMonths(c.payStart,i-1),b.monthly); else cyc.push('',''); }
@@ -4589,7 +4654,7 @@ function collectRow(c){
 /* 주마감 RAW (카드사명 → 입금은행, 빈 2열 → 가상계좌·입금자명) */
 function weeklyHeaders(){
   const base=['고객번호','이름','경과회차','면제회차수','전화번호','입금방식','할부기간','약정일','최초결제일','약정만료일',
-    '월납부금','선납금','감면조정금','월납총금액','제품총금액','경과금액(경과회차*월납금)','최초연체발생일','미납횟수','잔여금','미납원금','미납총액',
+    '월납부금','선납금','선납금할인','선납금추가할인','실선납금','선납금추가할인사유','감면조정금','월납총금액','제품총금액','경과금액(경과회차*월납금)','최초연체발생일','미납횟수','잔여금','미납원금','미납총액',
     '제품명','내부코드','대표사은품','입금은행','결제등록일(계약일)','가상계좌','입금자명','계약담당자','누적납부금액',
     '2회차내용증명','연체등록내용증명','추심등록','연체정보등록','개인회생','최근회수일','시효도과','시효임박','기기반납','사고채권','금지명령'];
   return base.concat(cycHeaders('amt'),cycHeaders('date'),['브랜드','사용대차 소유권이전']);
@@ -4597,7 +4662,7 @@ function weeklyHeaders(){
 function weeklyRow(c){
   const b=penaltyBits(c);
   const base=[c.no,c.name,b.el,0,c.phone,c.depositMethod,b.months,c.dueDay,c.payStart,c.expireDate,
-    b.monthly,c.prepaid,c.adjust,monthlyTotalOf(c),contractTotalOf(c),b.el*b.monthly,c.unpaidCnt?c.lastPayDate:'',c.unpaidCnt,b.remain,b.unpaidPrin,b.total,
+    b.monthly,c.prepaid,colPreDisc(c),colPreDiscAdd(c),colNetPre(c),c.preDiscAddReason||'',c.adjust,monthlyTotalOf(c),contractTotalOf(c),b.el*b.monthly,c.unpaidCnt?c.lastPayDate:'',c.unpaidCnt,b.remain,b.unpaidPrin,b.total,
     c.product,pkgCodeOf(c),'',c.bankName,c.contractDate,c.virtualAcct,c.depositorName,c.manager,c.paidCount*b.monthly,
     'N','N','N','N','N','','N','N','N','N','N'];
   const amts=[],dates=[];
