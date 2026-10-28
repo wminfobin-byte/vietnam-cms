@@ -214,6 +214,11 @@
       <div class="card">
         <table class="uplog">
           <tr><th style="width:110px">날짜</th><th style="width:220px">메뉴</th><th>내용</th><th style="width:40px"></th></tr>
+          <tr data-go="s-cancel"><td class="d">2026-10-28</td><td class="m">6. 상담창</td><td><b>신규</b> — <b>상담 상태 경로표</b>(고객상태별 <code>[상담] → 대분류 → 소분류</code> · 권한 · 결과) + <b>1-2 기능 컬럼 버튼 노출표</b>. 누락됐던 경로 추가: 상담대기 <code>결제 &gt; COD</code> · <code>일반</code> · <code>부재</code>, 접수 후 <code>결제 &gt; 선납금 추가 할인</code> · <code>교환</code> · <code>ACC &amp; 사은품</code> · <code>학습케어</code></td><td class="go">→</td></tr>
+          <tr data-go="s-cancel"><td class="d">2026-10-28</td><td class="m">6. 취소 접수</td><td>취소 접수 가능 상태에 <code>계약요청</code> 추가(<code>계약요청 · 배송대기 · 배송중</code>) — 5번 상태표 "계약완료 전까지"와 일치시킴</td><td class="go">→</td></tr>
+          <tr data-go="s-overdue"><td class="d">2026-10-28</td><td class="m">⑥ 위약금 미납 건</td><td>옛 대분류명 <code>반품 &gt; 위약금 협의·수정</code> → <code>취소 · 해지 &gt; 위약금 협의·수정</code>, 고객상태 · 권한 명시</td><td class="go">→</td></tr>
+          <tr data-go="s-cod"><td class="d">2026-10-28</td><td class="m">18. COD 접수창</td><td>진입 경로 명시 — 고객상태 <code>상담대기</code> <code>[상담] &gt; 결제 &gt; COD (구매_현금) — 접수 진행</code></td><td class="go">→</td></tr>
+          <tr data-go="s-contract"><td class="d">2026-10-28</td><td class="m">19. 계약서 출력</td><td>⑤ 노출 조건을 <b>고객상태 기준</b>(<code>배송대기 · 배송중</code> + 할부 + 미입금 + 관리자/매니저)으로 정리 · 노출 안 하는 상태 명시 · 프로토타입 시연 안내 추가</td><td class="go">→</td></tr>
           <tr data-go="s-complete"><td class="d">2026-10-28</td><td class="m">5. 3-9 선납금 입금</td><td>입금액 자유 입력 칸 삭제 → <b>선납금 | 선납금 할인 | 실선납금</b> 수정불가 노출(계약 시 값 자동, 계약 후 추가 할인 반영). 엑셀 양식 <b>구분 | 고객키 2열</b></td><td class="go">→</td></tr>
           <tr data-go="s-cod"><td class="d">2026-10-28</td><td class="m">18. COD 접수창</td><td><b>선납금 할인</b> 입력 · <b>실선납금</b>(선납금 − 선납금 할인) 자동 추가. 총액 = <code>실선납금 + 할부원금 − 할인금액</code></td><td class="go">→</td></tr>
           <tr data-go="s-contract"><td class="d">2026-10-28</td><td class="m">19. 계약서 출력</td><td><b>신규</b> — ⑤ 계약 이후 선납금 추가 할인: <b>1-2 [상담] &gt; 결제 &gt; 선납금 추가 할인</b>에서 금액 · 사유 입력 → 상담 이력 기록 · 총액 변경 · 1-2 목록 <b>계약서 재출력</b> 표시. 계약서에는 <b>실선납금만</b> 출력</td><td class="go">→</td></tr>
@@ -530,7 +535,7 @@
       <div class="spec reqbox">
         <div class="sphead"><span class="pg">1-2 고객상담 &gt; [상담]</span><h3>취소 접수 (배송 전/후)</h3></div>
         <div class="spbody">
-          <p class="purpose">배송대기 · 배송중 상태의 건을 상담원이 취소로 전환. 배송전취소와 배송후 수취거절을 동일하게 처리.</p>
+          <p class="purpose">계약요청 · 배송대기 · 배송중 상태(계약완료 전)의 건을 상담원이 취소로 전환. 배송전취소와 배송후 수취거절을 동일하게 처리.</p>
           <div class="note new"><b>워딩 규칙 — 접수는 두 가지뿐</b> 계약완료 <b>전</b>에 되돌리는 것은 <b>「취소 접수」</b>, 계약완료 <b>후</b>에 계약을 끝내는 것은 <b>「해지 접수」</b>. 화면·상담상태·이력 문구를 전부 이 두 워딩으로 통일. <code>반품접수</code> · <code>중도해지</code> 표현은 쓰지 않음.</div>
           <div class="note new"><b>환불 단계 없음</b> <b><code>취소 접수</code> → <code>취소 승인</code> → <code>취소</code></b>로 끝남. 베트남은 COD(대금상환)라 배송 전 취소·수취거절 시점에는 <b>고객이 지불한 금액이 없어 환불 자체가 발생하지 않음</b>.</div>
 
@@ -552,12 +557,38 @@
             <li>소분류는 <b>현재 고객상태 + 로그인 사용자의 (팀, 타입)</b>에 따라 가능한 것만 노출 — 예: 위약금 협의=미납담당자<span class="exp">재무 · 아웃바운드(매니저)</span>. 전체 조건은 <a href="#s-perm">11번</a> 참조.</li>
             <li>저장 시 상담 이력에 누적 기록 (일시 · 담당자 · 대분류&gt;소분류 · 내용).</li>
           </ul>
+
+          <h3 style="font-size:14px;margin-top:16px">상담 상태 경로표 — 고객상태별 <code>[상담] → 대분류 → 소분류</code> <span class="pill tag-new">추가</span></h3>
+          <p class="purpose">상담창에 <b>어떤 고객상태에서 어떤 대분류 · 소분류가 보이는지</b>의 전체 목록. 소분류 중 <b>처리형</b>은 선택 시 입력 영역이 열리고 저장하면 상태 · 금액이 바뀜, <b>기록형</b>은 이력만 남김.</p>
+          <table>
+            <tr><th style="width:20%">고객상태</th><th style="width:26%">[상담] → 대분류 → 소분류</th><th style="width:16%">권한</th><th>결과 · 상세</th></tr>
+            <tr><td><code>상담대기</code><br><span class="muted">(접수 전)</span></td><td><code>결제</code> → <code>COD (구매_현금) — 접수 진행</code></td><td>상담원 이상</td><td><b>처리형</b> — 상담창 아래에 <a href="#s-cod">COD 접수창(18번)</a>이 인라인으로 열림 → 저장 시 상담상태 <code>할부_현금(COD)</code> / <code>구매_현금(COD)</code>, 고객상태 <code>계약요청</code></td></tr>
+            <tr><td><code>상담대기</code></td><td><code>일반</code> → <code>상담 진행</code> · <code>상담 완료</code><br><code>부재</code> → <code>부재</code> · <code>통화예약</code></td><td>상담원 이상</td><td><b>기록형</b> — 이력 + 상담상태를 고른 소분류명으로 갱신(접수 전 DB만). 고객상태 변화 없음</td></tr>
+            <tr><td><code>계약요청</code> · <code>배송대기</code> · <code>배송중</code><br><span class="muted">(계약완료 전)</span></td><td><code>취소 · 해지</code> → <code>취소 접수 - 배송전취소</code> · <code>취소 접수 - 배송후 수취거절</code></td><td>상담원 이상</td><td><b>처리형</b> — 고객상태 <code>취소접수</code> → 1-2 [취소 승인] 대기 (아래 ①)</td></tr>
+            <tr><td><code>배송대기</code> · <code>배송중</code><br><span class="muted">+ 할부 + 3-9 선납금 미입금</span></td><td><code>결제</code> → <code>선납금 추가 할인</code></td><td>관리자 · 매니저</td><td><b>처리형</b> — 추가 할인 금액 · 사유 입력 → 이력 + 실선납금 · 총액 갱신 + <code>계약서 재출력</code> 표시 (<a href="#s-contract">19번 ⑤</a>). 구매(일시불) · 입금 완료 건에는 대분류 <code>결제</code> 자체가 안 보임</td></tr>
+            <tr><td><code>계약완료</code></td><td><code>취소 · 해지</code> → <code>해지 접수</code></td><td>상담원 · 매니저 · 관리자</td><td><b>처리형</b> — <a href="#s-template">해지 접수창(9번)</a> 인라인 → 저장 시 고객상태 <code>해지대기</code> (<a href="#s-term">7번</a>)</td></tr>
+            <tr><td><code>해지대기</code></td><td><code>취소 · 해지</code> → <code>위약금 협의·수정</code></td><td>미납담당자 · 관리자</td><td><b>처리형</b> — 최초 / 할인 / 최종 위약금 입력 → 상담상태 <code>위약금 협의</code>, 고객상태는 <code>해지대기</code> 유지 (<a href="#s-overdue">⑥ 위약금 미납 건</a>)</td></tr>
+            <tr><td>접수 후 <b>모든 상태</b><br><span class="muted">(계약요청 ~ 해지 종결)</span></td><td><code>일반</code> → <code>상담 진행</code> · <code>상담 완료</code><br><code>교환</code> → <code>교환 상담</code><br><code>ACC &amp; 사은품</code> → <code>사은품/ACC 상담</code><br><code>학습케어(관리콜)</code> → <code>학습케어(관리콜)</code></td><td>상담원 이상</td><td><b>기록형</b> — 이력만. 상담상태 · 고객상태 변화 없음</td></tr>
+            <tr><td>위 처리형 소분류가 하나도 없는 상태<br><span class="muted">(예: <code>취소접수</code> · <code>취소</code> · <code>해지(…)</code>, 권한 밖)</span></td><td><code>취소 · 해지</code> → <code>취소 · 해지 상담</code></td><td>상담원 이상</td><td><b>기록형</b> — 이력만</td></tr>
+          </table>
+          <div class="note"><b>상담창 열 때 기본 선택 대분류</b> <code>상담대기</code> → <code>결제</code> / 처리형 <code>취소 · 해지</code> 소분류가 있으면 → <code>취소 · 해지</code> / 그 외 → <code>일반</code>. 대분류 <code>결제</code>는 접수 전에는 COD 접수용, 접수 후에는 <b>선납금 추가 할인 조건을 만족할 때만</b> 나타남.</div>
+
+          <h3 style="font-size:14px;margin-top:14px">1-2 기능 컬럼 버튼 — 고객상태별 노출</h3>
+          <table>
+            <tr><th style="width:20%">버튼</th><th style="width:34%">노출 고객상태</th><th style="width:20%">권한</th><th>동작</th></tr>
+            <tr><td>[상담]</td><td>모든 상태</td><td>전원</td><td>위 경로표의 상담창</td></tr>
+            <tr><td>[계약서]</td><td>접수 후 ~ 계약완료 (<code>계약요청</code> · <code>배송대기</code> · <code>배송중</code> · <code>계약완료</code>)</td><td>관리자 · 매니저</td><td><a href="#s-contract">19번 계약서 화면</a> (정보 확인 · 출력)</td></tr>
+            <tr><td>[취소 승인]</td><td><code>취소접수</code></td><td>매니저 · 관리자</td><td>고객상태 <code>취소</code> 종결</td></tr>
+            <tr><td>[해지취소]</td><td><code>해지대기</code></td><td>관리자 · 매니저</td><td>해지 철회 → <code>계약완료</code> 복귀 (<a href="#s-term">7번</a>)</td></tr>
+            <tr><td>[고객 관리]</td><td>모든 상태</td><td>전원</td><td>기존 기능 그대로</td></tr>
+          </table>
+
           <ol class="req">
-            <li><b>취소 접수</b> — 고객상태 <code>배송대기</code>/<code>배송중</code> 건에서 상담상태 <code>취소 · 해지 &gt; 취소 접수(배송전취소 / 배송후 수취거절)</code> 선택 → 고객상태 <code>취소접수</code> + 이력. (상담원)</li>
+            <li><b>취소 접수</b> — 고객상태 <code>계약요청</code>/<code>배송대기</code>/<code>배송중</code> 건에서 상담상태 <code>취소 · 해지 &gt; 취소 접수(배송전취소 / 배송후 수취거절)</code> 선택 → 고객상태 <code>취소접수</code> + 이력. (상담원)</li>
             <li><b>취소 승인</b> — 1-2 DB 리스트 기능 컬럼의 <b>[취소 승인]</b> 버튼. 매니저<span class="exp">타입 아웃바운드매니저</span> · 관리자에게만 노출. 클릭 시 고객상태 <code>취소</code>로 <b>종결</b>. 별도 환불 화면 없음.</li>
           </ol>
           <div class="note"><b>반송 단말기 회수는 별도로 관리하지 않음</b> 배송후 수취거절 건도 <b>[취소 승인] 한 번으로 종결</b>하며, 반송 단말기 회수 확인을 위한 별도 상태나 시리얼 입력 단계를 두지 않음.</div>
-          <div class="note"><b>상태전이</b> <code>배송대기/배송중</code> → <code>취소접수</code> → <b>(매니저 취소 승인)</b> → <code>취소</code></div>
+          <div class="note"><b>상태전이</b> <code>계약요청/배송대기/배송중</code> → <code>취소접수</code> → <b>(매니저 취소 승인)</b> → <code>취소</code></div>
         </div>
       </div>
     </section>
@@ -1189,7 +1220,7 @@
           <h3 style="font-size:14px">⑥ 위약금 미납 건 처리</h3>
           <ol class="req">
             <li>해지대기 상태의 위약금 미입금 고객도 동일 목록에 포함(구분 컬럼으로 식별).</li>
-            <li>상담창에서 상담상태 <code>반품 &gt; 위약금 협의·수정</code> 선택 → <b>최초 / 할인 / 최종 위약금</b> 입력.</li>
+            <li>고객상태 <code>해지대기</code> 건의 <b>[상담]</b> → 대분류 <code>취소 · 해지</code> → 소분류 <code>위약금 협의·수정</code> 선택 → <b>최초 / 할인 / 최종 위약금</b> 입력. 권한: 미납담당자 · 관리자.</li>
             <li>저장 시 고객상태는 <code>해지대기</code> 그대로 유지하고 상담상태만 <code>위약금 협의</code>로 갱신(금액 기록용). 실제 입금 확인과 해지 종결은 <a href="#s-termwait">8번 해지대기</a>에서 진행.</li>
           </ol>
           <div class="vn"><b>베트남 차이 정리</b> ① 알림톡 → <b>Zalo ZNS</b> ② 카드 관련 컬럼 없음(입금 기준) ③ <b>연체가산금 항목 삭제</b> → 회수금 = 미납원금 ④ <b>추심 · 추심이관 개념 없음</b> — 관련 컬럼 · 정렬 기준 전부 삭제</div>
@@ -1350,8 +1381,9 @@
     <section id="s-cod">
       <h2><span class="num">18</span> 1-2 COD 접수창 — 할부 선택 시 금액 행 전환 <span class="pill p-role" style="font-size:12px">개선</span></h2>
       <div class="spec reqbox">
-        <div class="sphead"><span class="pg">1-2 고객상담 &gt; [상담] &gt; COD</span><h3>결제방식에 따른 금액 입력 행 전환</h3></div>
+        <div class="sphead"><span class="pg">1-2 고객상담 &gt; [상담] &gt; 결제 &gt; COD</span><h3>결제방식에 따른 금액 입력 행 전환</h3></div>
         <div class="spbody">
+          <div class="note new"><b>진입 경로</b> 고객상태 <code>상담대기</code>(접수 전) 건의 <b>[상담]</b> → 대분류 <code>결제</code> → 소분류 <code>COD (구매_현금) — 접수 진행</code> → 상담창 아래에 접수창이 인라인으로 열림. 저장하면 고객상태 <code>계약요청</code>. 접수 후에는 이 소분류가 다시 나오지 않음(<a href="#s-cancel">6번 경로표</a>).</div>
           <p class="purpose">결제방식 라디오 값에 따라 <b>금액 입력 행 자체를 다른 항목 세트로 전환</b>. 현재는 구매 기준(상품가격 · 할인금액 · 결제금액) 한 세트만 존재.</p>
           <div class="fig">
             <img src="2-1%20COD%20%EC%A0%91%EC%88%98%EC%B0%BD%20%ED%95%A0%EB%B6%80.png" alt="1-2 COD 접수창 할부 전환" />
@@ -1495,7 +1527,15 @@
           <p class="purpose">계약 이후 선납금 할인이 추가로 들어가는 경우가 있음. 이때 <b>총 판매금액이 달라져 계약서 내용도 바뀌므로</b>, 계약서를 <b>재출력해 고객께 다시 발송</b>함. 추가 할인은 계약서 화면이 아니라 <b>CMS 상담 이력으로 남기는 입력 항목</b>으로 받고, <b>엑셀 다운로드에서 컬럼으로 구분</b>할 수 있게 금액을 쪼개서 보관함.</p>
           <div class="note new"><b>금액 구조</b> <code>선납금 − 선납금 할인(계약 시) − 선납금 추가할인(계약 후) = 실선납금</code>. <b>계약서에는 실선납금만 출력</b>하고, 할인 내역(계약 시 할인 · 추가 할인 · 사유)은 <b>CMS 안에서만</b> 보여줌(상담 이력 · 3-9 · 계약서 화면 정보 영역 · 엑셀).</div>
           <ol class="req">
-            <li><b>입력 위치 = 1곳</b> — <b>1-2 고객관리 [상담] → 상담 상태 대분류 <code>결제</code> → 소분류 <code>선납금 추가 할인</code></b>. 선택하면 아래 입력 칸이 나타남. 노출 조건: <b>할부 · 계약승인(3-1) 이후 · 선납금 입금(3-9) 전</b>, 권한 <b>관리자 / 매니저</b>.</li>
+            <li><b>입력 위치 = 1곳</b> — <b>1-2 고객관리 [상담] → 상담 상태 대분류 <code>결제</code> → 소분류 <code>선납금 추가 할인</code></b>. 선택하면 아래 입력 칸이 나타남. 상담창 전체 경로는 <a href="#s-cancel">6번 상담 상태 경로표</a> 참조.</li>
+            <li><b>노출 조건 (모두 만족할 때만 대분류 <code>결제</code>가 보임)</b>
+              <ul style="margin:6px 0 0 16px">
+                <li>고객상태 <code>배송대기</code> 또는 <code>배송중</code> — 계약승인(3-1) 이후이면서 계약완료 전</li>
+                <li>결제방식 <b>할부</b></li>
+                <li>3-9 선납금 <b>입금 플래그 없음</b>(미입금)</li>
+                <li>로그인 사용자 <b>관리자 · 매니저</b></li>
+              </ul>
+              <div style="margin-top:4px"><b>노출 안 함</b>: <code>상담대기</code>(대분류 <code>결제</code>는 COD 접수용) · <code>계약요청</code>(승인 전 — 계약서 화면의 <code>선납금 할인</code> 칸을 직접 수정) · <code>계약완료</code>(입금 완료) · <code>취소접수</code> · <code>취소</code> · <code>해지대기</code> · <code>해지(…)</code> · 구매(일시불) 건 · 상담원/재무 등 그 외 권한.</div></li>
             <li><b>입력 항목</b> — 선납금 · 선납금 할인(계약 시) · 현재 실선납금은 <b>자동 표시</b>, 입력은 <code>추가 할인 금액</code> + <code>사유(필수)</code>. 할인 후 실선납금 자동 계산. 추가 할인은 <b>현재 실선납금보다 클 수 없음</b>. 여러 번 추가 가능(합산).</li>
             <li><b>저장 시 상담 이력 1줄 기록</b> — <code>[일시 · 처리자 · 결제 &gt; 선납금 추가 할인] 추가 할인 200.000 (사유) · 실선납금 2.200.000 → 2.000.000 · 총액 14.080.000 → 13.880.000 · 계약서 재출력 필요</code>. 상담이력 건수 +1.</li>
             <li><b>계약 시 값은 그대로 보존</b> — 계약승인 이후 계약서 화면의 <code>선납금 할인</code> 칸은 <b>계약 시 입력값으로 잠김(수정불가)</b>. 추가분은 별도로 쌓아 합산. 계약서 화면 정보 영역에는 <b>[선납금 할인 내역]</b> 표(계약 시 할인 · 추가 할인 건별 일시/금액/사유/처리자 · 합계 → 실선납금)를 <b>보기 전용</b>으로 표시.</li>
@@ -1513,6 +1553,14 @@
             <tr><td><a href="#s-report">17-6.3 입금현황</a></td><td>컬럼 추가 없음 — 선납금 행의 입금액이 <b>실선납금</b>(실제 입금액)으로 집계됨</td></tr>
           </table>
           <div class="note">17-1 <b>제품총금액</b> · <b>고객 기납부액</b>(위약금 산정)도 선납금 대신 <b>실선납금</b> 기준으로 계산. 17-1 회원 상세의 계약/입금 정보에 <b>선납금할인 · 선납금추가할인(사유) · 실선납금</b> 행 추가.</div>
+          <div class="note" style="background:#f3f4f7;border-left-color:#8a8fa3"><b>프로토타입에서 확인하기</b> <span class="muted">(시연용 안내 — 개발 범위 아님)</span> <a href="prototype.html">클릭형 프로토타입</a> 1-2 고객관리 맨 위 <b>No.105 Phan Thị Mai</b>(할부 · 배송대기 · 선납금 미입금 · 계약 시 선납금 할인 300.000)
+            <ol style="margin:6px 0 0;padding-left:18px">
+              <li>우측 상단 역할이 <b>관리자</b>(또는 매니저)인지 확인</li>
+              <li>No.105 <b>[상담]</b> → 대분류 <code>결제</code> → 소분류 <code>선납금 추가 할인</code></li>
+              <li>추가 할인 <code>200000</code> · 사유 입력 → <b>저장하기</b> → 상담 이력 1줄 + 목록 고객상태 아래 <code>계약서 재출력</code> 표시</li>
+              <li>확인: <b>3-9</b> 선납금 2.500.000 / 할인 500.000(계약 후 추가 200.000) / 실선납금 2.000.000 · <b>[계약서]</b> 할인 내역 표 + 계약서 1회차 2.000.000만 출력([계약서 출력] 시 재출력 표시 해제) · <b>1-2 [엑셀 다운로드]</b> 선납금할인 · 선납금추가할인 · 실선납금 · 사유 컬럼</li>
+            </ol>
+            <div style="margin-top:4px">3-9에서 [입금확인]을 누르면 이후 추가 할인 메뉴가 사라짐(규칙대로). 새로고침하면 샘플 초기화. 수금현황 · 주마감 RAW 엑셀의 새 컬럼은 17-1 회원 <b>Nguyễn Hương Quỳnh Trâm</b>(할인 300.000 + 추가 200.000)에서 확인.</div></div>
         </div>
       </div>
 
