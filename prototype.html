@@ -413,24 +413,27 @@
   <!-- ===== Screen: 3-9 입금처리 ===== -->
   <div class="page reqscreen" id="screen-pay" style="display:none">
     <h2 class="ptitle">3-9 선납금 입금 <span class="b s-canc">신규 화면</span></h2>
-    <p class="pdesc">선납금 입금 건을 <b>입금액과 함께</b> 확인 처리합니다. 권한: <b>재무담당자 / 관리자</b>.</p>
+    <p class="pdesc">선납금 입금 건을 확인 처리합니다. 권한: <b>재무담당자 / 관리자</b>.</p>
     <div class="hint">입금처리되면 1-2 고객관리의 해당 건 <b>입금 </b>로 갱신됩니다. <b>선납금 입금 + 시리얼 등록(4-6)</b>이 모두 완료되면 자동 <b>계약완료(3-10)</b> 처리됩니다.</div>
+    <div class="hint"><b>금액은 직접 입력하지 않습니다.</b> <b>선납금 | 선납금 할인 | 실선납금</b>은 계약 당시 입력한 값이 자동으로 들어가며 수정할 수 없습니다. 계약 이후 <b>선납금 할인이 추가</b>된 건은 추가 할인이 반영된 금액이 노출됩니다 (추가 입력: 2-1 [계약서] 화면).</div>
 
     <div class="sec" style="margin-top:0">선납금 입금 등록 <span class="muted">(수기 · 국내 CMS 방식)</span></div>
     <div class="dm-panel">
       <label>구분 :</label><select id="payType"><option value="선납금">선납금</option></select>
-      <label>고객키 :</label><input type="text" id="payKey" placeholder="WV...OHWS 또는 번호">
-      <label>입금액 :</label><input type="number" id="payAmt" placeholder="VND">
+      <label>고객키 :</label><input type="text" id="payKey" placeholder="WV...OHWS 또는 번호" oninput="payLookup()">
+      <label>선납금 :</label><input type="text" id="payPre" readonly style="width:110px;background:#f3f4f7">
+      <label>선납금 할인 :</label><input type="text" id="payDisc" readonly style="width:110px;background:#f3f4f7">
+      <label>실선납금 :</label><input type="text" id="payNet" readonly style="width:120px;background:#fff8e1;font-weight:700;color:#b8860b">
       <button class="dm-btn-reg" onclick="addPayManual()">등록</button>
     </div>
     <div class="dm-upload">
-      <div class="up-msg">파일을 올려주세요 <span class="muted">(구분 | 고객키 | 입금액 3열)</span></div>
+      <div class="up-msg">파일을 올려주세요 <span class="muted">(구분 | 고객키 2열 — 금액은 계약 정보에서 자동)</span></div>
       <button class="dm-selectfiles" onclick="payFileUpload()">SELECT FILES</button>
     </div>
     <div class="dm-tpl"><button onclick="downloadPayTemplate()">양식 다운로드</button></div>
     <table class="list" id="payManualTable"></table>
 
-    <div class="sec" style="margin-top:22px">입금 미확인 목록 <span class="muted">(행별 입금액 입력 → [입금확인] 개별 처리 또는 체크 후 일괄 처리)</span></div>
+    <div class="sec" style="margin-top:22px">입금 미확인 목록 <span class="muted">(금액은 계약 정보 자동 · 수정불가 → [입금확인] 개별 처리 또는 체크 후 일괄 처리)</span></div>
     <table class="list" id="payTable"></table>
     <div style="margin:10px 0 4px"><button class="b-pri" onclick="doPay()">선택 건 입금처리</button></div>
   </div>
@@ -771,16 +774,18 @@ const VI_HTML={
 /* ── 3-9 선납금 입금 ───────────────────────────────────────── */
 '3-9 선납금 입금 <span class="b s-canc">신규 화면</span>':
  '3-9 Nộp tiền trả trước <span class="b s-canc">Màn hình mới</span>',
-'선납금 입금 건을 <b>입금액과 함께</b> 확인 처리합니다. 권한: <b>재무담당자 / 관리자</b>.':
- 'Xác nhận xử lý các đơn nộp tiền trả trước <b>kèm theo số tiền đã nộp</b>. Quyền: <b>Phụ trách tài chính / Quản trị viên</b>.',
+'선납금 입금 건을 확인 처리합니다. 권한: <b>재무담당자 / 관리자</b>.':
+ 'Xác nhận xử lý các đơn nộp tiền trả trước. Quyền: <b>Phụ trách tài chính / Quản trị viên</b>.',
+'<b>금액은 직접 입력하지 않습니다.</b> <b>선납금 | 선납금 할인 | 실선납금</b>은 계약 당시 입력한 값이 자동으로 들어가며 수정할 수 없습니다. 계약 이후 <b>선납금 할인이 추가</b>된 건은 추가 할인이 반영된 금액이 노출됩니다 (추가 입력: 2-1 [계약서] 화면).':
+ '<b>Không nhập số tiền trực tiếp.</b> <b>Tiền trả trước | Giảm giá trả trước | Tiền trả trước thực</b> được tự động lấy từ giá trị nhập khi ký hợp đồng và không thể sửa. Với đơn có <b>giảm giá trả trước bổ sung</b> sau khi ký hợp đồng, số tiền hiển thị đã phản ánh khoản giảm giá đó (nhập bổ sung: màn hình 2-1 [Hợp đồng]).',
 '입금처리되면 1-2 고객관리의 해당 건 <b>입금 </b>로 갱신됩니다. <b>선납금 입금 + 시리얼 등록(4-6)</b>이 모두 완료되면 자동 <b>계약완료(3-10)</b> 처리됩니다.':
  'Sau khi xử lý nộp tiền, đơn tương ứng tại 1-2 Quản lý khách hàng sẽ được cập nhật thành <b>Nộp tiền </b>. Khi hoàn tất cả <b>nộp tiền trả trước và đăng ký vận đơn (4-6)</b>, đơn sẽ tự động được xử lý thành <b>hoàn tất hợp đồng (3-10)</b>.',
 '선납금 입금 등록 <span class="muted">(수기 · 국내 CMS 방식)</span>':
  'Đăng ký nộp tiền trả trước <span class="muted">(Nhập thủ công · Theo phương thức CMS nội địa)</span>',
-'파일을 올려주세요 <span class="muted">(구분 | 고객키 | 입금액 3열)</span>':
- 'Vui lòng tải tệp lên <span class="muted">(3 cột: phân loại | mã khách hàng | số tiền nộp)</span>',
-'입금 미확인 목록 <span class="muted">(행별 입금액 입력 → [입금확인] 개별 처리 또는 체크 후 일괄 처리)</span>':
- 'Danh sách chưa xác nhận nộp tiền <span class="muted">(nhập số tiền nộp từng dòng → xử lý riêng bằng [Xác nhận nộp tiền] hoặc chọn rồi xử lý hàng loạt)</span>',
+'파일을 올려주세요 <span class="muted">(구분 | 고객키 2열 — 금액은 계약 정보에서 자동)</span>':
+ 'Vui lòng tải tệp lên <span class="muted">(2 cột: phân loại | mã khách hàng — số tiền tự động theo thông tin hợp đồng)</span>',
+'입금 미확인 목록 <span class="muted">(금액은 계약 정보 자동 · 수정불가 → [입금확인] 개별 처리 또는 체크 후 일괄 처리)</span>':
+ 'Danh sách chưa xác nhận nộp tiền <span class="muted">(số tiền tự động theo hợp đồng · không sửa được → xử lý riêng bằng [Xác nhận nộp tiền] hoặc chọn rồi xử lý hàng loạt)</span>',
 
 /* ── 3-10 계약완료 처리 ────────────────────────────────────── */
 '3-10 계약완료 처리 <span class="b s-canc">신규 화면</span>':
@@ -1000,6 +1005,26 @@ const VI_TEXT={
 '개별/일괄 입금 내역 없음':'Không có lịch sử nộp tiền riêng lẻ/hàng loạt',
 '개별 등록 내역 없음':'Không có lịch sử đăng ký riêng lẻ',
 '입금액':'Số tiền nộp','SELECT FILES':'CHỌN TỆP',
+'선납금 할인(VND)':'Giảm giá trả trước (VND)','실선납금(VND)':'Tiền trả trước thực (VND)','선납금(VND)':'Tiền trả trước (VND)',
+'실선납금(동)':'Tiền trả trước thực (VND)','선납금 − 선납금 할인':'Tiền trả trước − giảm giá trả trước',
+'실선납금 + 할부원금 − 할인금액':'Trả trước thực + gốc trả góp − giảm giá',
+'선납금 할인 :':'Giảm giá trả trước :','실선납금 :':'Tiền trả trước thực :','선납금 :':'Tiền trả trước :',
+'계약 시 입력값 (수정불가) — 추가 할인은 아래에서':'Giá trị khi ký hợp đồng (không sửa được) — giảm giá bổ sung ở bên dưới',
+'계약 시 입력값':'Giá trị khi ký hợp đồng',
+'계약 이후 선납금 할인 추가':'Thêm giảm giá trả trước sau khi ký hợp đồng',
+'(총 판매금액 변경 → 계약서 재출력 · 고객 재발송)':'(tổng giá bán thay đổi → in lại hợp đồng · gửi lại cho khách hàng)',
+'계약 내용 변경됨 — 계약서 재출력 필요':'Nội dung hợp đồng đã thay đổi — cần in lại hợp đồng',
+'아래 [계약서 출력 (PDF)]로 다시 출력해 고객께 발송하세요.':'Vui lòng in lại bằng [In hợp đồng (PDF)] bên dưới và gửi cho khách hàng.',
+'추가 할인(VND)':'Giảm giá bổ sung (VND)','추가 할인 내역 없음':'Không có giảm giá bổ sung',
+'선납금 입금(3-9)이 완료된 건은 선납금 할인을 추가할 수 없습니다.':'Không thể thêm giảm giá trả trước cho đơn đã nộp tiền trả trước (3-9).',
+'선납금 할인 추가는 관리자 / 매니저만 가능합니다.':'Chỉ Quản trị viên / Quản lý mới có thể thêm giảm giá trả trước.',
+'추가 할인 :':'Giảm giá bổ sung :','사유 :':'Lý do :','예: 프로모션 추가 적용':'VD: áp dụng thêm khuyến mãi',
+'(선납금 · 선납금 할인 · 할부원금 · 할인금액 · 할부기간 입력 → 총액 자동)':'(nhập trả trước · giảm giá trả trước · gốc trả góp · giảm giá · kỳ hạn → tổng tự động)',
+'선납금 할인 추가':'Thêm giảm giá trả trước','계약서 재출력 필요':'Cần in lại hợp đồng','계약 후 추가':'Bổ sung sau hợp đồng',
+'실선납금':'Tiền trả trước thực','선납금 할인':'Giảm giá trả trước','추가 할인':'Giảm giá bổ sung','할인 추가':'Thêm giảm giá','사유':'Lý do',
+'고객키를 입력하세요':'Vui lòng nhập mã khách hàng',
+'선납금 입금 업로드 양식 다운로드 (구분·고객키)':'Đã tải biểu mẫu nộp tiền trả trước (phân loại · mã khách hàng)',
+'선납금 할인은 선납금보다 클 수 없습니다':'Giảm giá trả trước không được lớn hơn tiền trả trước',
 '양식 다운로드':'Tải biểu mẫu','WV...OHWS 또는 번호':'WV...OHWS hoặc số',
 
 /* ── 4-6 / 3-9 / 3-10 / 3-6 ──────────────────────────────── */
@@ -2054,6 +2079,9 @@ function renderIntakeInline(){
   <div class="frm" id="ikInst"><table>
     <tr><th>상품가격(정가)<br><span class="muted">총액 매칭 시 1-34 ② 정가 자동 · 미등록이면 직접 입력</span></th><td><input type="number" id="ikPriceI" value="" oninput="calcIntake()"></td>
         <th>선납금(동)</th><td><input type="number" id="ikPre" value="0" oninput="calcIntake()"></td></tr>
+    <tr><th>선납금 할인(동)</th><td><input type="number" id="ikPreDisc" value="0" oninput="calcIntake()"></td>
+        <th>실선납금(동)<br><span class="muted">선납금 − 선납금 할인</span></th>
+        <td><input type="text" id="ikNetPre" readonly style="background:#fff8e1;font-weight:700;color:#b8860b"></td></tr>
     <tr><th>할부원금(동)<br><span class="muted">직접 입력 (수정가능) — 월 납부금을 고치면 월 납부금 × 개월 + 할인금액으로 다시 채워짐</span></th><td><input type="number" id="ikPrinIn" value="0" oninput="ikDriver='prin';calcIntake()"></td>
         <th>할부 개월</th><td><select id="ikMonths" onchange="calcIntake()"><option value="">-선택-</option>${MONTH_OPTS.map(m=>`<option ${m==12?'selected':''}>${m}</option>`).join('')}</select> 개월</td></tr>
     <tr><th>할인금액(동)</th><td><input type="number" id="ikDiscI" value="0" oninput="calcIntake()"></td>
@@ -2062,7 +2090,7 @@ function renderIntakeInline(){
   </table></div>
 
   <div class="frm" id="ikSum"><table>
-    <tr><th>총액(동)<br><span class="muted" id="ikTotalDesc">선납금 + 할부원금 − 할인금액</span></th>
+    <tr><th>총액(동)<br><span class="muted" id="ikTotalDesc">실선납금 + 할부원금 − 할인금액</span></th>
         <td><input type="text" id="ikTotal" readonly style="background:#fff8e1;font-weight:800;color:#b8860b"></td>
         <th>할인율<br><span class="muted">(정가 − 총액) / 정가</span></th>
         <td><input type="text" id="ikRate" readonly style="background:#f3f4f7;font-weight:700"></td></tr>
@@ -2110,6 +2138,8 @@ function calcIntake(){
   let total=0, list=0;
   if(isI){
     const pre=+g('ikPre').value||0, disc=+g('ikDiscI').value||0;
+    const net=Math.max(0,pre-(+g('ikPreDisc').value||0));
+    g('ikNetPre').value=won(net)+' ₫';
     const m=+g('ikMonths').value||0;
     let prin=+g('ikPrinIn').value||0;
     if(ikDriver==='mon'&&m){
@@ -2119,10 +2149,10 @@ function calcIntake(){
       g('ikMonthly').value=m?monthlyPay(prin,m,disc):'';
     }
     g('ikMonthly').placeholder=m?'':L('할부 개월 선택 필요','Cần chọn số tháng trả góp');
-    total=Math.max(0,pre+prin-disc);
+    total=Math.max(0,net+prin-disc);
     fillListPrice(g('ikPriceI'),total);
     list=+g('ikPriceI').value||0;
-    g('ikTotalDesc').textContent=L('선납금 + 할부원금 − 할인금액','Trả trước + gốc trả góp − giảm giá');
+    g('ikTotalDesc').textContent=L('실선납금 + 할부원금 − 할인금액','Trả trước thực + gốc trả góp − giảm giá');
   }else{
     list=+g('ikPriceB').value||0;
     total=Math.max(0,list-(+g('ikDisc').value||0));
@@ -2154,9 +2184,11 @@ function saveIntake(r,memo,stamp){
   const months=isI?(+g('ikMonths').value||0):0;
   if(isI&&!months){toast('할부 개월을 선택하세요');return false;}
   const pre=isI?(+g('ikPre').value||0):0;
+  const preDisc=isI?(+g('ikPreDisc').value||0):0;
+  if(preDisc>pre){toast('선납금 할인은 선납금보다 클 수 없습니다');return false;}
   const prin=isI?(+g('ikPrinIn').value||0):0;
   const disc=isI?(+g('ikDiscI').value||0):(+g('ikDisc').value||0);
-  const total=isI?Math.max(0,pre+prin-disc):Math.max(0,price-disc);
+  const total=isI?Math.max(0,pre-preDisc+prin-disc):Math.max(0,price-disc);
   if(!total){toast(isI?'선납금 · 할부원금을 입력하세요':'상품가격을 입력하세요');return false;}
   if(isI&&!price){toast('미등록 총액입니다 — 상품가격(정가)을 입력하세요 (계약서 2.1에 출력)');return false;}
   const monthly=isI?monthlyPay(prin,months,disc):0;
@@ -2169,7 +2201,7 @@ function saveIntake(r,memo,stamp){
   r._ct={ orderKey:'WV'+(17802773991303+r.no)+'OHWS', name, gender:g('ikSex').value,
     idNo:g('ikId').value.trim(), issueDate:iss, issuer:g('ikIssuer').value.trim(), dob, addr, phone:r.phone,
     pkgName:p.name, device:'Galaxy Tab A11', payType:isI?'할부':'구매',
-    sw, price, prepaid:pre, principal:prin, disc, months:months||1,
+    sw, price, prepaid:pre, preDisc, preDiscAdds:[], principal:prin, disc, months:months||1,
     contractDate:new Date().toISOString().slice(0,10) };
   /* 결제방식(할부/구매)이 상담상태·리스트 결제 컬럼에 그대로 구분되어 남음 */
   /* 접수 저장 = 계약요청. 배송대기로 넘어가려면 3-1 결제에서 계약승인을 받아야 한다 */
@@ -2178,7 +2210,7 @@ function saveIntake(r,memo,stamp){
   r.consN=consN(r)+1;
   r.history.push({meta:`[${stamp} · <span>${role}</span> · <span>결제</span> > <span>COD 접수</span>]`,
     text:`<span>${memo||'COD 접수'}</span> · <span>${p.name}</span> / <span>${isI?'할부':'구매'}</span> · <span>컨텐츠</span> ${sw.join('·')}`+
-      (isI?` · <span>선납금</span> ${won(pre)} · <span>할부원금</span> ${won(prin)} · <span>할부</span> ${months} <span>개월</span> · <span>월 납부금</span> ${won(monthly)}`:'')+
+      (isI?` · <span>선납금</span> ${won(pre)}`+(preDisc?` · <span>선납금 할인</span> ${won(preDisc)} · <span>실선납금</span> ${won(pre-preDisc)}`:'')+` · <span>할부원금</span> ${won(prin)} · <span>할부</span> ${months} <span>개월</span> · <span>월 납부금</span> ${won(monthly)}`:'')+
       ` · <span>총액</span> ${won(total)}`+(icode?` · <span>내부코드</span> ${icode}`:'')});
   renderList(); closeModal();
   const lack=[!r._ct.idNo&&'번호',!iss&&'발행일',!r._ct.issuer&&'발급처'].filter(Boolean);
@@ -2439,7 +2471,7 @@ const PROC_LOG=[];
 function logProc(kind,r,act,extra){
   const ct=r._ct;
   PROC_LOG.push(Object.assign({kind,at:nowStamp(),by:role,act,no:r.no,name:r.name,orderKey:orderKeyOf(r),
-    product:r.product,pay:r.pay,amt:ct?(ct.payType==='할부'?ct.prepaid:totalOfCt(ct)):0},extra||{}));
+    product:r.product,pay:r.pay,amt:ct?(ct.payType==='할부'?netPreOf(ct):totalOfCt(ct)):0},extra||{}));
 }
 /* 시연용 — 샘플 고객 중 이미 승인 · 배송처리된 건의 이력을 미리 채운다 */
 function seedProcLog(){
@@ -2500,7 +2532,7 @@ function renderApprove(){
   if(!list.length) h+=`<tr><td colspan="9" class="muted">계약승인 대기 건이 없습니다</td></tr>`;
   list.forEach(r=>{
     const ct=r._ct;
-    const amt=ct?(ct.payType==='할부'?ct.prepaid:totalOfCt(ct)):0;
+    const amt=ct?(ct.payType==='할부'?netPreOf(ct):totalOfCt(ct)):0;
     h+=`<tr><td><input type="checkbox" class="apchk" data-no="${r.no}"></td>
     <td>${r.no}</td><td class="muted">${orderKeyOf(r)}</td><td class="name">${r.name}</td><td>${r.product}</td><td>${r.pay}</td>
     <td>${amt?won(amt):'<span class="muted">-</span>'}</td>
@@ -2829,25 +2861,29 @@ function downloadStock(){
   toast(L('재고현황 다운로드 — '+vis.length+'대','Đã tải tình trạng tồn kho — '+vis.length+' thiết bị'));
 }
 
-/* ===== 3-9 선납금 입금 (구분 · 고객키 · 입금액) ===== */
+/* ===== 3-9 선납금 입금 (구분 · 고객키 → 금액은 계약 정보에서 자동) =====
+   입금액을 자유 입력하지 않는다. 선납금 · 선납금 할인 · 실선납금은 계약 시 값(payDueOf)이
+   수정불가로 들어가고, 계약 이후 추가된 선납금 할인(2-1 계약서 화면)이 있으면 반영된 금액이 나온다.
+   입금처리 금액 = 실선납금. */
+function payDiscCell(d){
+  return d.disc?won(d.disc)+(d.add?`<div class="muted" style="color:#c0392b">(<span>계약 후 추가</span> ${won(d.add)})</div>`:''):'<span class="muted">-</span>';
+}
 function renderPay(){
   const list=rows.filter(r=>!r.locked&&r.approved&&!r.paid);
   let h=`<thead><tr><th style="width:38px"><input type="checkbox" onclick="document.querySelectorAll('.paychk').forEach(x=>x.checked=this.checked)"></th>
-    <th>번호</th><th>고객명</th><th>고객키</th><th>제품</th><th>결제</th><th>입금액(VND)</th><th>현재 상태</th><th style="width:120px">처리</th></tr></thead><tbody>`;
-  if(!list.length) h+=`<tr><td colspan="9" class="muted">입금 미확인 건이 없습니다</td></tr>`;
-  list.forEach(r=>{h+=`<tr><td><input type="checkbox" class="paychk" data-no="${r.no}"></td>
+    <th>번호</th><th>고객명</th><th>고객키</th><th>제품</th><th>결제</th><th>선납금(VND)</th><th>선납금 할인(VND)</th><th>실선납금(VND)</th><th>현재 상태</th><th style="width:120px">처리</th></tr></thead><tbody>`;
+  if(!list.length) h+=`<tr><td colspan="11" class="muted">입금 미확인 건이 없습니다</td></tr>`;
+  list.forEach(r=>{const d=payDueOf(r);h+=`<tr><td><input type="checkbox" class="paychk" data-no="${r.no}"></td>
     <td>${r.no}</td><td class="name">${r.name}</td><td class="muted">${orderKeyOf(r)}</td><td>${r.product}</td><td>${r.pay}</td>
-    <td><input type="number" class="payamt" data-no="${r.no}" placeholder="입금액" style="width:120px"></td>
+    <td>${won(d.pre)}</td><td>${payDiscCell(d)}</td><td style="font-weight:700;color:#b8860b">${won(d.net)}</td>
     <td>${badge(sellLabel(r))}<div class="muted">시리얼 ${r.serial?'O':'-'} · 입금 ${r.paid?'O':'-'}</div></td>
     <td><button class="b-pri" onclick="doPayOne(${r.no})">입금확인</button></td></tr>`;});
   document.getElementById('payTable').innerHTML=h+'</tbody>';
 }
-/* 행별 개별 입금처리 — 현재 상태 옆 [입금확인] 버튼 */
+/* 행별 개별 입금처리 — 현재 상태 옆 [입금확인] 버튼. 금액 = 실선납금 */
 function doPayOne(no){
   const r=rows.find(x=>x.no==no); if(!r)return;
-  const el=document.querySelector('.payamt[data-no="'+no+'"]');
-  const amt=+((el&&el.value)||0);
-  if(!amt){toast(L('입금액을 입력한 후 [입금확인]을 눌러주세요','Vui lòng nhập số tiền nộp rồi bấm [Xác nhận nộp tiền]'));return;}
+  const amt=payDueOf(r).net;
   r.paid=true; r.paidAmt=amt;
   const auto=autoComplete(r);
   renderList();renderPay();
@@ -2860,8 +2896,7 @@ function doPay(){
   let n=0,auto=0;
   sel.forEach(c=>{
     const r=rows.find(x=>x.no==c.dataset.no);
-    const amt=+document.querySelector('.payamt[data-no="'+r.no+'"]').value||0;
-    r.paid=true; r.paidAmt=amt; n++;
+    r.paid=true; r.paidAmt=payDueOf(r).net; n++;
     if(autoComplete(r))auto++;
   });
   renderList();renderPay();
@@ -2870,48 +2905,58 @@ function doPay(){
 }
 let payManualRows=[];
 function renderPayManual(){
-  let h=`<thead><tr><th>구분</th><th>고객키</th><th>입금액(VND)</th><th>매칭</th><th style="width:70px">삭제</th></tr></thead><tbody>`;
-  if(!payManualRows.length) h+=`<tr><td colspan="5" class="muted">개별/일괄 입금 내역 없음</td></tr>`;
-  payManualRows.forEach((v,i)=>{h+=`<tr><td><span class="b s-done">${v.type}</span></td><td class="muted">${v.key}</td><td>${won(v.amt)}</td>
+  let h=`<thead><tr><th>구분</th><th>고객키</th><th>선납금(VND)</th><th>선납금 할인(VND)</th><th>실선납금(VND)</th><th>매칭</th><th style="width:70px">삭제</th></tr></thead><tbody>`;
+  if(!payManualRows.length) h+=`<tr><td colspan="7" class="muted">개별/일괄 입금 내역 없음</td></tr>`;
+  payManualRows.forEach((v,i)=>{const d=v.due;h+=`<tr><td><span class="b s-done">${v.type}</span></td><td class="muted">${v.key}</td>
+    <td>${d?won(d.pre):'-'}</td><td>${d?payDiscCell(d):'-'}</td><td style="font-weight:700">${d?won(d.net):'-'}</td>
     <td>${v.matched?'<span class="b s-ship">매칭</span>':'<span class="b s-canc">미매칭</span>'}</td>
     <td><button class="b-ghost" onclick="delPayManual(${i})">삭제</button></td></tr>`;});
   document.getElementById('payManualTable').innerHTML=h+'</tbody>';
 }
 function delPayManual(i){payManualRows.splice(i,1);renderPayManual();}
-function payMatch(type,key,amt){
-  const r=rows.find(x=>orderKeyOf(x)===key||String(x.no)===key);
-  let matched=false, auto=false;
-  if(r&&!r.locked){ r.paid=true; r.paidAmt=amt; matched=true; auto=autoComplete(r); }
-  payManualRows.unshift({type,key,amt,matched});
-  return {r,matched,auto};
+const payFind=key=>rows.find(x=>orderKeyOf(x)===key||String(x.no)===key);
+/* 고객키 입력 즉시 계약 정보의 금액 3종을 채운다(수정불가) */
+function payLookup(){
+  const g=id=>document.getElementById(id);
+  const r=payFind(g('payKey').value.trim());
+  const d=(r&&!r.locked)?payDueOf(r):null;
+  g('payPre').value=d?won(d.pre):'';
+  g('payDisc').value=d?won(d.disc):'';
+  g('payNet').value=d?won(d.net):'';
+}
+function payMatch(type,key){
+  const r=payFind(key);
+  let matched=false, auto=false, due=null;
+  if(r&&!r.locked){ due=payDueOf(r); r.paid=true; r.paidAmt=due.net; matched=true; auto=autoComplete(r); }
+  payManualRows.unshift({type,key,due,matched});
+  return {r,matched,auto,due};
 }
 function addPayManual(){
   const type=document.getElementById('payType').value;
   const key=document.getElementById('payKey').value.trim();
-  const amt=+document.getElementById('payAmt').value||0;
-  if(!key||!amt){toast('고객키와 입금액을 입력하세요');return;}
-  const {r,matched,auto}=payMatch(type,key,amt);
-  document.getElementById('payKey').value='';document.getElementById('payAmt').value='';
+  if(!key){toast('고객키를 입력하세요');return;}
+  const {r,matched,auto,due}=payMatch(type,key);
+  document.getElementById('payKey').value=''; payLookup();
   renderPayManual();renderPay();renderList();
-  toast(L('<b>'+type+'</b> 입금처리 — '+won(amt)+' VND'+(matched?' · '+r.name+' 매칭'+(auto?' → 자동 계약완료':''):' · 미매칭'),
-          'Xử lý nộp tiền <b>'+type+'</b> — '+won(amt)+' VND'+(matched?' · khớp với '+r.name+(auto?' → tự động hoàn tất hợp đồng':''):' · không khớp')));
+  toast(L('<b>'+type+'</b> 입금처리'+(matched?' — '+won(due.net)+' VND · '+r.name+' 매칭'+(auto?' → 자동 계약완료':''):' · 미매칭'),
+          'Xử lý nộp tiền <b>'+type+'</b>'+(matched?' — '+won(due.net)+' VND · khớp với '+r.name+(auto?' → tự động hoàn tất hợp đồng':''):' · không khớp')));
 }
 function downloadPayTemplate(){
   buildAndDownloadXlsx(L('선납금_입금양식.xlsx','BieuMau_TienTraTruoc.xlsx'),L('선납금입금','TienTraTruoc'),
-    ['구분','고객키','입금액'].map(X),[[X('선납금'),orderKeyOf(rows[0]),1600000],[X('선납금'),orderKeyOf(rows[1]),990000]]);
-  toast('선납금 입금 업로드 양식 다운로드 (구분·고객키·입금액)');
+    ['구분','고객키'].map(X),[[X('선납금'),orderKeyOf(rows[0])],[X('선납금'),orderKeyOf(rows[1])]]);
+  toast('선납금 입금 업로드 양식 다운로드 (구분·고객키)');
 }
 function payFileUpload(){
   pickXlsx(aoa=>{
     let cnt=0;
     aoa.slice(1).forEach(row=>{
-      const type=String(row[0]||'선납금').trim(), key=String(row[1]||'').trim(), amt=+row[2]||0;
+      const type=String(row[0]||'선납금').trim(), key=String(row[1]||'').trim();
       if(!key)return;
-      payMatch(type,key,amt); cnt++;
+      payMatch(type,key); cnt++;
     });
     renderPayManual();renderPay();renderList();
-    toast(L('엑셀 <b>'+cnt+'행</b> 입금처리 완료 (구분·고객키·입금액)',
-            'Đã xử lý nộp tiền <b>'+cnt+' dòng</b> từ Excel (phân loại · mã khách hàng · số tiền nộp)'));
+    toast(L('엑셀 <b>'+cnt+'행</b> 입금처리 완료 (구분·고객키 — 금액은 계약 정보 기준)',
+            'Đã xử lý nộp tiền <b>'+cnt+' dòng</b> từ Excel (phân loại · mã khách hàng — số tiền theo thông tin hợp đồng)'));
   });
 }
 
@@ -4003,17 +4048,35 @@ function fillListPrice(el,total){
   }
   return hit;
 }
-/* 총액 — 할부: 선납금 + 할부원금 − 할인금액 / 구매: 상품가격 − 할인금액 */
+/* 선납금 할인 — 계약 시 입력값(preDisc) + 계약 이후 추가분(preDiscAdds 목록).
+   실선납금 = 선납금 − 선납금 할인(둘의 합). 3-9 입금 화면과 계약서 1회차 금액이 이 값을 쓴다. */
+const preDiscAddOf=ct=>((ct&&ct.preDiscAdds)||[]).reduce((s,x)=>s+(+x.amt||0),0);
+const preDiscOf=ct=>ct?(+ct.preDisc||0)+preDiscAddOf(ct):0;
+const netPreOf=ct=>ct?Math.max(0,(+ct.prepaid||0)-preDiscOf(ct)):0;
+/* 총액(총 판매금액) — 할부: 실선납금 + 할부원금 − 할인금액 / 구매: 상품가격 − 할인금액.
+   계약 후 선납금 할인이 추가되면 총액도 그만큼 줄어든다. */
 function totalOfCt(ct){
   if(!ct) return 0;
   return ct.payType==='할부'
-    ? Math.max(0,(+ct.prepaid||0)+(+ct.principal||0)-(+ct.disc||0))
+    ? Math.max(0,netPreOf(ct)+(+ct.principal||0)-(+ct.disc||0))
     : Math.max(0,(+ct.price||0)-(+ct.disc||0));
+}
+/* 내부코드 · 정가 매칭용 총액 — 계약 시점 총액(계약 후 추가 할인 제외).
+   계약 후 할인으로 총액이 바뀌어도 상품 코드와 정가(계약서 2.1)는 계약 당시 값을 유지한다. */
+function codeTotalOfCt(ct){
+  if(!ct) return 0;
+  return ct.payType==='할부' ? totalOfCt(ct)+preDiscAddOf(ct) : totalOfCt(ct);
+}
+/* 3-9 선납금 입금 금액 — 계약 정보에서 자동(수정불가). 구매(일시불)는 결제금액 전액 */
+function payDueOf(r){
+  const ct=contractInit(r);
+  if(ct.payType==='할부') return {pre:+ct.prepaid||0, disc:preDiscOf(ct), add:preDiscAddOf(ct), net:netPreOf(ct)};
+  const t=totalOfCt(ct); return {pre:t, disc:0, add:0, net:t};
 }
 /* 엑셀 내부코드 컬럼 — 계약 총액 기준. 총액이 확정되지 않은 구건은 공란 */
 function pkgCodeOf(o){
   if(!o) return '';
-  if(o._ct) return codeOfAmt(totalOfCt(o._ct));
+  if(o._ct) return codeOfAmt(codeTotalOfCt(o._ct));
   if(typeof o.total==='number') return codeOfAmt(o.total);
   return '';
 }
@@ -4158,7 +4221,7 @@ function contractInit(r){
     addr:'15A Bãi Sậy, Phường 13, Quận 5, TP Hồ Chí Minh',
     phone:r.phone, pkgName:r.product, device:'Galaxy Tab A11',
     payType:r.pay==='할부'?'할부':'구매',
-    price:20860000, prepaid:2500000, principal:11880000, disc:0, months:12,
+    price:20860000, prepaid:2500000, preDisc:0, preDiscAdds:[], principal:11880000, disc:0, months:12,
     contractDate:'2026-06-30',
   };
   return r._ct;
@@ -4196,21 +4259,27 @@ function renderContract(){
          <th>상품가격(정가)</th><td><input type="number" id="ctPrice" value="${ct.price}" oninput="updateContractCalc()" style="width:150px"> VND</td></tr>
    </table></div>
    <div id="ctInstall">
-     <div class="sec">할부 결제금액 <span class="muted">(선납금 · 할부원금 · 할인금액 · 할부기간 입력 → 총액 자동)</span></div>
+     <div class="sec">할부 결제금액 <span class="muted">(선납금 · 선납금 할인 · 할부원금 · 할인금액 · 할부기간 입력 → 총액 자동)</span></div>
      <div class="frm"><table>
        <tr><th>선납금(동)</th><td><input type="number" id="ctPrepaid" value="${ct.prepaid}" oninput="updateContractCalc()"></td>
            <th>할부원금(동)</th><td><input type="number" id="ctPrincipal" value="${ct.principal||0}" oninput="ctDriver='prin';updateContractCalc()"></td></tr>
+       <tr><th>선납금 할인(동)<br><span class="muted">${r.approved?'계약 시 입력값 (수정불가) — 추가 할인은 아래에서':'계약 시 입력값'}</span></th>
+           <td><input type="number" id="ctPreDisc" value="${+ct.preDisc||0}" oninput="updateContractCalc()" ${r.approved?'readonly style="background:#f3f4f7"':''}>
+             ${preDiscAddOf(ct)?`<div class="muted" style="margin-top:3px">+ <span>계약 후 추가</span> <b style="color:#c0392b">${won(preDiscAddOf(ct))}</b></div>`:''}</td>
+           <th>실선납금(동)<br><span class="muted">선납금 − 선납금 할인</span></th>
+           <td><input type="text" id="ctNetPre" readonly style="background:#fff8e1;font-weight:700;color:#b8860b"></td></tr>
        <tr><th>할인금액(동)</th><td><input type="number" id="ctDisc" value="${ct.disc||0}" oninput="updateContractCalc()"></td>
            <th>할부 개월</th><td><select id="ctMonths" onchange="updateContractCalc()">${MONTH_OPTS.map(m=>`<option ${ct.months==m?'selected':''}>${m}</option>`).join('')}</select> 개월</td></tr>
        <tr><th>월 납부금<br><span class="muted">(할부원금 − 할인금액) / 할부개월 · 끝수 절상 (수정가능)</span></th><td colspan="3"><input type="number" id="ctMonthly" oninput="ctDriver='mon';updateContractCalc()" style="font-weight:700;color:var(--purple2);width:150px"> <span class="muted">₫ / 월</span></td></tr>
      </table></div>
    </div>
    <div class="frm"><table>
-     <tr><th>총액(동)<br><span class="muted" id="ctTotalDesc">선납금 + 할부원금 − 할인금액</span></th>
+     <tr><th>총액(동)<br><span class="muted" id="ctTotalDesc">실선납금 + 할부원금 − 할인금액</span></th>
          <td><input type="text" id="ctTotal" readonly style="background:#fff8e1;font-weight:800;color:#b8860b"></td>
          <th>내부코드<br><span class="muted">총액 매핑 (자동 · 관리자 전용)</span></th>
          <td><input type="text" id="ctCode" readonly style="background:#f3f4f7;font-weight:700"> <span class="muted">계약서 <b>Mã sản phẩm</b>에 출력됩니다</span></td></tr>
    </table></div>
+   ${ct.payType==='할부'&&r.approved?preDiscAddHTML(r):''}
    <div class="sec" style="margin-top:14px">계약서 미리보기
      <span style="float:right">
        <button id="ctTabI" onclick="ctMode('할부')">할부 계약서</button>
@@ -4238,6 +4307,47 @@ function saveContractInfo(){
     ? '계약 정보 저장 — 신분증 항목이 아직 비어 있습니다'
     : '계약 정보 저장 완료 — 계약서에 반영되었습니다');
 }
+/* ── 계약 이후 선납금 할인 추가 ──────────────────────────────
+   계약승인 이후 선납금 할인이 더 들어가는 경우. 계약 시 값(preDisc)은 그대로 두고
+   추가분만 preDiscAdds에 쌓는다 → 실선납금 · 총액이 줄고 3-9 입금 금액에 바로 반영.
+   총 판매금액이 바뀌므로 계약서를 재출력해 고객께 다시 보내야 한다(재출력 전까지 경고 표시).
+   선납금 입금(3-9)이 끝난 건은 받을 금액이 이미 확정됐으므로 추가할 수 없다. */
+function preDiscAddHTML(r){
+  const ct=r._ct, adds=ct.preDiscAdds||[];
+  const can=['관리자','매니저'].includes(role);
+  return `
+   <div class="sec" style="margin-top:14px">계약 이후 선납금 할인 추가 <span class="muted">(총 판매금액 변경 → 계약서 재출력 · 고객 재발송)</span></div>
+   ${ct.reprint?`<div class="hint" style="background:#fdeaea;border-color:#f3c5c5;color:#a33"><b>계약 내용 변경됨 — 계약서 재출력 필요</b> · <span>아래 [계약서 출력 (PDF)]로 다시 출력해 고객께 발송하세요.</span></div>`:''}
+   <table class="list" style="margin-bottom:8px"><thead><tr><th>처리일시</th><th>추가 할인(VND)</th><th>사유</th><th>처리자</th></tr></thead><tbody>
+     ${adds.length?adds.map(a=>`<tr><td>${a.at}</td><td>${won(a.amt)}</td><td style="text-align:left">${a.reason||'-'}</td><td>${a.by}</td></tr>`).join('')
+                  :'<tr><td colspan="4" class="muted">추가 할인 내역 없음</td></tr>'}
+   </tbody></table>
+   ${r.paid?'<div class="muted">선납금 입금(3-9)이 완료된 건은 선납금 할인을 추가할 수 없습니다.</div>'
+     :!can?'<div class="muted">선납금 할인 추가는 관리자 / 매니저만 가능합니다.</div>'
+     :`<div class="dm-panel">
+        <label>추가 할인 :</label><input type="number" id="ctAddDisc" placeholder="VND" style="width:140px">
+        <label>사유 :</label><input type="text" id="ctAddReason" placeholder="예: 프로모션 추가 적용" style="width:260px">
+        <button class="dm-btn-reg" onclick="addPreDisc()">할인 추가</button>
+      </div>`}`;
+}
+function addPreDisc(){
+  const r=window.__ct, ct=r._ct, g=id=>document.getElementById(id);
+  const amt=+g('ctAddDisc').value||0, reason=g('ctAddReason').value.trim();
+  if(amt<=0){toast(L('추가 할인 금액을 입력하세요','Vui lòng nhập số tiền giảm giá bổ sung'));return;}
+  if(!reason){toast(L('추가 할인 사유를 입력하세요','Vui lòng nhập lý do giảm giá bổ sung'));return;}
+  const netBefore=netPreOf(ct), totBefore=totalOfCt(ct);
+  if(amt>netBefore){toast(L('추가 할인이 실선납금('+won(netBefore)+')보다 클 수 없습니다','Giảm giá bổ sung không được lớn hơn tiền trả trước thực ('+won(netBefore)+')'));return;}
+  const now=nowStamp();
+  ct.preDiscAdds=ct.preDiscAdds||[];
+  ct.preDiscAdds.push({amt,reason,at:now,by:role});
+  ct.reprint=true;
+  r.history=r.history||[];
+  r.history.push({meta:`[${now} · <span>${role}</span> · <span>선납금 할인 추가</span>]`,
+    text:`<span>추가 할인</span> ${won(amt)} (${reason}) · <span>실선납금</span> ${won(netBefore)} → ${won(netPreOf(ct))} · <span>총액</span> ${won(totBefore)} → ${won(totalOfCt(ct))} · <span>계약서 재출력 필요</span>`});
+  renderContract(); renderList();
+  toast(L('선납금 할인 추가 — 실선납금 <b>'+won(netBefore)+' → '+won(netPreOf(ct))+'</b> · 총액 <b>'+won(totBefore)+' → '+won(totalOfCt(ct))+'</b><br>3-9 입금 금액에 반영됨 · 계약서를 재출력하여 고객께 발송하세요',
+          'Đã thêm giảm giá trả trước — trả trước thực <b>'+won(netBefore)+' → '+won(netPreOf(ct))+'</b> · tổng <b>'+won(totBefore)+' → '+won(totalOfCt(ct))+'</b><br>Đã áp dụng vào số tiền tại 3-9 · vui lòng in lại hợp đồng và gửi cho khách hàng'));
+}
 /* 할부원금 · 월 납부금 연동 — 접수창(calcIntake)과 같은 규칙. 마지막으로 고친 칸이 기준 */
 let ctDriver='prin';
 function updateContractCalc(){
@@ -4248,6 +4358,8 @@ function updateContractCalc(){
   const g=id=>document.getElementById(id);
   if(isI){
     ct.prepaid=+g('ctPrepaid').value||0;
+    if(!g('ctPreDisc').readOnly) ct.preDisc=+g('ctPreDisc').value||0;
+    g('ctNetPre').value=won(netPreOf(ct))+' VND';
     ct.disc=+g('ctDisc').value||0;
     ct.months=+g('ctMonths').value||1;
     if(ctDriver==='mon'){
@@ -4258,16 +4370,16 @@ function updateContractCalc(){
       g('ctMonthly').value=monthlyAmt(ct);
     }
     /* 할부 정가 = 1-34 ② 매칭값(계약서 2.1 출력). 미등록 총액이면 직접 입력 */
-    fillListPrice(g('ctPrice'),totalOfCt(ct));
+    fillListPrice(g('ctPrice'),codeTotalOfCt(ct));
   }else{
     const el=g('ctPrice'); el.readOnly=false; el.style.background=''; el.dataset.auto='';
   }
   ct.price=+g('ctPrice').value||0;
-  g('ctTotalDesc').textContent=isI?L('선납금 + 할부원금 − 할인금액','Trả trước + gốc trả góp − giảm giá')
+  g('ctTotalDesc').textContent=isI?L('실선납금 + 할부원금 − 할인금액','Trả trước thực + gốc trả góp − giảm giá')
                                   :L('상품가격 − 할인금액','Giá sản phẩm − giảm giá');
   const total=totalOfCt(ct);
   g('ctTotal').value=won(total)+' VND';
-  const code=codeOfAmt(total);
+  const code=codeOfAmt(codeTotalOfCt(ct));
   g('ctCode').value=code||'-';
   g('ctCode').style.color=(code==='WPR')?'#c0392b':'var(--purple2)';
   ctMode(ct._view||ct.payType);
@@ -4293,7 +4405,7 @@ function contractDocHTML(ct,mode){
        <p style="margin:6px 0">- Kỳ thanh toán tiếp theo áp dụng từ ngày <b>${start}</b> và kết thúc vào ngày <b>${end}</b></p>
        <table class="list" style="margin:8px 0"><thead><tr><th>STT</th><th>Lịch trình thanh toán</th><th>Số tiền/Tháng</th><th>Ghi chú</th></tr></thead>
        <tbody>
-         <tr><td>1</td><td style="text-align:left">Lần thanh toán đầu tiên</td><td>${won(ct.prepaid)} VND</td><td style="text-align:left">Áp dụng ngay sau kí hợp đồng</td></tr>
+         <tr><td>1</td><td style="text-align:left">Lần thanh toán đầu tiên</td><td>${won(netPreOf(ct))} VND</td><td style="text-align:left">Áp dụng ngay sau kí hợp đồng${preDiscOf(ct)?`<br>(Giá gốc ${won(ct.prepaid)} VND − giảm giá ${won(preDiscOf(ct))} VND)`:''}</td></tr>
          <tr><td>2</td><td style="text-align:left">Các kỳ thanh toán tiếp theo</td><td>${won(monthlyAmt(ct))} VND/tháng</td><td style="text-align:left">1 kỳ thanh toán / tháng</td></tr>
        </tbody></table>`
     : `<p style="margin:6px 0"><b>2.1</b> Giá trị sản phẩm (thanh toán một lần): <b>${won(totalOfCt(ct))} VND</b> / 01 sản phẩm. Đã bao gồm VAT.</p>
@@ -4328,7 +4440,7 @@ function contractDocHTML(ct,mode){
   <p style="margin:8px 0 2px"><b>ĐIỀU 1.</b> &nbsp;<b>NỘI DUNG HỢP ĐỒNG</b></p>
   <p style="margin:2px 0">Bên A cung cấp phần mềm <b>${lang}</b> Brainkey (gọi tắt là "Chương trình Brainkey") sử dụng vô thời hạn, được tích hợp trên thiết bị máy tính bảng <b>${ct.device}</b> (gọi tắt là "thiết bị") cho Bên B.</p>
   <p style="margin:2px 0">Cổng kết nối: Cổng sạc Type-C</p>
-  <p style="margin:2px 0">Mã sản phẩm: <b>${codeOfAmt(totalOfCt(ct))||'-'}</b></p>
+  <p style="margin:2px 0">Mã sản phẩm: <b>${codeOfAmt(codeTotalOfCt(ct))||'-'}</b></p>
   <p style="margin:10px 0 2px"><b>ĐIỀU 2.</b> &nbsp;<b>GIÁ TRỊ SẢN PHẨM VÀ PHƯƠNG THỨC THANH TOÁN</b></p>
   ${pay}
   <p style="margin:10px 0 2px"><b>ĐIỀU 3.</b> &nbsp;<b>HÌNH THỨC THANH TOÁN</b></p>
@@ -4346,6 +4458,7 @@ function contractDocHTML(ct,mode){
 }
 function printContract(){
   const ct=window.__ct._ct;
+  if(ct.reprint){ ct.reprint=false; setTimeout(renderContract,0); }
   const w=window.open('','_blank');
   if(!w){toast(L('계약서 PDF 생성 — 파일명 ','Tạo PDF hợp đồng — tên tệp ')+'[WM Viet Nam]HỢP ĐỒNG MUA BÁN_'+ct.orderKey+'.pdf');return;}
   w.document.write(`<html><head><title>[WM Viet Nam]HỢP ĐỒNG MUA BÁN_${ct.orderKey}<\/title>
