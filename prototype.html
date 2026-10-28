@@ -415,7 +415,7 @@
     <h2 class="ptitle">3-9 선납금 입금 <span class="b s-canc">신규 화면</span></h2>
     <p class="pdesc">선납금 입금 건을 확인 처리합니다. 권한: <b>재무담당자 / 관리자</b>.</p>
     <div class="hint">입금처리되면 1-2 고객관리의 해당 건 <b>입금 </b>로 갱신됩니다. <b>선납금 입금 + 시리얼 등록(4-6)</b>이 모두 완료되면 자동 <b>계약완료(3-10)</b> 처리됩니다.</div>
-    <div class="hint"><b>금액은 직접 입력하지 않습니다.</b> <b>선납금 | 선납금 할인 | 실선납금</b>은 계약 당시 입력한 값이 자동으로 들어가며 수정할 수 없습니다. 계약 이후 <b>선납금 할인이 추가</b>된 건은 추가 할인이 반영된 금액이 노출됩니다 (추가 입력: 1-2 [상담] → 결제 → 선납금 추가 할인).</div>
+    <div class="hint"><b>금액은 직접 입력하지 않습니다.</b> <b>선납금 | 선납금 할인 | 선납금 추가할인 | 실선납금</b>은 계약 당시 입력한 값이 자동으로 들어가며 수정할 수 없습니다. 계약 이후 <b>선납금 추가할인</b>이 입력된 건은 추가할인 칸에 그 금액이, 실선납금에 반영된 금액이 노출됩니다 (추가 입력: 1-2 [상담] → 결제 → 선납금 추가 할인).</div>
 
     <div class="sec" style="margin-top:0">선납금 입금 등록 <span class="muted">(수기 · 국내 CMS 방식)</span></div>
     <div class="dm-panel">
@@ -423,6 +423,7 @@
       <label>고객키 :</label><input type="text" id="payKey" placeholder="WV...OHWS 또는 번호" oninput="payLookup()">
       <label>선납금 :</label><input type="text" id="payPre" readonly style="width:110px;background:#f3f4f7">
       <label>선납금 할인 :</label><input type="text" id="payDisc" readonly style="width:110px;background:#f3f4f7">
+      <label>선납금 추가할인 :</label><input type="text" id="payAdd" readonly style="width:110px;background:#f3f4f7">
       <label>실선납금 :</label><input type="text" id="payNet" readonly style="width:120px;background:#fff8e1;font-weight:700;color:#b8860b">
       <button class="dm-btn-reg" onclick="addPayManual()">등록</button>
     </div>
@@ -776,8 +777,8 @@ const VI_HTML={
  '3-9 Nộp tiền trả trước <span class="b s-canc">Màn hình mới</span>',
 '선납금 입금 건을 확인 처리합니다. 권한: <b>재무담당자 / 관리자</b>.':
  'Xác nhận xử lý các đơn nộp tiền trả trước. Quyền: <b>Phụ trách tài chính / Quản trị viên</b>.',
-'<b>금액은 직접 입력하지 않습니다.</b> <b>선납금 | 선납금 할인 | 실선납금</b>은 계약 당시 입력한 값이 자동으로 들어가며 수정할 수 없습니다. 계약 이후 <b>선납금 할인이 추가</b>된 건은 추가 할인이 반영된 금액이 노출됩니다 (추가 입력: 1-2 [상담] → 결제 → 선납금 추가 할인).':
- '<b>Không nhập số tiền trực tiếp.</b> <b>Tiền trả trước | Giảm giá trả trước | Tiền trả trước thực</b> được tự động lấy từ giá trị nhập khi ký hợp đồng và không thể sửa. Với đơn có <b>giảm giá trả trước bổ sung</b> sau khi ký hợp đồng, số tiền hiển thị đã phản ánh khoản giảm giá đó (nhập bổ sung: 1-2 [Tư vấn] → Thanh toán → Giảm giá trả trước bổ sung).',
+'<b>금액은 직접 입력하지 않습니다.</b> <b>선납금 | 선납금 할인 | 선납금 추가할인 | 실선납금</b>은 계약 당시 입력한 값이 자동으로 들어가며 수정할 수 없습니다. 계약 이후 <b>선납금 추가할인</b>이 입력된 건은 추가할인 칸에 그 금액이, 실선납금에 반영된 금액이 노출됩니다 (추가 입력: 1-2 [상담] → 결제 → 선납금 추가 할인).':
+ '<b>Không nhập số tiền trực tiếp.</b> <b>Tiền trả trước | Giảm giá trả trước | Giảm giá trả trước bổ sung | Tiền trả trước thực</b> được tự động lấy từ giá trị nhập khi ký hợp đồng và không thể sửa. Với đơn có <b>giảm giá trả trước bổ sung</b> sau khi ký hợp đồng, số tiền đó hiển thị ở cột giảm giá bổ sung và tiền trả trước thực đã phản ánh khoản giảm giá đó (nhập bổ sung: 1-2 [Tư vấn] → Thanh toán → Giảm giá trả trước bổ sung).',
 '입금처리되면 1-2 고객관리의 해당 건 <b>입금 </b>로 갱신됩니다. <b>선납금 입금 + 시리얼 등록(4-6)</b>이 모두 완료되면 자동 <b>계약완료(3-10)</b> 처리됩니다.':
  'Sau khi xử lý nộp tiền, đơn tương ứng tại 1-2 Quản lý khách hàng sẽ được cập nhật thành <b>Nộp tiền </b>. Khi hoàn tất cả <b>nộp tiền trả trước và đăng ký vận đơn (4-6)</b>, đơn sẽ tự động được xử lý thành <b>hoàn tất hợp đồng (3-10)</b>.',
 '선납금 입금 등록 <span class="muted">(수기 · 국내 CMS 방식)</span>':
@@ -1008,7 +1009,7 @@ const VI_TEXT={
 '선납금 할인(VND)':'Giảm giá trả trước (VND)','실선납금(VND)':'Tiền trả trước thực (VND)','선납금(VND)':'Tiền trả trước (VND)',
 '실선납금(동)':'Tiền trả trước thực (VND)','선납금 − 선납금 할인':'Tiền trả trước − giảm giá trả trước',
 '실선납금 + 할부원금 − 할인금액':'Trả trước thực + gốc trả góp − giảm giá',
-'선납금 할인 :':'Giảm giá trả trước :','실선납금 :':'Tiền trả trước thực :','선납금 :':'Tiền trả trước :',
+'선납금 할인 :':'Giảm giá trả trước :','선납금 추가할인 :':'Giảm giá trả trước bổ sung :','선납금 추가할인(VND)':'Giảm giá trả trước bổ sung (VND)','실선납금 :':'Tiền trả trước thực :','선납금 :':'Tiền trả trước :',
 '계약 시 입력값 (수정불가) — 추가 할인은 [상담]에서':'Giá trị khi ký hợp đồng (không sửa được) — giảm giá bổ sung tại [Tư vấn]',
 '계약 시 입력값':'Giá trị khi ký hợp đồng',
 '계약 이후 선납금 할인 추가':'Thêm giảm giá trả trước sau khi ký hợp đồng',
@@ -2928,20 +2929,23 @@ function downloadStock(){
 }
 
 /* ===== 3-9 선납금 입금 (구분 · 고객키 → 금액은 계약 정보에서 자동) =====
-   입금액을 자유 입력하지 않는다. 선납금 · 선납금 할인 · 실선납금은 계약 시 값(payDueOf)이
-   수정불가로 들어가고, 계약 이후 추가된 선납금 할인(2-1 계약서 화면)이 있으면 반영된 금액이 나온다.
+   입금액을 자유 입력하지 않는다. 선납금 · 선납금 할인 · 선납금 추가할인 · 실선납금은 계약 시 값(payDueOf)이
+   수정불가로 들어가고, 계약 이후 추가된 선납금 할인(1-2 [상담] > 결제 > 선납금 추가 할인)이 있으면 반영된 금액이 나온다.
    입금처리 금액 = 실선납금. */
-function payDiscCell(d){
-  return d.disc?won(d.disc)+(d.add?`<div class="muted" style="color:#c0392b">(<span>계약 후 추가</span> ${won(d.add)})</div>`:''):'<span class="muted">-</span>';
+function payDiscCell(d){            // 계약 시 선납금 할인
+  const v=d.disc-d.add; return v?won(v):'<span class="muted">-</span>';
+}
+function payAddCell(d){             // 계약 후 선납금 추가할인
+  return d.add?`<span style="color:#c0392b;font-weight:600">${won(d.add)}</span>`:'<span class="muted">-</span>';
 }
 function renderPay(){
   const list=rows.filter(r=>!r.locked&&r.approved&&!r.paid);
   let h=`<thead><tr><th style="width:38px"><input type="checkbox" onclick="document.querySelectorAll('.paychk').forEach(x=>x.checked=this.checked)"></th>
-    <th>번호</th><th>고객명</th><th>고객키</th><th>제품</th><th>결제</th><th>선납금(VND)</th><th>선납금 할인(VND)</th><th>실선납금(VND)</th><th>현재 상태</th><th style="width:120px">처리</th></tr></thead><tbody>`;
-  if(!list.length) h+=`<tr><td colspan="11" class="muted">입금 미확인 건이 없습니다</td></tr>`;
+    <th>번호</th><th>고객명</th><th>고객키</th><th>제품</th><th>결제</th><th>선납금(VND)</th><th>선납금 할인(VND)</th><th>선납금 추가할인(VND)</th><th>실선납금(VND)</th><th>현재 상태</th><th style="width:120px">처리</th></tr></thead><tbody>`;
+  if(!list.length) h+=`<tr><td colspan="12" class="muted">입금 미확인 건이 없습니다</td></tr>`;
   list.forEach(r=>{const d=payDueOf(r);h+=`<tr><td><input type="checkbox" class="paychk" data-no="${r.no}"></td>
     <td>${r.no}</td><td class="name">${r.name}</td><td class="muted">${orderKeyOf(r)}</td><td>${r.product}</td><td>${r.pay}</td>
-    <td>${won(d.pre)}</td><td>${payDiscCell(d)}</td><td style="font-weight:700;color:#b8860b">${won(d.net)}</td>
+    <td>${won(d.pre)}</td><td>${payDiscCell(d)}</td><td>${payAddCell(d)}</td><td style="font-weight:700;color:#b8860b">${won(d.net)}</td>
     <td>${badge(sellLabel(r))}<div class="muted">시리얼 ${r.serial?'O':'-'} · 입금 ${r.paid?'O':'-'}</div></td>
     <td><button class="b-pri" onclick="doPayOne(${r.no})">입금확인</button></td></tr>`;});
   document.getElementById('payTable').innerHTML=h+'</tbody>';
@@ -2971,23 +2975,24 @@ function doPay(){
 }
 let payManualRows=[];
 function renderPayManual(){
-  let h=`<thead><tr><th>구분</th><th>고객키</th><th>선납금(VND)</th><th>선납금 할인(VND)</th><th>실선납금(VND)</th><th>매칭</th><th style="width:70px">삭제</th></tr></thead><tbody>`;
-  if(!payManualRows.length) h+=`<tr><td colspan="7" class="muted">개별/일괄 입금 내역 없음</td></tr>`;
+  let h=`<thead><tr><th>구분</th><th>고객키</th><th>선납금(VND)</th><th>선납금 할인(VND)</th><th>선납금 추가할인(VND)</th><th>실선납금(VND)</th><th>매칭</th><th style="width:70px">삭제</th></tr></thead><tbody>`;
+  if(!payManualRows.length) h+=`<tr><td colspan="8" class="muted">개별/일괄 입금 내역 없음</td></tr>`;
   payManualRows.forEach((v,i)=>{const d=v.due;h+=`<tr><td><span class="b s-done">${v.type}</span></td><td class="muted">${v.key}</td>
-    <td>${d?won(d.pre):'-'}</td><td>${d?payDiscCell(d):'-'}</td><td style="font-weight:700">${d?won(d.net):'-'}</td>
+    <td>${d?won(d.pre):'-'}</td><td>${d?payDiscCell(d):'-'}</td><td>${d?payAddCell(d):'-'}</td><td style="font-weight:700">${d?won(d.net):'-'}</td>
     <td>${v.matched?'<span class="b s-ship">매칭</span>':'<span class="b s-canc">미매칭</span>'}</td>
     <td><button class="b-ghost" onclick="delPayManual(${i})">삭제</button></td></tr>`;});
   document.getElementById('payManualTable').innerHTML=h+'</tbody>';
 }
 function delPayManual(i){payManualRows.splice(i,1);renderPayManual();}
 const payFind=key=>rows.find(x=>orderKeyOf(x)===key||String(x.no)===key);
-/* 고객키 입력 즉시 계약 정보의 금액 3종을 채운다(수정불가) */
+/* 고객키 입력 즉시 계약 정보의 금액 4종을 채운다(수정불가) */
 function payLookup(){
   const g=id=>document.getElementById(id);
   const r=payFind(g('payKey').value.trim());
   const d=(r&&!r.locked)?payDueOf(r):null;
   g('payPre').value=d?won(d.pre):'';
-  g('payDisc').value=d?won(d.disc):'';
+  g('payDisc').value=d?won(d.disc-d.add):'';
+  g('payAdd').value=d?won(d.add):'';
   g('payNet').value=d?won(d.net):'';
 }
 function payMatch(type,key){
