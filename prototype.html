@@ -188,6 +188,19 @@
   .dm-tpl{text-align:center;margin:0 0 16px}
   .dm-tpl button{background:#f3f4f7;border:1px solid #d0d5dc;color:#555;padding:7px 16px;border-radius:3px;font-weight:600}
   .dm-tpl button:hover{background:#e8ebef}
+  /* 17-6.3 입금현황 카드 — 총합 + 종류별 줄 + 방식별 줄 */
+  .depwrap{display:flex;gap:10px;margin:4px 0 14px;align-items:stretch}
+  .deptotal{flex:0 0 190px;background:#fff;border:2px solid var(--purple);border-radius:8px;padding:10px 12px}
+  .deprows{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+  .deprow{display:flex;gap:8px;align-items:stretch}
+  .deprow .axis{flex:0 0 74px;font-weight:700;color:var(--sub);font-size:12px;display:flex;align-items:center}
+  .depcard{flex:1;min-width:0;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+  .depcard .t,.deptotal .t{font-weight:700;font-size:12px;margin-bottom:4px}
+  .depcard .amt,.deptotal .amt{font-size:15px;font-weight:700}
+  .deptotal .amt{font-size:18px;color:var(--purple2)}
+  .depcard .sub,.deptotal .sub{color:var(--sub);font-size:11px;margin:2px 0 6px}
+  .depcard.later{background:#f6f7f9}
+  .depcard button,.deptotal button{font-size:11px;padding:2px 8px}
 </style>
 </head>
 <body>
@@ -564,10 +577,13 @@
   <!-- ===== Screen: 17-6.3 리포트(입금현황) ===== -->
   <div class="page reqscreen" id="screen-rptDeposit" style="display:none">
     <h2 class="ptitle">17-6.3 리포트 (입금현황)</h2>
-    <p class="pdesc"><b>선납금 · 할부금 · 위약금</b> 입금 내역을 통합 조회합니다. 상단 필터(종류·조회기간·계약상태)로 조회 후 엑셀 다운로드할 수 있습니다.</p>
+    <p class="pdesc">조회기간의 <b>모든 입금</b>을 <b>입금 종류별</b>(선납금 · 할부금 정기수납 · 미납 회수 · 위약금)과 <b>입금 방식별</b>(계좌이체 · 가상계좌 · 수기입금) 두 줄의 카드로 집계합니다. 카드마다 [Excel] 개별 다운로드.</p>
+    <div class="hint">두 줄은 <b>같은 입금을 기준만 달리해서</b> 나눈 것이라 각 줄의 합계는 모두 총합과 같습니다. 예) 위약금 200.000 ₫를 계좌이체로 받으면 종류별로는 <b>위약금</b>, 방식별로는 <b>계좌이체 입금</b>에 각각 잡힙니다.</div>
     <div class="filter">
       <span>종류</span>
-      <select id="depType"><option value="전체">- 전체 -</option><option value="선납금">선납금</option><option value="할부금">할부금</option><option value="위약금">위약금</option></select>
+      <select id="depType"><option value="전체">- 전체 -</option><option value="선납금">선납금</option><option value="할부금 정기수납">할부금 정기수납</option><option value="미납 회수">미납 회수</option><option value="위약금">위약금</option></select>
+      <span>입금방식</span>
+      <select id="depMeth"><option value="전체">- 전체 -</option><option value="계좌이체">계좌이체</option><option value="가상계좌">가상계좌</option><option value="수기입금">수기입금</option></select>
       <span>조회기간</span>
       <input type="date" id="depFrom" value="2026-01-01"> ~ <input type="date" id="depTo" value="2026-12-31">
       <span>계약상태</span>
@@ -575,6 +591,7 @@
       <button class="b-pri" onclick="renderRptDeposit()">조회</button>
       <button class="b-amber" onclick="downloadDeposit()">입금현황 엑셀</button>
     </div>
+    <div id="depCards"></div>
     <div class="muted" style="margin-bottom:6px">[Total: <span id="depTotal">0</span>건] · 입금액 합계 <b><span id="depSum">0</span></b> VND · 단위: VND</div>
     <table class="list" id="rptDepositTable"></table>
   </div>
@@ -1109,6 +1126,9 @@ const VI_TEXT={
 '17-6.3 리포트 (입금현황)':'17-6.3 Báo cáo (tình trạng nộp tiền)',
 '종류':'Loại','조회기간':'Thời gian tra cứu','계약상태':'Trạng thái hợp đồng',
 '조회':'Tra cứu','입금현황 엑셀':'Xuất excel tình trạng nộp tiền',
+'할부금 정기수납':'Thu trả góp định kỳ','미납 회수':'Thu hồi nợ quá hạn','수기입금':'Nộp tiền thủ công',
+'계좌이체 입금':'Nộp qua chuyển khoản','가상계좌 임의입금':'Nộp tự do qua tài khoản ảo','수기입금 등록':'Ghi nhận nộp tiền thủ công',
+'총합':'Tổng cộng','입금 종류별':'Theo loại nộp tiền','입금 방식별':'Theo hình thức nộp tiền','(후속 개발)':'(phát triển sau)',
 '최초 산정 위약금':'Phí phạt tính ban đầu','할인 금액':'Số tiền giảm','최종 위약금':'Phí phạt cuối cùng',
 '미납 안내 SMS 발송':'Gửi SMS thông báo nợ quá hạn',
 '미납담당자로 로그인 후 [상담] → 위약금 협의·수정(최초/할인/최종) 입력 → 이력 기록됩니다.':
@@ -3079,7 +3099,8 @@ function renderRefund(){
     h+=`<tr><td>${r.no}</td><td class="name">${r.name}${r.penaltyOver?'<div><span class="b s-canc">60일 초과 · 관리자 승인</span></div>':''}</td><td>${r.product}</td>
       <td>${D(pc.deliveredDate)}<div class="muted">D+${pc.days}</div></td>
       <td><b>${won(r.penaltyFinal!=null?r.penaltyFinal:(r.penaltyBase||0))}</b></td>
-      <td><input type="number" class="tmPen" data-no="${r.no}" placeholder="입금액(VND)" style="width:130px"></td>
+      <td><input type="number" class="tmPen" data-no="${r.no}" placeholder="입금액(VND)" style="width:130px">
+        <div style="margin-top:3px"><select class="tmMeth" data-no="${r.no}" style="width:130px"><option value="계좌이체">계좌이체</option><option value="수기입금">수기입금</option></select></div></td>
       <td><input type="text" class="tmSer" data-no="${r.no}" placeholder="시리얼번호" style="width:150px"></td>
       <td><button class="b-red" onclick="doTerminate(${r.no})">해지 승인</button></td></tr>`;
   });
@@ -3103,6 +3124,7 @@ function doTerminate(no){
   r.history=r.history||[];
   if(pen){
     r.penaltyPaid=pen; r.penaltyDate=new Date().toISOString().slice(0,10);
+    const pm=document.querySelector('.tmMeth[data-no="'+no+'"]'); r.penaltyMethod=pm?pm.value:'계좌이체';
     r.path='위약금'; r.cust='해지(위약금)';
     logProc('term',r,'해지(위약금)',{penaltyPaid:pen,penaltyFinal:r.penaltyFinal,delivered:deliveredDateOf(r)});
     r.history.push({meta:`[${now} · <span>${role}</span> · <span>해지</span>(<span>위약금</span>)]`,
@@ -3235,7 +3257,9 @@ function ensureCycles(c){
   /* 기존 납부분을 입금 히스토리 초기값으로 옮겨둔다 (이후 입금은 여기에 누적) */
   c.deposits = Array.from({length:c.paidCount},(_,k)=>
     ({date:addMonths(c.payStart,k), amount:c.monthly, exempt:0, cycles:[k+1],
-      alloc:[{i:k+1, amt:c.monthly, ex:0}], rest:0, from:k+1})).reverse();
+      alloc:[{i:k+1, amt:c.monthly, ex:0}], rest:0, from:k+1,
+      /* 샘플 입금방식 — 가상계좌 고객은 가상계좌, 그 외는 계좌이체 위주에 일부 수기입금 */
+      method:c.depositMethod==='가상계좌'?'가상계좌':((c.no+k)%4===0?'수기입금':'계좌이체')})).reverse();
   syncColCounts(c);        // 목록·엑셀이 쓰는 미납횟수를 약정일 기준으로 맞춘다
   return c.cycles;
 }
@@ -3363,7 +3387,7 @@ function saveDepositEdit(idx){
   dp.cancelled={by:role, at:nowStamp(), reason:'정정'};
   const r=allocDeposit(c,a,e,dp.from||0);
   c.deposits.unshift({date:d, amount:a, exempt:e, cycles:r.filled, alloc:r.alloc,
-                      rest:r.restAmount, from:dp.from||0, note:'정정', by:role, at:nowStamp()});
+                      rest:r.restAmount, from:dp.from||0, method:dp.method, note:'정정', by:role, at:nowStamp()});
   const st=colStats(c);
   closeModal(); renderDetail(); renderMembers();
   toast(L('입금 정정 완료 — '+won(a)+' VND'+(e?' · 감면 '+won(e):'')+' · 남은 미납 '+won(st.short)+' VND',
@@ -3372,13 +3396,13 @@ function saveDepositEdit(idx){
 /* 입금 내역 표 (개별 상세) */
 function depositListHTML(c){
   const list=c.deposits||[];
-  let h=`<table class="list"><thead><tr><th style="width:110px">입금일</th><th>입금액(VND)</th><th>감면(VND)</th>
+  let h=`<table class="list"><thead><tr><th style="width:110px">입금일</th><th>입금액(VND)</th><th>감면(VND)</th><th>입금방식</th>
     <th>충당 회차</th><th style="width:110px">상태</th><th style="width:150px">처리</th></tr></thead><tbody>`;
-  if(!list.length) h+=`<tr><td colspan="6" class="muted">입금 내역이 없습니다</td></tr>`;
+  if(!list.length) h+=`<tr><td colspan="7" class="muted">입금 내역이 없습니다</td></tr>`;
   list.forEach((d,i)=>{
     const cx=d.cancelled;
     h+=`<tr${cx?' style="opacity:.55"':''}>
-      <td>${D(d.date)}</td><td><b>${won(d.amount)}</b></td><td>${won(d.exempt||0)}</td>
+      <td>${D(d.date)}</td><td><b>${won(d.amount)}</b></td><td>${won(d.exempt||0)}</td><td>${d.method||'-'}</td>
       <td>${(d.cycles||[]).map(n=>ordCycle(n)).join(', ')||'<span class="muted">충당 없음</span>'}</td>
       <td>${cx?'<span class="b s-end">'+cx.reason+'됨</span>':(d.note?'<span class="b s-ship">'+d.note+'</span>':'<span class="b s-done">정상</span>')}</td>
       <td>${cx?'<span class="muted">'+cx.by+' · '+cx.at+'</span>'
@@ -3595,6 +3619,8 @@ function openDepositModal(){
         <tr><th>감면 금액(VND)</th><td><input type="number" id="dpEx" value="0" oninput="previewDeposit()" style="width:180px">
             <span class="muted">감면도 충당액으로 잡힙니다</span></td></tr>
         <tr><th>입금일</th><td><input type="date" id="dpDate" value="${todayISO()}"></td></tr>
+        <tr><th>입금방식</th><td><select id="dpMeth"><option value="계좌이체">계좌이체</option><option value="수기입금">수기입금</option></select>
+            <span class="muted">17-6.3 입금현황의 방식별 카드 기준 (가상계좌는 후속 개발 시 자동 반영)</span></td></tr>
       </table>
       <div class="sec">충당 미리보기 <span class="muted">(1회차부터 순서대로)</span></div>
       <div id="dpPrev" class="hint"></div>
@@ -3637,6 +3663,8 @@ function openCycleDeposit(i){
         <tr><th>감면 금액(VND)</th><td><input type="number" id="dpEx" value="0" oninput="previewDeposit()" style="width:180px">
             <span class="muted">감면도 충당액으로 잡힙니다</span></td></tr>
         <tr><th>입금일</th><td><input type="date" id="dpDate" value="${todayISO()}"></td></tr>
+        <tr><th>입금방식</th><td><select id="dpMeth"><option value="계좌이체">계좌이체</option><option value="수기입금">수기입금</option></select>
+            <span class="muted">17-6.3 입금현황의 방식별 카드 기준 (가상계좌는 후속 개발 시 자동 반영)</span></td></tr>
       </table>
       <div class="sec">충당 미리보기 <span class="muted">(이 회차부터 순서대로)</span></div>
       <div id="dpPrev" class="hint"></div>
@@ -3735,8 +3763,9 @@ function saveDeposit(){
   if(!a&&!e){toast('입금금액 또는 감면 금액을 입력하세요');return;}
   const r=allocDeposit(c,a,e,from);
   c.deposits=c.deposits||[];
+  const mEl=document.getElementById('dpMeth');
   c.deposits.unshift({date:d, amount:a, exempt:e, cycles:r.filled, alloc:r.alloc,
-                      rest:r.restAmount, from:from, by:role, at:nowStamp()});
+                      rest:r.restAmount, from:from, method:mEl?mEl.value:'계좌이체', by:role, at:nowStamp()});
   if(d) c.lastPayDate=d;
   const st=colStats(c);
   window.__dpFrom=0;
@@ -3928,7 +3957,7 @@ function renderDetail(){
     <tbody>
       ${(c.deposits||[]).map(d=>`<tr>
         <td>${D(d.date)} 09:00</td><td>${D(d.date)}</td>
-        <td>${c.bankName} ${c.virtualAcct}</td><td>${c.depositMethod}</td>
+        <td>${c.bankName} ${c.virtualAcct}</td><td>${d.method||c.depositMethod}</td>
         <td>${won(d.amount)}</td><td>${won(d.amount)}${d.exempt?`<div class="muted"><span>감면</span> ${won(d.exempt)}</div>`:''}</td>
         <td><span class="b s-done">입금완료</span><div class="muted">${d.cycles.length?d.cycles.map(i=>ordCycle(i)).join(', '):'-'}</div></td></tr>`).join('')}
       ${(c.deposits||[]).length?'':'<tr><td colspan="7" class="muted">입금 내역이 없습니다</td></tr>'}
@@ -3945,31 +3974,46 @@ function renderRptUnpaid(){
   list.forEach(r=>h+=`<tr><td>${r.no}</td><td class="name">${r.name}</td><td>${won(r.penaltyBase||0)}</td><td>${won(r.penaltyDiscount||0)}</td><td><b>${won(r.penaltyFinal!=null?r.penaltyFinal:(r.penaltyBase||0))}</b></td><td>${badge(r.cust)}</td></tr>`);
   document.getElementById('rptUnpaidTable').innerHTML=h+'</tbody>';
 }
-/* 선납금(회원현황 선납금) + 할부금(회차별 납부) + 위약금(반품 파이프라인) 통합 입금 내역 */
+/* 17-6.3 입금현황 — 입금 1건(회차 충당분은 회차별로 쪼갬)마다 종류(type)와 방식(method)을 함께 가진다.
+   종류: 선납금 / 할부금 정기수납 / 미납 회수 / 위약금
+   방식: 계좌이체 / 가상계좌(후속 개발) / 수기입금 — 입금 등록 시 선택한 값
+   같은 입금을 두 기준으로 나눈 것이라 종류별 합계 = 방식별 합계 = 총합 */
+const DEP_KINDS=['선납금','할부금 정기수납','미납 회수','위약금'];
+const DEP_METHODS=[{v:'계좌이체',t:'계좌이체 입금'},{v:'가상계좌',t:'가상계좌 임의입금',later:true},{v:'수기입금',t:'수기입금 등록'}];
 function buildDeposits(){
   const list=[];
   COL.forEach(c=>{
+    ensureCycles(c);
+    const base={name:c.name,phone:c.phone,product:c.product,manager:c.manager,cust:c.cust,unpaid:c.unpaidCnt>0};
     // 선납금: 계약 시 1건
-    if(colNetPre(c)>0) list.push({type:'선납금',name:c.name,phone:c.phone,product:c.product,manager:c.manager,cust:c.cust,unpaid:c.unpaidCnt>0,amount:colNetPre(c),date:c.contractDate});
-    // 할부금: 납부 완료 회차별 1건
-    for(let i=0;i<c.paidCount;i++)
-      list.push({type:'할부금',name:c.name,phone:c.phone,product:c.product,manager:c.manager,cust:c.cust,unpaid:c.unpaidCnt>0,amount:c.monthly,date:addMonths(c.payStart,i)});
+    if(colNetPre(c)>0) list.push({...base,type:'선납금',method:c.preMethod||'계좌이체',amount:colNetPre(c),date:c.contractDate});
+    // 할부금: 입금 기록의 회차 충당분. 약정일이 지난 회차를 채웠으면 미납 회수, 아니면 정기수납
+    (c.deposits||[]).forEach(d=>{
+      if(d.cancelled) return;
+      const method=d.method||'계좌이체';
+      (d.alloc||[]).forEach(a=>{
+        if(!a.amt) return;
+        const due=cycDate(c,a.i);
+        list.push({...base,type:(d.date&&due&&d.date>due)?'미납 회수':'할부금 정기수납',method,amount:a.amt,date:d.date});
+      });
+      if(d.rest) list.push({...base,type:'할부금 정기수납',method,amount:d.rest,date:d.date});   // 선충당 잔액
+    });
   });
-  // 위약금: 해지(위약금)으로 종결된 건의 실제 입금액
+  // 위약금: 3-6 해지대기에서 입력한 실제 입금 위약금
   rows.forEach(r=>{
     if(r.cust==='해지(위약금)'){
-      list.push({type:'위약금',name:r.name,phone:r.phone,product:r.product,manager:'-',cust:'계약종료',unpaid:false,
+      list.push({type:'위약금',method:r.penaltyMethod||'계좌이체',name:r.name,phone:r.phone,product:r.product,manager:'-',cust:'계약종료',unpaid:false,
         amount:(r.penaltyPaid!=null?r.penaltyPaid:(r.penaltyFinal!=null?r.penaltyFinal:(r.penaltyBase||0))),
         date:r.penaltyDate||'2026-06-29'});
     }
   });
   return list;
 }
-function depFilter(){
+/* 카드 집계용 — 조회기간 · 계약상태만 적용 (종류 · 입금방식 필터는 아래 목록에만 적용) */
+function depBase(){
   const g=id=>{const e=document.getElementById(id);return e?e.value:'';};
-  const type=g('depType')||'전체', from=g('depFrom'), to=g('depTo'), status=g('depStatus')||'전체';
+  const from=g('depFrom'), to=g('depTo'), status=g('depStatus')||'전체';
   return buildDeposits().filter(d=>{
-    if(type!=='전체'&&d.type!==type) return false;
     if(from&&d.date&&d.date<from) return false;
     if(to&&d.date&&d.date>to) return false;
     if(status!=='전체'){
@@ -3979,7 +4023,12 @@ function depFilter(){
     return true;
   });
 }
-function depBadge(t){const m={'선납금':'s-done','할부금':'s-ship','위약금':'s-canc'};return '<span class="b '+(m[t]||'cons')+'">'+t+'</span>';}
+function depFilter(){
+  const g=id=>{const e=document.getElementById(id);return e?e.value:'';};
+  const type=g('depType')||'전체', meth=g('depMeth')||'전체';
+  return depBase().filter(d=>(type==='전체'||d.type===type)&&(meth==='전체'||d.method===meth));
+}
+function depBadge(t){const m={'선납금':'s-done','할부금 정기수납':'s-ship','미납 회수':'s-work','위약금':'s-canc'};return '<span class="b '+(m[t]||'cons')+'">'+t+'</span>';}
 function depStatusCell(d){
   const parts=[];
   if(d.cust==='계약중') parts.push('<span class="b s-done">계약중</span>');
@@ -3988,27 +4037,55 @@ function depStatusCell(d){
   if(d.unpaid) parts.push('<span class="b s-canc">미납</span>');
   return parts.join(' ');
 }
+function depAgg(list){
+  return {amt:list.reduce((s,d)=>s+d.amount,0), cust:new Set(list.map(d=>d.phone||d.name)).size, cnt:list.length};
+}
+function depCardHTML(title,list,dl,cls){
+  const a=depAgg(list);
+  return `<div class="${cls||'depcard'}"><div class="t">${title}</div>
+    <div class="amt">${won(a.amt)} ₫</div>
+    <div class="sub">입금고객 ${a.cust}명 · ${a.cnt}건</div>
+    <button class="b-amber" onclick="downloadDeposit(${dl})">Excel</button></div>`;
+}
+function renderDepCards(){
+  const box=document.getElementById('depCards'); if(!box)return;
+  const base=depBase();
+  const kinds=DEP_KINDS.map(k=>depCardHTML(k,base.filter(d=>d.type===k),`'type','${k}'`)).join('');
+  const meths=DEP_METHODS.map(m=>depCardHTML(m.t+(m.later?' <span class="muted">(후속 개발)</span>':''),
+    base.filter(d=>d.method===m.v),`'method','${m.v}'`,'depcard'+(m.later?' later':''))).join('');
+  box.innerHTML=`<div class="depwrap">
+    ${depCardHTML('총합',base,`'all'`,'deptotal')}
+    <div class="deprows">
+      <div class="deprow"><div class="axis">입금 종류별</div>${kinds}</div>
+      <div class="deprow"><div class="axis">입금 방식별</div>${meths}</div>
+    </div></div>`;
+}
 function renderRptDeposit(){
+  renderDepCards();
   const list=depFilter();
-  let h=`<thead><tr><th>종류</th><th>고객명</th><th>전화번호</th><th>제품</th><th>상담원</th><th>계약상태</th><th>입금액(VND)</th><th>입금일</th></tr></thead><tbody>`;
-  if(!list.length) h+=`<tr><td colspan="8" class="muted">조회된 입금 내역이 없습니다</td></tr>`;
+  let h=`<thead><tr><th>종류</th><th>입금방식</th><th>고객명</th><th>전화번호</th><th>제품</th><th>상담원</th><th>계약상태</th><th>입금액(VND)</th><th>입금일</th></tr></thead><tbody>`;
+  if(!list.length) h+=`<tr><td colspan="9" class="muted">조회된 입금 내역이 없습니다</td></tr>`;
   let sum=0;
   list.forEach(d=>{ sum+=d.amount; h+=`<tr>
-    <td>${depBadge(d.type)}</td><td class="name">${d.name}</td><td>${d.phone}</td>
+    <td>${depBadge(d.type)}</td><td>${d.method}</td><td class="name">${d.name}</td><td>${d.phone}</td>
     <td style="text-align:left">${d.product}</td><td>${d.manager}</td>
     <td>${depStatusCell(d)}</td><td><b>${won(d.amount)}</b></td><td>${d.date||'-'}</td></tr>`; });
   document.getElementById('rptDepositTable').innerHTML=h+'</tbody>';
   const t=document.getElementById('depTotal'); if(t)t.textContent=list.length;
   const s=document.getElementById('depSum'); if(s)s.textContent=won(sum);
 }
-function downloadDeposit(){
-  const list=depFilter();
+/* 인자 없음 = 화면 목록(필터 적용) 그대로 / 'all' = 총합 카드 / 'type'·'method' = 해당 카드 범위만 */
+function downloadDeposit(axis,val){
+  const list=axis==='all'?depBase()
+            :axis?depBase().filter(d=>axis==='type'?d.type===val:d.method===val)
+            :depFilter();
   if(!list.length){toast('조회된 입금 내역이 없습니다');return;}
-  const header=['종류','고객명','전화번호','제품','내부코드','상담원','계약상태','미납여부','입금액(VND)','입금일'].map(X);
-  const dr=list.map(d=>[X(d.type),d.name,d.phone,X(d.product),pkgCodeOf(d),d.manager,(d.cust==='-'?'':X(d.cust)),(d.unpaid?X('미납'):''),d.amount,d.date||'']);
-  buildAndDownloadXlsx(L('입금현황_베트남_','TinhTrangNopTien_VietNam_')+stamp()+'.xlsx',L('입금현황','TinhTrangNopTien'),header,dr);
-  toast(L('입금현황 엑셀 다운로드 — '+list.length+'건 (선납금·할부금·위약금)',
-          'Đã tải Excel tình trạng nộp tiền — '+list.length+' dòng (tiền trả trước · tiền trả góp · phí phạt)'));
+  const header=['종류','입금방식','고객명','전화번호','제품','내부코드','상담원','계약상태','미납여부','입금액(VND)','입금일'].map(X);
+  const dr=list.map(d=>[X(d.type),X(d.method),d.name,d.phone,X(d.product),pkgCodeOf(d),d.manager,(d.cust==='-'?'':X(d.cust)),(d.unpaid?X('미납'):''),d.amount,d.date||'']);
+  const tag=(axis&&axis!=='all')?'_'+val.replace(/\s/g,''):'';
+  buildAndDownloadXlsx(L('입금현황_베트남'+tag+'_','TinhTrangNopTien_VietNam_')+stamp()+'.xlsx',L('입금현황','TinhTrangNopTien'),header,dr);
+  toast(L('입금현황 엑셀 다운로드 — '+((axis&&axis!=='all')?val+' · ':'')+list.length+'건',
+          'Đã tải Excel tình trạng nộp tiền — '+list.length+' dòng'));
 }
 /* 18-2 미납콜 — 기준일자(기본 오늘)에 배정된 목록. 그날 기준으로 엑셀 다운로드 가능 */
 function overdueDate(){
