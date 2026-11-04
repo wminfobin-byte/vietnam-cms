@@ -577,11 +577,11 @@
   <!-- ===== Screen: 17-6.3 리포트(입금현황) ===== -->
   <div class="page reqscreen" id="screen-rptDeposit" style="display:none">
     <h2 class="ptitle">17-6.3 리포트 (입금현황)</h2>
-    <p class="pdesc">조회기간의 <b>모든 입금</b>을 <b>입금 종류별</b>(선납금 · 할부금 정기수납 · 미납 회수 · 위약금)과 <b>입금 방식별</b>(계좌이체 · 가상계좌 · 수기입금) 두 줄의 카드로 집계합니다. 카드마다 [Excel] 개별 다운로드.</p>
+    <p class="pdesc">조회기간의 <b>모든 입금</b>을 <b>입금 종류별</b>(선납금(1회차) · 할부금 · 위약금)과 <b>입금 방식별</b>(계좌이체 · 가상계좌 · 수기입금) 두 줄의 카드로 집계합니다. 카드마다 [Excel] 개별 다운로드.</p>
     <div class="hint">두 줄은 <b>같은 입금을 기준만 달리해서</b> 나눈 것이라 각 줄의 합계는 모두 총합과 같습니다. 예) 위약금 200.000 ₫를 계좌이체로 받으면 종류별로는 <b>위약금</b>, 방식별로는 <b>계좌이체 입금</b>에 각각 잡힙니다.</div>
     <div class="filter">
       <span>종류</span>
-      <select id="depType"><option value="전체">- 전체 -</option><option value="선납금">선납금</option><option value="할부금 정기수납">할부금 정기수납</option><option value="미납 회수">미납 회수</option><option value="위약금">위약금</option></select>
+      <select id="depType"><option value="전체">- 전체 -</option><option value="선납금">선납금(1회차)</option><option value="할부금">할부금</option><option value="위약금">위약금</option></select>
       <span>입금방식</span>
       <select id="depMeth"><option value="전체">- 전체 -</option><option value="계좌이체">계좌이체</option><option value="가상계좌">가상계좌</option><option value="수기입금">수기입금</option></select>
       <span>조회기간</span>
@@ -1126,7 +1126,7 @@ const VI_TEXT={
 '17-6.3 리포트 (입금현황)':'17-6.3 Báo cáo (tình trạng nộp tiền)',
 '종류':'Loại','조회기간':'Thời gian tra cứu','계약상태':'Trạng thái hợp đồng',
 '조회':'Tra cứu','입금현황 엑셀':'Xuất excel tình trạng nộp tiền',
-'할부금 정기수납':'Thu trả góp định kỳ','미납 회수':'Thu hồi nợ quá hạn','수기입금':'Nộp tiền thủ công',
+'선납금(1회차)':'Tiền trả trước (kỳ 1)','수기입금':'Nộp tiền thủ công',
 '계좌이체 입금':'Nộp qua chuyển khoản','가상계좌 임의입금':'Nộp tự do qua tài khoản ảo','수기입금 등록':'Ghi nhận nộp tiền thủ công',
 '총합':'Tổng cộng','입금 종류별':'Theo loại nộp tiền','입금 방식별':'Theo hình thức nộp tiền','(후속 개발)':'(phát triển sau)',
 '최초 산정 위약금':'Phí phạt tính ban đầu','할인 금액':'Số tiền giảm','최종 위약금':'Phí phạt cuối cùng',
@@ -3975,10 +3975,10 @@ function renderRptUnpaid(){
   document.getElementById('rptUnpaidTable').innerHTML=h+'</tbody>';
 }
 /* 17-6.3 입금현황 — 입금 1건(회차 충당분은 회차별로 쪼갬)마다 종류(type)와 방식(method)을 함께 가진다.
-   종류: 선납금 / 할부금 정기수납 / 미납 회수 / 위약금
+   종류: 선납금(1회차) / 할부금 / 위약금
    방식: 계좌이체 / 가상계좌(후속 개발) / 수기입금 — 입금 등록 시 선택한 값
    같은 입금을 두 기준으로 나눈 것이라 종류별 합계 = 방식별 합계 = 총합 */
-const DEP_KINDS=['선납금','할부금 정기수납','미납 회수','위약금'];
+const DEP_KINDS=[{v:'선납금',t:'선납금(1회차)'},{v:'할부금',t:'할부금'},{v:'위약금',t:'위약금'}];
 const DEP_METHODS=[{v:'계좌이체',t:'계좌이체 입금'},{v:'가상계좌',t:'가상계좌 임의입금',later:true},{v:'수기입금',t:'수기입금 등록'}];
 function buildDeposits(){
   const list=[];
@@ -3987,16 +3987,10 @@ function buildDeposits(){
     const base={name:c.name,phone:c.phone,product:c.product,manager:c.manager,cust:c.cust,unpaid:c.unpaidCnt>0};
     // 선납금: 계약 시 1건
     if(colNetPre(c)>0) list.push({...base,type:'선납금',method:c.preMethod||'계좌이체',amount:colNetPre(c),date:c.contractDate});
-    // 할부금: 입금 기록의 회차 충당분. 약정일이 지난 회차를 채웠으면 미납 회수, 아니면 정기수납
+    // 할부금: 17-1 입금 기록 1건 = 1건 (회차 충당분 + 선충당 잔액 포함, 취소된 입금 제외)
     (c.deposits||[]).forEach(d=>{
-      if(d.cancelled) return;
-      const method=d.method||'계좌이체';
-      (d.alloc||[]).forEach(a=>{
-        if(!a.amt) return;
-        const due=cycDate(c,a.i);
-        list.push({...base,type:(d.date&&due&&d.date>due)?'미납 회수':'할부금 정기수납',method,amount:a.amt,date:d.date});
-      });
-      if(d.rest) list.push({...base,type:'할부금 정기수납',method,amount:d.rest,date:d.date});   // 선충당 잔액
+      if(d.cancelled||!d.amount) return;
+      list.push({...base,type:'할부금',method:d.method||'계좌이체',amount:d.amount,date:d.date});
     });
   });
   // 위약금: 3-6 해지대기에서 입력한 실제 입금 위약금
@@ -4028,7 +4022,7 @@ function depFilter(){
   const type=g('depType')||'전체', meth=g('depMeth')||'전체';
   return depBase().filter(d=>(type==='전체'||d.type===type)&&(meth==='전체'||d.method===meth));
 }
-function depBadge(t){const m={'선납금':'s-done','할부금 정기수납':'s-ship','미납 회수':'s-work','위약금':'s-canc'};return '<span class="b '+(m[t]||'cons')+'">'+t+'</span>';}
+function depBadge(t){const m={'선납금':'s-done','할부금':'s-ship','위약금':'s-canc'};return '<span class="b '+(m[t]||'cons')+'">'+t+'</span>';}
 function depStatusCell(d){
   const parts=[];
   if(d.cust==='계약중') parts.push('<span class="b s-done">계약중</span>');
@@ -4050,7 +4044,7 @@ function depCardHTML(title,list,dl,cls){
 function renderDepCards(){
   const box=document.getElementById('depCards'); if(!box)return;
   const base=depBase();
-  const kinds=DEP_KINDS.map(k=>depCardHTML(k,base.filter(d=>d.type===k),`'type','${k}'`)).join('');
+  const kinds=DEP_KINDS.map(k=>depCardHTML(k.t,base.filter(d=>d.type===k.v),`'type','${k.v}'`)).join('');
   const meths=DEP_METHODS.map(m=>depCardHTML(m.t+(m.later?' <span class="muted">(후속 개발)</span>':''),
     base.filter(d=>d.method===m.v),`'method','${m.v}'`,'depcard'+(m.later?' later':''))).join('');
   box.innerHTML=`<div class="depwrap">
