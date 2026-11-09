@@ -115,6 +115,8 @@
   table.xl .kind{font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:10px;white-space:nowrap}
   table.xl .kind.data{background:var(--blue-bg);color:var(--blue)}
   table.xl .kind.tpl{background:var(--amber-bg);color:var(--amber)}
+  table.xl td.own input{font:inherit;font-size:12.5px;width:100%;min-width:80px;padding:4px 7px;border:1px solid var(--line);border-radius:6px;background:#fff}
+  table.xl td.own input:focus{outline:none;border-color:var(--blue)}
   table.xllog td{font-size:12.5px}
   table.xllog .on{color:var(--green);font-weight:700}
   table.xllog .off{color:var(--red);font-weight:700}
@@ -1821,7 +1823,7 @@
         </div>
         <div class="note q" style="margin:0 0 10px"><b>저장 위치</b> 체크 상태와 로그는 <b>지금 쓰는 PC · 브라우저에만</b> 저장됨. 다른 사람 화면이나 다른 PC에는 보이지 않고, 브라우저 데이터를 지우면 함께 사라짐.</div>
         <table class="xl">
-          <thead><tr><th>전달</th><th style="width:18%">메뉴</th><th style="width:15%">버튼 · 구분</th><th>헤더 (왼쪽 → 오른쪽 순서)</th><th style="width:13%">최근 체크</th></tr></thead>
+          <thead><tr><th>전달</th><th style="width:18%">메뉴</th><th style="width:15%">버튼 · 구분</th><th>헤더 (왼쪽 → 오른쪽 순서)</th><th style="width:12%">최근 체크</th><th style="width:11%">담당자</th></tr></thead>
           <tbody id="xlBody"></tbody>
         </table>
         <div class="note" style="margin-top:8px">· <b>17-6.1 미납자현황</b>은 <a href="#s-report">13번 ③ 목록 컬럼</a>(요건서) 기준 — 프로토타입 샘플 파일은 위약금 컬럼으로 되어 있어 요건서와 다름.<br>· <b>3-4 배송 계약서 ZIP</b>은 PDF 묶음이라 목록에서 제외.</div>
@@ -1906,7 +1908,8 @@
           +'<td><a href="#'+x.go+'">'+esc(x.menu)+'</a></td>'
           +'<td>'+esc(x.btn)+'<br><span class="kind '+x.kind+'">'+(x.kind==='tpl'?'업로드 양식':'조회 데이터')+'</span> <span class="who">'+cnt+'열</span></td>'
           +'<td class="hd">'+cols+'</td>'
-          +'<td class="who">'+(st?(on?'✔ 전달 · ':'해제 · ')+esc(st.who)+'<br>'+fmt(st.at):'—')+'</td></tr>';
+          +'<td class="who">'+(st?(on?'✔ 전달 · ':'해제 · ')+esc(st.who)+'<br>'+fmt(st.at):'—')+'</td>'
+          +'<td class="own"><input data-own="'+x.id+'" value="'+esc((db.owner&&db.owner[x.id])||'')+'" placeholder="담당자"></td></tr>';
       }).join('');
       const n=XL.filter(x=>db.state[x.id]&&db.state[x.id].on).length;
       document.getElementById('xlProg').textContent=n+' / '+XL.length;
@@ -1914,6 +1917,11 @@
         ? db.log.slice().reverse().map(l=>'<tr><td>'+fmt(l.at)+'</td><td>'+esc(l.who)+'</td><td>'+esc(l.what)+'</td><td class="'+(l.on?'on':'off')+'">'+(l.on?'체크':'해제')+'</td></tr>').join('')
         : '<tr><td colspan="4" style="color:var(--gray)">아직 기록이 없습니다</td></tr>';
     }
+    /* 담당자 칸 — 입력할 때마다 저장(다시 그리지 않아 입력 중 커서 유지) */
+    document.getElementById('xlBody').addEventListener('input',e=>{
+      const el=e.target; if(!el.dataset.own)return;
+      db.owner=db.owner||{}; db.owner[el.dataset.own]=el.value; save(db);
+    });
     document.getElementById('xlBody').addEventListener('change',e=>{
       const cb=e.target; if(!cb.matches('input[type=checkbox]'))return;
       const who=whoEl.value.trim();
