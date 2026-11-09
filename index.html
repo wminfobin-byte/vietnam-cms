@@ -102,6 +102,22 @@
     padding:8px 13px;font-size:13px;margin:10px 0 0}
   .vn b{color:var(--green)}
 
+  /* 22. 엑셀 다운로드 목록 — 시스템실 헤더 전달 체크 */
+  .xl-bar{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:4px 0 10px;font-size:13.5px}
+  .xl-bar input{font:inherit;padding:5px 9px;border:1px solid var(--line);border-radius:6px;width:150px}
+  .xl-bar .prog{font-weight:700;color:var(--green)}
+  table.xl td.ck{text-align:center;width:56px}
+  table.xl td.ck input{width:18px;height:18px;cursor:pointer;accent-color:var(--green)}
+  table.xl tr.done td{background:var(--green-bg)}
+  table.xl .hd{font-size:12.5px;color:var(--sub);line-height:1.9}
+  table.xl .hd code{font-size:12px;background:#f3f5f8;border:1px solid var(--line);border-radius:4px;padding:0 5px;white-space:nowrap;color:var(--ink)}
+  table.xl .who{font-size:12px;color:var(--sub)}
+  table.xl .kind{font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:10px;white-space:nowrap}
+  table.xl .kind.data{background:var(--blue-bg);color:var(--blue)}
+  table.xl .kind.tpl{background:var(--amber-bg);color:var(--amber)}
+  table.xllog td{font-size:12.5px}
+  table.xllog .on{color:var(--green);font-weight:700}
+  table.xllog .off{color:var(--red);font-weight:700}
   table{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0}
   th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
   th{background:#f3f5f8;font-weight:700;font-size:12.5px}
@@ -199,6 +215,8 @@
     <a href="#s-stock">20-1. 4-9 재고관리</a>
     <div class="grp">DB 리스트</div>
     <a href="#s-oblist">21. 2-1 OB CALL 목록 개선</a>
+    <div class="grp">시스템실 전달</div>
+    <a href="#s-xlsx">22. 엑셀 다운로드 목록 · 헤더 전달</a>
   </nav>
 
   <main>
@@ -222,6 +240,8 @@
       <div class="card">
         <table class="uplog">
           <tr><th style="width:110px">날짜</th><th style="width:220px">메뉴</th><th>내용</th><th style="width:40px"></th></tr>
+          <tr data-go="s-xlsx"><td class="d">2026-11-09</td><td class="m">22. 엑셀 다운로드 목록</td><td><b>신규</b> — 메뉴별 엑셀 다운로드 16종의 헤더 순서 정리 + 시스템실 전달 <b>체크</b> · 체크/해제 <b>로그</b>(일시 · 처리자). 이 브라우저에만 저장</td><td class="go">→</td></tr>
+          <tr data-go="s-termwait"><td class="d">2026-11-09</td><td class="m">8. 3-6 해지대기 · 17-6.1 미납자현황</td><td>다운로드 형식 <b>CSV → 엑셀(.xlsx)</b>로 통일 — 다른 메뉴 다운로드와 같은 형식. 컬럼 변경 없음</td><td class="go">→</td></tr>
           <tr data-go="s-cod"><td class="d">2026-11-09</td><td class="m">18. COD 접수창</td><td>할부원금 설명 문구 정리 — 할부원금은 <code>상품가격 − 선납금 − 선납금 할인</code>이 아니라 <b><code>월 납부금 × 할부 개월</code></b>(+ 할인금액). 상품가격(정가)은 금액 계산에 쓰지 않음. 계산 규칙 변경 없음</td><td class="go">→</td></tr>
           <tr data-go="s-report"><td class="d">2026-11-04</td><td class="m">17-6.3 입금현황</td><td>수납 경로 카드를 <b>입금 종류별</b>(선납금(1회차) · 할부금 · 위약금)과 <b>입금 방식별</b>(계좌이체 입금 · 가상계좌 임의입금 · 수기입금 등록) <b>두 줄</b>로 분리 — 두 줄 합계 모두 총합과 같음. 엑셀에 종류 · 입금방식 컬럼</td><td class="go">→</td></tr>
           <tr data-go="s-members"><td class="d">2026-11-04</td><td class="m">12. 17-1 입금 팝업 · 3-6 해지대기 · 3-9</td><td>입금 등록 시 <b>입금방식</b>(계좌이체 / 수기입금) 기록 추가 — 17-6.3 방식별 카드 기준. 3-9는 수기 등록 패널 · 업로드 = 수기입금, [입금확인] = 계좌이체</td><td class="go">→</td></tr>
@@ -639,7 +659,7 @@
             <li><b>위약금 경로</b> — 실제 입금액은 산정액과 다를 수 있으므로 <b>입력값을 그대로 기록</b>(감액 협의·부분입금 반영). 입금액 아래에서 <b>입금방식</b>(<code>계좌이체 / 수기입금</code>)도 함께 선택 — <a href="#s-report">17-6.3 입금현황</a> 위약금 카드 · 방식별 카드에 반영. 종결 시 <b>컨텐츠 사용중단 대상으로 자동 등록</b>.</li>
             <li><b>기기반납 경로</b> — 입력한 시리얼번호를 <a href="#s-complete">4-6에서 등록된 시리얼</a>과 대조. 불일치 시 저장을 막고 경고(오배송·타 고객 단말기 방지).</li>
             <li><b>권한</b> — 관리자<span class="exp">관리 · 관리자</span> · 매니저<span class="exp">아웃바운드매니저</span> · 재무담당자<span class="exp">재무 · 관리자</span>.</li>
-            <li><b>다운로드</b> — [위약금 산정내역 CSV] : 최초 산정 위약금 · 할인 금액 · 최종 위약금 · <b>실제 입금 위약금</b> · 고객상태 컬럼 포함.</li>
+            <li><b>다운로드</b> — [위약금 산정내역 엑셀](.xlsx) : 최초 산정 위약금 · 할인 금액 · 최종 위약금 · <b>실제 입금 위약금</b> · 고객상태 컬럼 포함.</li>
           </ol>
           <div class="note new" style="background:var(--green-bg);border-left-color:var(--green)"><b style="color:var(--green)">컨텐츠 사용중단 — CMS는 "대상 등록"까지만</b> 위약금으로 해지 종결된 건을 <b>컨텐츠 사용중단 대상 목록에 자동으로 올리고</b>, <b>실제 차단은 시스템실에 요청</b>해 처리함(현행과 동일). CMS가 학습 시스템을 직접 제어하지 않음.<br />
             <b>미납으로 인한 학습 차단은 이번 범위가 아님</b> — 지금처럼 건별로 시스템실에 개별 요청함. 따라서 CMS에 <b>미납 n회 자동차단 같은 규칙은 넣지 않음</b>.<br />
@@ -753,7 +773,7 @@
             <li><b>고객 기납부액</b> — <b>선납금 + 납부한 할부금</b> 합계(<a href="#s-members">17-1 회원현황</a> 누적납부금액과 동일 값). 감면액은 실제로 받은 돈이 아니므로 제외.</li>
             <li><b>기납부액이 총액을 넘는 경우</b> — 청구액 <code>0</code>으로 처리. <b>초과분 환불은 하지 않음</b>(환불 프로세스 없음).</li>
             <li><b>미납 회차가 있어도 별도로 청구하지 않음</b> — 미납금은 위약금 총액에 <b>흡수</b>됨. 예: 월납 990.000 × 6회차 경과인데 3회차만 납부했어도, 미납 2.970.000을 따로 받지 않고 위 산식만 적용.</li>
-            <li><b>조정(할인)</b> — 미납담당자 · 매니저가 협의로 감액한 금액. 최초/할인/최종 3개 값을 모두 기록해 <a href="#s-termwait">8번 CSV</a> · <a href="#s-overdue">18-2 엑셀</a>에 그대로 출력.</li>
+            <li><b>조정(할인)</b> — 미납담당자 · 매니저가 협의로 감액한 금액. 최초/할인/최종 3개 값을 모두 기록해 <a href="#s-termwait">8번 엑셀</a> · <a href="#s-overdue">18-2 엑셀</a>에 그대로 출력.</li>
           </ul>
 
           <h3 style="font-size:14px">해지 방식별 적용</h3>
@@ -774,7 +794,7 @@
           <ol class="req">
             <li><b>60일 초과 예외 승인</b> — 기준액 5.000.000 ₫를 기본값으로 띄우되 <b>관리자가 금액을 직접 수정 가능</b>. 0원 처리도 허용하며, 사유를 상담내용에 기록.</li>
             <li><b>부분 입금(분할)도 [해지 승인]으로 종결 가능</b> — 3-6에서 <b>실제 입금받은 금액</b>을 그대로 입력하면 최종 산정액보다 적어도 종결됨. 완납을 강제하지 않음.<br />
-              단, <b>산정액보다 적으면 저장 전 확인 문구</b>를 띄우고(진행은 가능), 차액을 <code>미회수액</code>으로 기록해 <a href="#s-termwait">위약금 산정내역 CSV</a>에 남김.</li>
+              단, <b>산정액보다 적으면 저장 전 확인 문구</b>를 띄우고(진행은 가능), 차액을 <code>미회수액</code>으로 기록해 <a href="#s-termwait">위약금 산정내역 엑셀</a>에 남김.</li>
             <li><b>초과 입금</b>도 그대로 기록 — 입력값을 그대로 저장하고 별도 환불 처리 없음.</li>
           </ol>
           <div class="note">요약: <b>계산은 시스템이, 결정은 사람이</b>. 시스템은 기본값 제시 + 이력 기록만 하고, 금액 자체로 진행을 막지 않음.</div>
@@ -1789,6 +1809,31 @@
 
     </section>
 
+    <!-- 22. 엑셀 다운로드 목록 -->
+    <section id="s-xlsx">
+      <h2><span class="num">22</span> 엑셀 다운로드 목록 — 시스템실 헤더 전달 체크</h2>
+      <p class="lead">메뉴별 엑셀 다운로드 파일과 <b>헤더(컬럼) 순서</b>. 시스템실에 헤더값을 전달하면 <b>전달</b> 칸을 체크 — 체크 · 해제할 때마다 아래 로그에 <b>일시 · 처리자</b>가 남음.</p>
+
+      <div class="card">
+        <div class="xl-bar">
+          <label>처리자 이름 <input id="xlWho" placeholder="이름 입력" /></label>
+          <span>전달 완료 <span class="prog" id="xlProg">0 / 0</span></span>
+        </div>
+        <div class="note q" style="margin:0 0 10px"><b>저장 위치</b> 체크 상태와 로그는 <b>지금 쓰는 PC · 브라우저에만</b> 저장됨. 다른 사람 화면이나 다른 PC에는 보이지 않고, 브라우저 데이터를 지우면 함께 사라짐.</div>
+        <table class="xl">
+          <thead><tr><th>전달</th><th style="width:18%">메뉴</th><th style="width:15%">버튼 · 구분</th><th>헤더 (왼쪽 → 오른쪽 순서)</th><th style="width:13%">최근 체크</th></tr></thead>
+          <tbody id="xlBody"></tbody>
+        </table>
+        <div class="note" style="margin-top:8px">· <b>17-6.1 미납자현황</b>은 <a href="#s-report">13번 ③ 목록 컬럼</a>(요건서) 기준 — 프로토타입 샘플 파일은 위약금 컬럼으로 되어 있어 요건서와 다름.<br>· <b>3-4 배송 계약서 ZIP</b>은 PDF 묶음이라 목록에서 제외.</div>
+
+        <h3 style="font-size:14px;margin-top:16px">체크 로그 <span style="font-weight:400;font-size:12px;color:var(--sub)">최신순</span></h3>
+        <table class="xllog">
+          <thead><tr><th style="width:150px">일시</th><th style="width:110px">처리자</th><th>메뉴 · 파일</th><th style="width:70px">동작</th></tr></thead>
+          <tbody id="xlLog"></tbody>
+        </table>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -1806,6 +1851,82 @@
     }});
   },{rootMargin:'-20% 0px -70% 0px'});
   document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+  /* 22. 엑셀 다운로드 목록 — 체크 상태 · 로그는 이 브라우저(localStorage)에만 저장 */
+  (function(){
+    const XL=[
+      {id:'db',  menu:'1-2 고객관리 (DB 리스트)', go:'s-intake', btn:'DB 리스트 엑셀 (관리자)', kind:'data',
+        h:['번호','주문키','고객명','전화번호','접수제품','내부코드','결제방식','선납금','선납금할인','선납금추가할인','실선납금','선납금추가할인사유','총액','상담상태','고객상태','계약서 재출력']},
+      {id:'ob',  menu:'2-1 고객상담 — OB CALL 목록', go:'s-oblist', btn:'화면다운로드', kind:'data',
+        h:['No','OB명','분배일','유입일','고객명','고객전화번호','오더일','접수 제품','상담상태','상담이력수','고객상태']},
+      {id:'pay', menu:'3-3 결제 내역 확인', go:'s-approve', btn:'화면다운로드', kind:'data',
+        h:['처리일시','처리구분','번호','주문키','고객명','제품','결제','결제금액(VND)','처리 내용','처리자']},
+      {id:'dlv', menu:'3-5 배송 내역 확인', go:'s-deliver', btn:'화면다운로드', kind:'data',
+        h:['처리일시','처리구분','번호','주문키','고객명','제품','결제','계약서 ZIP','처리 내용','처리자']},
+      {id:'pen', menu:'3-6 해지대기', go:'s-termwait', btn:'위약금 산정내역 엑셀', kind:'data',
+        h:['번호','고객명','경로','최초 산정 위약금','할인 금액','최종 위약금','실제 입금 위약금','고객상태']},
+      {id:'term',menu:'3-7 해지 내역 확인', go:'s-termwait', btn:'화면다운로드', kind:'data',
+        h:['처리일시','처리구분','번호','주문키','고객명','제품','배송완료일','최종 산정 위약금(VND)','실제 입금 위약금(VND)','반납 시리얼번호','처리 내용','처리자']},
+      {id:'stk', menu:'4-9 재고관리', go:'s-stock', btn:'화면다운로드', kind:'data',
+        h:['번호','S/N','상태','변경일','현재 고객','주문키','출고 횟수']},
+      {id:'col', menu:'17-1 수금관리 (회원현황)', go:'s-members', btn:'수금현황 엑셀 (베트남)', kind:'data',
+        h:['순번','vendor','효성NO','이름','경과회차','면제회차수','전화번호','입금방식','할부기간','약정일','최초결제일','약정만료일','월납부금','선납금','선납금할인','선납금추가할인','실선납금','선납금추가할인사유','월납총금액','제품총금액','경과금액(경과회차*월납금)','최초연체발생일','미납횟수','잔여금','미납원금','미납총액','제품명','내부코드','대표사은품','입금은행','가상계좌','입금자명','회원구분','유형','결제등록일','결제기간','계약담당자','누적납부금액','감면조정금액','2회차내용증명','연체등록내용증명','추심등록','연체정보등록','개인회생','최근회수일','시효도과','시효임박','기기반납','사고채권','금지명령'],
+        tail:'1회[날짜] · 1회[금액] … 60회[날짜] · 60회[금액] (120열)', tailN:120, end:['브랜드명']},
+      {id:'raw', menu:'17-1 수금관리 (회원현황)', go:'s-members', btn:'주마감 RAW 엑셀 (베트남)', kind:'data',
+        h:['고객번호','이름','경과회차','면제회차수','전화번호','입금방식','할부기간','약정일','최초결제일','약정만료일','월납부금','선납금','선납금할인','선납금추가할인','실선납금','선납금추가할인사유','감면조정금','월납총금액','제품총금액','경과금액(경과회차*월납금)','최초연체발생일','미납횟수','잔여금','미납원금','미납총액','제품명','내부코드','대표사은품','입금은행','결제등록일(계약일)','가상계좌','입금자명','계약담당자','누적납부금액','2회차내용증명','연체등록내용증명','추심등록','연체정보등록','개인회생','최근회수일','시효도과','시효임박','기기반납','사고채권','금지명령'],
+        tail:'1회[금액] … 60회[금액] (60열) → 1회[날짜] … 60회[날짜] (60열)', tailN:120, end:['브랜드','사용대차 소유권이전']},
+      {id:'unp', menu:'17-6.1 리포트 (미납자현황)', go:'s-report', btn:'관리용 Excel · 화면 엑셀', kind:'data',
+        h:['순번','미납횟수','경과회차','총미납금','최초미납발생','회원명','회원번호','전화번호','구매제품','내부코드','입금방식','가상계좌번호','입금은행','상담원','결제시작일','약정일','월납부금']},
+      {id:'dep', menu:'17-6.3 리포트 (입금현황)', go:'s-report', btn:'입금현황 엑셀 · 카드별 [Excel]', kind:'data',
+        h:['종류','입금방식','고객명','전화번호','제품','내부코드','상담원','계약상태','미납여부','입금액(VND)','입금일']},
+      {id:'ovd', menu:'18-2 미납콜 상담', go:'s-overdue', btn:'당일 미납콜 엑셀', kind:'data',
+        h:['기준일자','번호','고객명','전화번호','구매제품','내부코드','최초 산정 위약금','할인 금액','최종 위약금','고객상태']},
+      {id:'tpre',menu:'3-9 선납금 입금', go:'s-complete', btn:'양식 다운로드', kind:'tpl', h:['구분','고객키']},
+      {id:'tser',menu:'4-6 시리얼번호 업로드', go:'s-complete', btn:'양식 다운로드', kind:'tpl', h:['주문키','시리얼']},
+      {id:'tstk',menu:'4-9 재고관리 (단말기 등록)', go:'s-stock', btn:'양식 다운로드', kind:'tpl', h:['S/N']},
+      {id:'tva', menu:'3-11 가상계좌 / 금액 양식 업로드 (후속)', go:'s-upload', btn:'양식 다운로드', kind:'tpl', h:['구분','가상계좌','금액','입금일']}
+    ];
+    const KEY='vncms_xlsx_check_v1', WHO='vncms_xlsx_who';
+    const load=()=>{try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&v.state&&v.log)return v;}catch(e){}return {state:{},log:[]};};
+    const save=d=>{try{localStorage.setItem(KEY,JSON.stringify(d));return true;}catch(e){return false;}};
+    let db=load();
+    const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const pad=n=>String(n).padStart(2,'0');
+    const fmt=t=>{const d=new Date(t);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());};
+    const whoEl=document.getElementById('xlWho');
+    try{whoEl.value=localStorage.getItem(WHO)||'';}catch(e){}
+    whoEl.addEventListener('change',()=>{try{localStorage.setItem(WHO,whoEl.value.trim());}catch(e){}});
+    function render(){
+      document.getElementById('xlBody').innerHTML=XL.map(x=>{
+        const st=db.state[x.id], on=!!(st&&st.on);
+        const cols=x.h.map((c,i)=>'<code>'+(i+1)+'. '+esc(c)+'</code>').join(' ')
+          +(x.tail?' <code>'+esc(x.tail)+'</code>':'')
+          +(x.end?' '+x.end.map(c=>'<code>'+esc(c)+'</code>').join(' '):'');
+        const cnt=x.h.length+(x.tailN||0)+(x.end?x.end.length:0);
+        return '<tr class="'+(on?'done':'')+'"><td class="ck"><input type="checkbox" data-id="'+x.id+'"'+(on?' checked':'')+' title="시스템실 헤더 전달 완료"></td>'
+          +'<td><a href="#'+x.go+'">'+esc(x.menu)+'</a></td>'
+          +'<td>'+esc(x.btn)+'<br><span class="kind '+x.kind+'">'+(x.kind==='tpl'?'업로드 양식':'조회 데이터')+'</span> <span class="who">'+cnt+'열</span></td>'
+          +'<td class="hd">'+cols+'</td>'
+          +'<td class="who">'+(st?(on?'✔ 전달 · ':'해제 · ')+esc(st.who)+'<br>'+fmt(st.at):'—')+'</td></tr>';
+      }).join('');
+      const n=XL.filter(x=>db.state[x.id]&&db.state[x.id].on).length;
+      document.getElementById('xlProg').textContent=n+' / '+XL.length;
+      document.getElementById('xlLog').innerHTML=db.log.length
+        ? db.log.slice().reverse().map(l=>'<tr><td>'+fmt(l.at)+'</td><td>'+esc(l.who)+'</td><td>'+esc(l.what)+'</td><td class="'+(l.on?'on':'off')+'">'+(l.on?'체크':'해제')+'</td></tr>').join('')
+        : '<tr><td colspan="4" style="color:var(--gray)">아직 기록이 없습니다</td></tr>';
+    }
+    document.getElementById('xlBody').addEventListener('change',e=>{
+      const cb=e.target; if(!cb.matches('input[type=checkbox]'))return;
+      const who=whoEl.value.trim();
+      if(!who){cb.checked=!cb.checked;alert('처리자 이름을 먼저 입력하세요.');whoEl.focus();return;}
+      try{localStorage.setItem(WHO,who);}catch(e){}
+      const x=XL.find(v=>v.id===cb.dataset.id), at=Date.now();
+      db.state[x.id]={on:cb.checked,who,at};
+      db.log.push({id:x.id,what:x.menu+' — '+x.btn,on:cb.checked,who,at});
+      if(!save(db))alert('이 브라우저에서는 저장할 수 없어 새로고침하면 사라집니다.');
+      render();
+    });
+    render();
+  })();
   /* 업데이트 기록 행 클릭 → 해당 메뉴로 이동 + 잠깐 강조 */
   document.querySelectorAll('table.uplog tr[data-go]').forEach(tr=>{
     tr.addEventListener('click',()=>{
