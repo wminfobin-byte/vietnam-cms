@@ -466,7 +466,7 @@
     <h2 class="ptitle">3-6 해지대기</h2>
     <p class="pdesc">해지 접수된 <b>해지대기</b> 건을 개별로 <b>해지 승인</b>해 종결합니다. 위약금을 <b>실제 입금받은 금액</b>으로 입력하거나, 반납된 단말기 <b>시리얼번호</b>를 입력하고 [해지]를 누릅니다. 권한: <b>관리자 / 매니저 / 재무담당자</b>.</p>
     <div class="hint">접수 단계에서는 위약금·기기반납을 <b>선택하지 않습니다</b>. 이 화면에서 <b>둘 중 하나만 입력</b>하면 그것이 곧 해지 방식이 됩니다 — 위약금 입금액 입력 → <b>해지(위약금)</b>, 시리얼번호 입력 → <b>해지(기기반납)</b>. 위약금 경로로 종결되면 <b>컨텐츠 사용중단 대상</b>으로 자동 등록됩니다(실제 차단은 시스템실에 요청). <b>미납으로 인한 학습 차단은 CMS 범위가 아니며</b> 지금처럼 건별로 시스템실에 요청합니다.</div>
-    <div style="margin-bottom:10px"><button class="b-amber" onclick="downloadPenaltyCSV()">위약금 산정내역 다운로드 (CSV)</button> <span class="muted">최초 산정 위약금 · 할인 금액 · 최종 위약금 컬럼 포함</span></div>
+    <div style="margin-bottom:10px"><button class="b-amber" onclick="downloadPenaltyExcel()">위약금 산정내역 엑셀</button> <span class="muted">최초 산정 위약금 · 할인 금액 · 최종 위약금 컬럼 포함</span></div>
     <table class="list" id="refundTable"></table>
   </div>
 
@@ -570,7 +570,7 @@
   <div class="page reqscreen" id="screen-rptUnpaid" style="display:none">
     <h2 class="ptitle">17-6.1 리포트 (미납자현황)</h2>
     <p class="pdesc">위약금 <b>미납</b> 고객 현황 (위약금 미입금 · 협의 단계). 최초/할인/최종 위약금 포함.</p>
-    <div style="margin-bottom:10px"><button class="b-amber" onclick="downloadRpt('unpaid')">미납자현황 다운로드 (CSV)</button></div>
+    <div style="margin-bottom:10px"><button class="b-amber" onclick="downloadRpt('unpaid')">미납자현황 엑셀</button></div>
     <table class="list" id="rptUnpaidTable"></table>
   </div>
 
@@ -1065,7 +1065,7 @@ const VI_TEXT={
 '구분 :':'Phân loại :','고객키 :':'Mã khách hàng :','입금액 :':'Số tiền nộp :',
 '선택 건 입금처리':'Xử lý nộp tiền cho mục đã chọn','입금확인':'Xác nhận nộp tiền',
 '선택 건 계약완료 처리':'Xử lý hoàn tất hợp đồng cho mục đã chọn',
-'위약금 산정내역 다운로드 (CSV)':'Tải bảng tính phí phạt (CSV)',
+'위약금 산정내역 엑셀':'Excel bảng tính phí phạt',
 '최초 산정 위약금 · 할인 금액 · 최종 위약금 컬럼 포함':
  'Bao gồm các cột phí phạt tính ban đầu · số tiền giảm · phí phạt cuối cùng',
 '가상계좌 :':'Tài khoản ảo :','금액 :':'Số tiền :','입금일 :':'Ngày nộp tiền :','숫자만':'Chỉ nhập số',
@@ -1122,7 +1122,7 @@ const VI_TEXT={
 
 /* ── 리포트 ────────────────────────────────────────────────── */
 '17-6.1 리포트 (미납자현황)':'17-6.1 Báo cáo (Tình trạng khách chưa nộp phí phạt)',
-'미납자현황 다운로드 (CSV)':'Xuất excel tình trạng khách chưa nộp phí phạt (CSV)',
+'미납자현황 엑셀':'Excel tình trạng khách chưa nộp phí phạt',
 '17-6.3 리포트 (입금현황)':'17-6.3 Báo cáo (tình trạng nộp tiền)',
 '종류':'Loại','조회기간':'Thời gian tra cứu','계약상태':'Trạng thái hợp đồng',
 '조회':'Tra cứu','입금현황 엑셀':'Xuất excel tình trạng nộp tiền',
@@ -1345,7 +1345,7 @@ const VI_TEXT={
 '고객키와 입금액을 입력하세요':'Vui lòng nhập mã khách hàng và số tiền nộp',
 '선납금 입금 업로드 양식 다운로드 (구분·고객키·입금액)':'Đã tải biểu mẫu nộp tiền trả trước (phân loại · mã khách hàng · số tiền nộp)',
 '위약금 데이터가 없습니다':'Không có dữ liệu phí phạt',
-'위약금 산정내역 CSV 다운로드 — 최초/할인/최종 컬럼 포함':'Đã tải CSV bảng tính phí phạt — bao gồm cột ban đầu/giảm giá/cuối cùng',
+'위약금 산정내역 엑셀 다운로드 — 최초/할인/최종 컬럼 포함':'Đã tải Excel bảng tính phí phạt — bao gồm cột ban đầu/giảm giá/cuối cùng',
 '가상계좌와 금액을 입력하세요':'Vui lòng nhập tài khoản ảo và số tiền',
 '파일 파싱 완료 — 2건 미리보기':'Phân tích tệp hoàn tất — xem trước 2 dòng',
 '양식(.xlsx) 다운로드 — 컬럼: 구분(위약금/할부금)·가상계좌·금액·입금일':
@@ -3146,16 +3146,13 @@ function doTerminate(no){
   }
   renderList(); renderRefund();
 }
-function downloadPenaltyCSV(){
+function downloadPenaltyExcel(){
   const list=rows.filter(r=>r.path==='위약금'||r.penaltyFinal!=null);
   if(!list.length){toast('위약금 데이터가 없습니다');return;}
   const head=['번호','고객명','경로','최초 산정 위약금','할인 금액','최종 위약금','실제 입금 위약금','고객상태'].map(X);
-  const lines=[head.join(',')];
-  list.forEach(r=>lines.push([r.no,'"'+r.name+'"',X(r.path||''),r.penaltyBase!=null?r.penaltyBase:'',r.penaltyDiscount!=null?r.penaltyDiscount:0,r.penaltyFinal!=null?r.penaltyFinal:(r.penaltyBase||''),r.penaltyPaid!=null?r.penaltyPaid:'',X(displayState(r))].join(',')));
-  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=L('위약금_산정내역.csv','BangTinhPhiPhat.csv');
-  document.body.appendChild(a);a.click();a.remove();
-  toast('위약금 산정내역 CSV 다운로드 — 최초/할인/최종 컬럼 포함');
+  const data=list.map(r=>[r.no,r.name,X(r.path||''),r.penaltyBase!=null?r.penaltyBase:'',r.penaltyDiscount!=null?r.penaltyDiscount:0,r.penaltyFinal!=null?r.penaltyFinal:(r.penaltyBase||''),r.penaltyPaid!=null?r.penaltyPaid:'',X(displayState(r))]);
+  buildAndDownloadXlsx(L('위약금_산정내역_','BangTinhPhiPhat_')+stamp()+'.xlsx',L('위약금산정내역','BangTinhPhiPhat'),head,data);
+  toast(L('위약금 산정내역 엑셀 다운로드 — 최초/할인/최종 컬럼 포함','Đã tải Excel bảng tính phí phạt — bao gồm cột ban đầu/giảm giá/cuối cùng'));
 }
 
 /* ================= 17 수금관리 / 18 미납관리 ================= */
@@ -4112,17 +4109,14 @@ function downloadRpt(kind){
   const list=rows.filter(r=>isUnpaid? r.cust==='해지대기' : r.cust==='해지(위약금)');
   if(!list.length){toast('대상 데이터가 없습니다');return;}
   const head=(isUnpaid?['번호','고객명','최초 산정 위약금','할인 금액','최종 위약금','상태']:['번호','고객명','최종 위약금','입금','상태']).map(X);
-  const lines=[head.join(',')];
-  list.forEach(r=>{
+  const data=list.map(r=>{
     const fin=r.penaltyFinal!=null?r.penaltyFinal:(r.penaltyBase||0);
-    lines.push((isUnpaid?[r.no,'"'+r.name+'"',r.penaltyBase||0,r.penaltyDiscount||0,fin,X(r.cust)]:[r.no,'"'+r.name+'"',fin,X('입금완료'),X(r.cust)]).join(','));
+    return isUnpaid?[r.no,r.name,r.penaltyBase||0,r.penaltyDiscount||0,fin,X(r.cust)]:[r.no,r.name,fin,X('입금완료'),X(r.cust)];
   });
-  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
-  const fname=isUnpaid?L('미납자현황','TinhTrangKhachNoQuaHan'):L('입금현황','TinhTrangNopTien');
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname+'.csv';
-  document.body.appendChild(a);a.click();a.remove();
-  toast(L((isUnpaid?'미납자현황':'입금현황')+' CSV 다운로드',
-          'Đã tải CSV '+(isUnpaid?'tình trạng khách chưa nộp phí phạt':'tình trạng nộp tiền')));
+  const fname=isUnpaid?L('미납자현황_','TinhTrangKhachNoQuaHan_'):L('입금현황_','TinhTrangNopTien_');
+  buildAndDownloadXlsx(fname+stamp()+'.xlsx',isUnpaid?L('미납자현황','KhachNoQuaHan'):L('입금현황','TinhTrangNopTien'),head,data);
+  toast(L((isUnpaid?'미납자현황':'입금현황')+' 엑셀 다운로드 — '+list.length+'건',
+          'Đã tải Excel '+(isUnpaid?'tình trạng khách chưa nộp phí phạt':'tình trạng nộp tiền')+' — '+list.length+' dòng'));
 }
 
 /* ================= upload screen ================= */
