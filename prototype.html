@@ -4372,8 +4372,9 @@ function contractInit(r){
   return r._ct;
 }
 function openContract(r){ window.__ct=r; contractInit(r); showScreen('contract'); }
-/* 할부원금은 상담원이 직접 입력한 값이다(상품가격에서 역산하지 않음).
-   총액 = 선납금 + 할부원금 − 할인금액 → 이 총액에 내부코드가 매핑된다. */
+/* 할부원금 = 월 납부금 × 개월 + 할인금액 (상품가격 − 선납금 − 선납금할인으로 계산하지 않음).
+   상담원이 할부원금 또는 월 납부금 중 하나를 입력하면 나머지가 연동된다. 상품가격(정가)은 금액 계산에 쓰지 않는다.
+   총액 = 실선납금 + 할부원금 − 할인금액 → 이 총액에 내부코드가 매핑된다. */
 const principal=ct=>Math.max(0,+ct.principal||0);
 const monthlyAmt=ct=>ct.payType==='할부'?monthlyPay(principal(ct),ct.months,+ct.disc||0):0;
 function renderContract(){
