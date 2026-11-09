@@ -242,7 +242,7 @@
       <div class="card">
         <table class="uplog">
           <tr><th style="width:110px">날짜</th><th style="width:220px">메뉴</th><th>내용</th><th style="width:40px"></th></tr>
-          <tr data-go="s-xlsx"><td class="d">2026-11-09</td><td class="m">22. 엑셀 다운로드 목록</td><td><b>신규</b> — 메뉴별 엑셀 다운로드 16종의 헤더 순서 정리 + 시스템실 전달 <b>체크</b> · 체크/해제 <b>로그</b>(일시 · 처리자). 이 브라우저에만 저장</td><td class="go">→</td></tr>
+          <tr data-go="s-xlsx"><td class="d">2026-11-09</td><td class="m">22. 엑셀 다운로드 목록</td><td><b>신규</b> — 메뉴별 엑셀 다운로드 16종의 헤더 순서 정리(기본 컬럼이 정해지지 않은 1-2 DB 리스트 · 2-1 OB CALL · 17-6.3 입금현황은 <b>미정</b>) + 시스템실 전달 <b>체크</b> · 체크/해제 <b>로그</b>(일시 · 처리자). 이 브라우저에만 저장</td><td class="go">→</td></tr>
           <tr data-go="s-termwait"><td class="d">2026-11-09</td><td class="m">8. 3-6 해지대기 · 17-6.1 미납자현황</td><td>다운로드 형식 <b>CSV → 엑셀(.xlsx)</b>로 통일 — 다른 메뉴 다운로드와 같은 형식. 컬럼 변경 없음</td><td class="go">→</td></tr>
           <tr data-go="s-cod"><td class="d">2026-11-09</td><td class="m">18. COD 접수창</td><td>할부원금 설명 문구 정리 — 할부원금은 <code>상품가격 − 선납금 − 선납금 할인</code>이 아니라 <b><code>월 납부금 × 할부 개월</code></b>(+ 할인금액). 상품가격(정가)은 금액 계산에 쓰지 않음. 계산 규칙 변경 없음</td><td class="go">→</td></tr>
           <tr data-go="s-report"><td class="d">2026-11-04</td><td class="m">17-6.3 입금현황</td><td>수납 경로 카드를 <b>입금 종류별</b>(선납금(1회차) · 할부금 · 위약금)과 <b>입금 방식별</b>(계좌이체 입금 · 가상계좌 임의입금 · 수기입금 등록) <b>두 줄</b>로 분리 — 두 줄 합계 모두 총합과 같음. 엑셀에 종류 · 입금방식 컬럼</td><td class="go">→</td></tr>
@@ -1857,9 +1857,9 @@
   (function(){
     const XL=[
       {id:'db',  menu:'1-2 고객관리 (DB 리스트)', go:'s-intake', btn:'DB 리스트 엑셀 (관리자)', kind:'data',
-        h:['번호','주문키','고객명','전화번호','접수제품','내부코드','결제방식','선납금','선납금할인','선납금추가할인','실선납금','선납금추가할인사유','총액','상담상태','고객상태','계약서 재출력']},
+        h:[], tbd:'정해진 것: 접수제품 우측 <b>내부코드</b> · 선납금 우측 <b>선납금할인 · 선납금추가할인 · 실선납금 · 선납금추가할인사유 · 총액</b> · 맨 끝 <b>계약서 재출력</b>'},
       {id:'ob',  menu:'2-1 고객상담 — OB CALL 목록', go:'s-oblist', btn:'화면다운로드', kind:'data',
-        h:['No','OB명','분배일','유입일','고객명','고객전화번호','오더일','접수 제품','상담상태','상담이력수','고객상태']},
+        h:[], tbd:'정해진 것: 현행 화면다운로드 기준 + 상담상태 우측 <b>상담이력수</b> 1열 추가 · 날짜 구분 행 제외'},
       {id:'pay', menu:'3-3 결제 내역 확인', go:'s-approve', btn:'화면다운로드', kind:'data',
         h:['처리일시','처리구분','번호','주문키','고객명','제품','결제','결제금액(VND)','처리 내용','처리자']},
       {id:'dlv', menu:'3-5 배송 내역 확인', go:'s-deliver', btn:'화면다운로드', kind:'data',
@@ -1879,13 +1879,13 @@
       {id:'unp', menu:'17-6.1 리포트 (미납자현황)', go:'s-report', btn:'관리용 Excel · 화면 엑셀', kind:'data',
         h:['순번','미납횟수','경과회차','총미납금','최초미납발생','회원명','회원번호','전화번호','구매제품','내부코드','입금방식','가상계좌번호','입금은행','상담원','결제시작일','약정일','월납부금']},
       {id:'dep', menu:'17-6.3 리포트 (입금현황)', go:'s-report', btn:'입금현황 엑셀 · 카드별 [Excel]', kind:'data',
-        h:['종류','입금방식','고객명','전화번호','제품','내부코드','상담원','계약상태','미납여부','입금액(VND)','입금일']},
+        h:[], tbd:'정해진 것: <b>종류 · 입금방식</b> 컬럼 포함 · 제품 우측 <b>내부코드</b>'},
       {id:'ovd', menu:'18-2 미납콜 상담', go:'s-overdue', btn:'당일 미납콜 엑셀', kind:'data',
         h:['기준일자','번호','고객명','전화번호','구매제품','내부코드','최초 산정 위약금','할인 금액','최종 위약금','고객상태']},
       {id:'tpre',menu:'3-9 선납금 입금', go:'s-complete', btn:'양식 다운로드', kind:'tpl', h:['구분','고객키']},
       {id:'tser',menu:'4-6 시리얼번호 업로드', go:'s-complete', btn:'양식 다운로드', kind:'tpl', h:['주문키','시리얼']},
       {id:'tstk',menu:'4-9 재고관리 (단말기 등록)', go:'s-stock', btn:'양식 다운로드', kind:'tpl', h:['S/N']},
-      {id:'tva', menu:'3-11 가상계좌 / 금액 양식 업로드 (후속)', go:'s-upload', btn:'양식 다운로드', kind:'tpl', h:['구분','가상계좌','금액','입금일']}
+      {id:'tva', menu:'3-11 가상계좌 / 금액 양식 업로드 (후속)', go:'s-upload', btn:'양식 다운로드', kind:'tpl', h:['주문키','가상계좌','금액','입금일'], draft:true}
     ];
     const KEY='vncms_xlsx_check_v1', WHO='vncms_xlsx_who';
     const load=()=>{try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&v.state&&v.log)return v;}catch(e){}return {state:{},log:[]};};
@@ -1900,13 +1900,13 @@
     function render(){
       document.getElementById('xlBody').innerHTML=XL.map(x=>{
         const st=db.state[x.id], on=!!(st&&st.on);
-        const cols=x.h.map((c,i)=>'<code>'+(i+1)+'. '+esc(c)+'</code>').join(' ')
+        const cols=x.tbd?'<b style="color:var(--red)">미정</b><br><span style="font-size:12px">'+x.tbd+'</span>':(x.draft?'<b style="color:var(--amber)">(안)</b> ':'')+x.h.map((c,i)=>'<code>'+(i+1)+'. '+esc(c)+'</code>').join(' ')
           +(x.tail?' <code>'+esc(x.tail)+'</code>':'')
           +(x.end?' '+x.end.map(c=>'<code>'+esc(c)+'</code>').join(' '):'');
-        const cnt=x.h.length+(x.tailN||0)+(x.end?x.end.length:0);
+        const cnt=x.tbd?'—':x.h.length+(x.tailN||0)+(x.end?x.end.length:0);
         return '<tr class="'+(on?'done':'')+'"><td class="ck"><input type="checkbox" data-id="'+x.id+'"'+(on?' checked':'')+' title="시스템실 헤더 전달 완료"></td>'
           +'<td><a href="#'+x.go+'">'+esc(x.menu)+'</a></td>'
-          +'<td>'+esc(x.btn)+'<br><span class="kind '+x.kind+'">'+(x.kind==='tpl'?'업로드 양식':'조회 데이터')+'</span> <span class="who">'+cnt+'열</span></td>'
+          +'<td>'+esc(x.btn)+'<br><span class="kind '+x.kind+'">'+(x.kind==='tpl'?'업로드 양식':'조회 데이터')+'</span> <span class="who">'+cnt+(x.tbd?'':'열')+'</span></td>'
           +'<td class="hd">'+cols+'</td>'
           +'<td class="who">'+(st?(on?'✔ 전달 · ':'해제 · ')+esc(st.who)+'<br>'+fmt(st.at):'—')+'</td>'
           +'<td class="own"><input data-own="'+x.id+'" value="'+esc((db.owner&&db.owner[x.id])||'')+'" placeholder="담당자"></td></tr>';
